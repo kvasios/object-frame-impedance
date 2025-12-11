@@ -1,0 +1,9 @@
+%implements s19_b0_fwp5_BlockInstanceSetup "C"
+
+%function BlockInstanceSetup(block, system) Output
+%% Systems removed in IR:
+%% Subsystems with iterators in IR:
+%% TLC Block Registration buffer:
+%<LibAddToCommonIncludes("dspsvd_rt.h")>
+%% END  Block Registration buffer
+%endfunction

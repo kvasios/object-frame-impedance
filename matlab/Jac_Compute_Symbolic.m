@@ -1,0 +1,44 @@
+syms x1x x1y x1z x2x x2y x2z x3x x3y x3z x4x x4y x4z
+
+x1=[x1x,x1y,x1z];
+x2=[x2x,x2y,x2z];
+x3=[x3x,x3y,x3z];
+x4=[x4x,x4y,x4z];
+
+x1_x3=x1-x3;
+x2_x4=x2-x4;
+% 
+r1=( x1-x3 )/sqrt( (x1x-x3x)^2+(x1y-x3y)^2+(x1z-x3z)^2 ) + ...
+    ( x2-x4 )/sqrt( (x2x-x4x)^2+(x2y-x4y)^2+(x2z-x4z)^2 );
+r1_unit=r1/sqrt(r1(1)^2+r1(2)^2+r1(3)^2);
+
+
+r3= [-x1_x3(3)*x2_x4(2) +    x1_x3(2)*x2_x4(3),...
+      x1_x3(3)*x2_x4(1) -  x1_x3(1)*x2_x4(3),...
+      -x1_x3(2)*x2_x4(1)  +  x1_x3(1)*x2_x4(2)];
+
+r3_unit=r3/sqrt(r3(1)^2+r3(2)^2+r3(3)^2);
+  
+
+
+r2_unit= [-r3_unit(3)*r1_unit(2) +    r3_unit(2)*r1_unit(3),...
+      r3_unit(3)*r1_unit(1) -  r3_unit(1)*r1_unit(3),...
+      -r3_unit(2)*r1_unit(1)  +  r3_unit(1)*r1_unit(2)];
+
+% 
+%   r3= [0         -x1_x3(3)     x1_x3(2);...
+%       x1_x3(3)     0          -x1_x3(1);...
+%       -x1_x3(2)    x1_x3(1)           0] ...
+%       * ( x2-x4 )'
+%  
+%  r3_unit=r3/sqrt( (x1x-x3x)^2+(x1y-x3y)^2+(x1z-x3z)^2 );
+% % 
+%  r2_unit = []...
+%      * r1_unit';
+% % 
+ Ro=[r1_unit' r2_unit' r3_unit'];
+% 
+% % 
+%  Ro=[r1',r2,r3]
+J=jacobian(Ro,[x1',x2',x3',x4'])
+% J=jacobian(Ro)

@@ -1,0 +1,62 @@
+%implements s25_b0_cyjo_Start "C"
+
+%function Start(block, system) Output
+
+%assign localVarDecl = ""
+%openfile localVarDecl
+int32_T i;
+
+%closefile localVarDecl
+%<LibSetSystemField(system, "CachedStartLocalVars", localVarDecl)>
+%assign tlcStartFcnOfS25B0 = OpaqueTLCBlockFcn("Start", 25, 0)
+%assign tlcStartFcnOfS25B1 = OpaqueTLCBlockFcn("Start", 25, 1)
+%assign tlcStartFcnOfS25B2 = OpaqueTLCBlockFcn("Start", 25, 2)
+%assign tlcStartFcnOfS25B62 = OpaqueTLCBlockFcn("Start", 25, 62)
+%assign tlcStartFcnOfS25B70 = OpaqueTLCBlockFcn("Start", 25, 70)
+%assign tlcStartFcnOfS25B71 = OpaqueTLCBlockFcn("Start", 25, 71)
+%assign tlcStartFcnOfS25B75 = OpaqueTLCBlockFcn("Start", 25, 75)
+%assign tlcStartFcnOfS25B76 = OpaqueTLCBlockFcn("Start", 25, 76)
+%assign tlcStartFcnOfS25B77 = OpaqueTLCBlockFcn("Start", 25, 77)
+%assign tlcStartFcnOfS25B78 = OpaqueTLCBlockFcn("Start", 25, 78)
+%assign tlcStartFcnOfS25B79 = OpaqueTLCBlockFcn("Start", 25, 79)
+%assign tlcStartFcnOfS25B80 = OpaqueTLCBlockFcn("Start", 25, 80)
+%assign tlcStartFcnOfS25B81 = OpaqueTLCBlockFcn("Start", 25, 81)
+%assign tlcStartFcnOfS25B83 = OpaqueTLCBlockFcn("Start", 25, 83)
+%assign tlcStartFcnOfS25B85 = OpaqueTLCBlockFcn("Start", 25, 85)
+%assign tlcStartFcnOfS25B86 = OpaqueTLCBlockFcn("Start", 25, 86)
+%assign tlcStartFcnOfS25B87 = OpaqueTLCBlockFcn("Start", 25, 87)
+%assign tlcStartFcnOfS25B88 = OpaqueTLCBlockFcn("Start", 25, 88)
+%assign tlcStartFcnOfS25B89 = OpaqueTLCBlockFcn("Start", 25, 89)
+%assign tlcStartFcnOfS25B90 = OpaqueTLCBlockFcn("Start", 25, 90)
+%assign tlcStartFcnOfS25B91 = OpaqueTLCBlockFcn("Start", 25, 91)
+%assign tlcStartFcnOfS25B95 = OpaqueTLCBlockFcn("Start", 25, 95)
+%<tlcStartFcnOfS25B0>\
+%<tlcStartFcnOfS25B1>\
+%<tlcStartFcnOfS25B2>\
+
+/* Start for S-Function (sdspeye): '<S33>/Identity Matrix' */
+memset((void *)%<SLibCG_SE(SLibCG_BOVAddr(3, 0, 25, 256, "", -1, "", 0))>, (int32_T)0.0, sizeof(real_T) << 8U);
+/* Fill in 1's on the diagonal. */
+for(i = 0; i < 256; i += 17) {
+%<SLibCG_SetBOV(3, 0, 25, 256, "", -1, "i", 0, "1.0")>\
+}
+%<tlcStartFcnOfS25B62>\
+%<tlcStartFcnOfS25B70>\
+%<tlcStartFcnOfS25B71>\
+%<tlcStartFcnOfS25B75>\
+%<tlcStartFcnOfS25B76>\
+%<tlcStartFcnOfS25B77>\
+%<tlcStartFcnOfS25B78>\
+%<tlcStartFcnOfS25B79>\
+%<tlcStartFcnOfS25B80>\
+%<tlcStartFcnOfS25B81>\
+%<tlcStartFcnOfS25B83>\
+%<tlcStartFcnOfS25B85>\
+%<tlcStartFcnOfS25B86>\
+%<tlcStartFcnOfS25B87>\
+%<tlcStartFcnOfS25B88>\
+%<tlcStartFcnOfS25B89>\
+%<tlcStartFcnOfS25B90>\
+%<tlcStartFcnOfS25B91>\
+%<tlcStartFcnOfS25B95>\
+%endfunction

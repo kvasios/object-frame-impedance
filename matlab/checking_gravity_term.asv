@@ -1,0 +1,44 @@
+function gravity_dynamic_term=checking_gravity_term(theta_in)
+
+c= zeros(1,16);
+theta=theta_in;
+g=9.81;
+
+DOFs = 16;
+
+L1 = 0.10;
+L2 = 1.10;
+L3 = 0.60;
+L4 = 0.55;
+
+
+caspule1mass = 1.00;
+caspule2mass = 0.50;
+caspule3mass = 0.50;
+
+
+for i=1:4:DOFs,
+c(i)=(1/2)*g*...
+    ((caspule1mass*L2 + 2*caspule2mass* L2 + 2* caspule3mass* L2)*cos(theta(i+1)) ...
+    + (caspule2mass *L3 + 2* caspule3mass* L3)*cos(theta(i+1) + (theta(i+2)))...
+    + caspule3mass* L4* cos(theta(i+1)+ theta(i+2) + theta(i+3)));
+
+c(i+1)=(1/2) *g* ...
+    cos(theta(i))* ((caspule1mass *L2 + 2 *caspule2mass* L2 +...
+    2 *caspule3mass* L2)* cos(theta(i+1)) + ...
+    (caspule2mass *L3 + 2 *caspule3mass *L3)* cos(theta(i+1)...
+    + theta(i+2)) + caspule3mass* L4* cos(theta(i+1) + theta(i+2)...
+    + theta(i+3)));
+
+
+c(i+2)=1/2* g *cos(theta(i))* ...
+    ((caspule2mass* L3 + 2* caspule3mass* L3)* cos(theta(i+1) +...
+    theta(i+2)) + caspule3mass* L4* cos(theta(i+1) + theta(i+2) +...
+    theta(i+3)));
+
+
+c(i+3)=(1/2)* caspule3mass *g *L4...
+    *cos(theta(i)) *cos(theta(i+1) + theta(i+2) + theta(i+3));
+end
+
+gravity_dynamic_term=c;

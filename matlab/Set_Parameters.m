@@ -35,9 +35,9 @@ x_angle_desired =0;
 y_angle_desired =0; 
 z_angle_desired =0;
 
-x_O_desired = (1/4)*sum(x_i_v02(qd_initial_touch));
+x_O_desired = (1/4)*sum(x_i(qd_initial_touch));
 % R_O_Desired = trotx(x_angle_desired)*troty(y_angle_desired)*trotz(z_angle_desired);
-R_O_Desired = R_O(x_i_v02(qd_initial_touch));
+R_O_Desired = R_O(x_i(qd_initial_touch));
 
 
 
@@ -90,7 +90,7 @@ L4 = 0.55;
 
 force_step =20;
 
-ksi=0.9;
+ksi=2.0;
 
 caspule1mass = 1.00;
 caspule2mass = 0.50;

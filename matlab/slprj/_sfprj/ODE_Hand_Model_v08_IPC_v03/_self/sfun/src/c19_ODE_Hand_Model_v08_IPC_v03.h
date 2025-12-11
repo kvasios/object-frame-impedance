@@ -8,16 +8,6 @@
 
 /* Type Definitions */
 typedef struct {
-  const char *context;
-  const char *name;
-  const char *dominantType;
-  const char *resolved;
-  uint32_T fileLength;
-  uint32_T fileTime1;
-  uint32_T fileTime2;
-} c19_ResolvedFunctionInfo;
-
-typedef struct {
   SimStruct *S;
   uint8_T c19_is_active_c19_ODE_Hand_Model_v08_IPC_v03;
   ChartInfoStruct chartInfo;

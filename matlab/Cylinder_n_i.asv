@@ -1,0 +1,20 @@
+function n=Cylinder_n_i(input_vector)
+
+cylinder_position = input_vector(1:3);
+cylinder_orientation = input_vector(4:6)/norm(input_vector(4:6));
+
+x_1=input_vector(7:9);
+x_2=input_vector(10:12);
+x_3=input_vector(13:15);
+x_4=input_vector(16:18);
+
+t1=(x_1'-cylinder_position')*cylinder_orientation
+
+x1=cylinder_position-cylinder_orientation*cylinder_position'*cylinder_orientation;
+
+n_1=(x_1-x1)/norm(x_1-x1);
+n_2=(x_2-x2)/norm(x_2-x2);
+n_3=(x_3-x3)/norm(x_3-x3);
+n_4=(x_4-x4)/norm(x_4-x4);
+
+n_i=[n_1; n_2; n_3; n_4];

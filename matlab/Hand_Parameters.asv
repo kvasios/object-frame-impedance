@@ -1,0 +1,13 @@
+% Hand Modeling Parameters
+
+% Lengths
+L1 = 0.10;
+L2 = 1.10;
+L3 = 0.60;
+L4 = 0.55;
+
+L(1)=Link([0 L1 0 q1],'standard');
+L(2)=Link([0 L1 0 q1],'standard');
+
+dh=[j1;j2;j3;j4];
+R=SerialLink();

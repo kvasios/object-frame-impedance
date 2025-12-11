@@ -1,0 +1,6 @@
+%implements s19_b0_fwp5_Update "C"
+
+%function Update(block, system) Output
+%assign tlcUpdateFcnOfS19B0 = OpaqueTLCBlockFcn("Update", 19, 0)
+%<tlcUpdateFcnOfS19B0>\
+%endfunction

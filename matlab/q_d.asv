@@ -1,0 +1,32 @@
+function qdes=q_d(key)
+
+% torque_signal_out=zeros(1,16);
+qd=zeros(1,16);
+
+q_incr=0.15;
+current_key=key;
+
+switch current_key
+   case uint8('1')
+      qd(5)=q_incr;
+   case uint8('q')
+      qd(6)=qd(6)+q_incr;
+   case uint8('a')
+      qd(7)=qd(7)+q_incr;
+   case uint8('z')
+      qd(8)=qd(8)+q_incr;   
+   case uint8('2')
+      qd(5)=qd(5)-q_incr;
+   case uint8('w')
+      qd(6)=qd(6)-q_incr;
+   case uint8('s')
+      qd(7)=qd(7)-q_incr;
+   case uint8('x')
+      qd(8)=qd(8)-q_incr;
+%     :
+%    otherwise
+%       statements
+end
+
+
+qdes=qd;

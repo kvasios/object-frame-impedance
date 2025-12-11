@@ -1,0 +1,10 @@
+syms x y z
+% f = [x*y*z; y; x + z];
+% v = [x, y, z];        
+% R = jacobian(f, v)
+% l=x + z;
+% b = jacobian(l, v)
+
+ f = [x*y*z; y; x + z];
+ v=x + z;
+ jacobian(l, v)

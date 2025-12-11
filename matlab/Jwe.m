@@ -1,6 +1,9 @@
 function J=Jwe(e)
 
 
+
+
+
 q0 = e(1); 
 q1 = e(2);
 q2 = e(3);

@@ -1,5 +1,3 @@
-/*thread mechanism credit to http://code.google.com/p/ode-frank/*/
-
 #define S_FUNCTION_LEVEL 2
 #define S_FUNCTION_NAME ODE_Hand_v07Capsule_Control_wObjectExternalForces
 
@@ -378,7 +376,7 @@ void *simLoopThread( void *data )
 
 /** Output functions
  */
-void Outputs_wrapper(real_T *q,
+void ODEFrank_RR_Outputs_wrapper(real_T *q,
 								 real_T *dq,
 								 real_T *ddq,
                           const real_T *xC,
@@ -556,7 +554,7 @@ void Outputs_wrapper(real_T *q,
  * 	 Note how, in order to obtain consistent results, simulink simulation time
  * 	 and integration methods must the the same as the one used inside ODE. 
  */
-void mdlUpdate_wrapper(const real_T *tau,const real_T *f_object_ext,
+void ODEFrank_RR_mdlUpdate_wrapper(const real_T *tau,const real_T *f_object_ext,
                           const real_T *q,
                           const real_T *dq,
                           const real_T *ddq,
@@ -915,7 +913,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     const real_T   *xC = ssGetDiscStates(S);
     const real_T   *rWork = ssGetRWork(S);
 
-    Outputs_wrapper(q, dq, ddq, xC, rWork);
+    ODEFrank_RR_Outputs_wrapper(q, dq, ddq, xC, rWork);
     if(!drawstuff_run) ssSetErrorStatus(S,"error encountered while processing Output. Did you close the simulation window?");
 }
 
@@ -931,7 +929,7 @@ static void mdlUpdate( SimStruct *S, int_T tid )
     real_T        *ddq  = (real_T *) ssGetOutputPortRealSignal(S,2);
     real_T        *rWork = (real_T *) ssGetRWork(S);
 
-    mdlUpdate_wrapper(tau,f_object_ext,q,dq,ddq,xC,rWork);
+    ODEFrank_RR_mdlUpdate_wrapper(tau,f_object_ext,q,dq,ddq,xC,rWork);
 }
 #endif /* MDL_UPDATE */
 

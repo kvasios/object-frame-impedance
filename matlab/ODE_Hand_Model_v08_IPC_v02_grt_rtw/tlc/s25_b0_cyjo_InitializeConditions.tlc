@@ -1,0 +1,6 @@
+%implements s25_b0_cyjo_InitializeConditions "C"
+
+%function InitializeConditions(block, system) Output
+%assign tlcInitializeConditionsFcnOfS25B0 = OpaqueTLCBlockFcn("InitializeConditions", 25, 0)
+%<tlcInitializeConditionsFcnOfS25B0>\
+%endfunction

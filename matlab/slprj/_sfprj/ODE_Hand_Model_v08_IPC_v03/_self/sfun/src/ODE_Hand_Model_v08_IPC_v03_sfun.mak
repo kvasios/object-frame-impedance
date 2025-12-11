@@ -23,23 +23,9 @@ CHART_SRCS 	= \
      c14_ODE_Hand_Model_v08_IPC_v03.c\
      c15_ODE_Hand_Model_v08_IPC_v03.c\
      c16_ODE_Hand_Model_v08_IPC_v03.c\
-     c17_ODE_Hand_Model_v08_IPC_v03.c\
-     c18_ODE_Hand_Model_v08_IPC_v03.c\
-     c19_ODE_Hand_Model_v08_IPC_v03.c\
      c20_ODE_Hand_Model_v08_IPC_v03.c\
      c21_ODE_Hand_Model_v08_IPC_v03.c\
-     c22_ODE_Hand_Model_v08_IPC_v03.c\
-     c23_ODE_Hand_Model_v08_IPC_v03.c\
-     c24_ODE_Hand_Model_v08_IPC_v03.c\
-     c25_ODE_Hand_Model_v08_IPC_v03.c\
-     c26_ODE_Hand_Model_v08_IPC_v03.c\
-     c27_ODE_Hand_Model_v08_IPC_v03.c\
-     c28_ODE_Hand_Model_v08_IPC_v03.c\
-     c29_ODE_Hand_Model_v08_IPC_v03.c\
-     c30_ODE_Hand_Model_v08_IPC_v03.c\
-     c31_ODE_Hand_Model_v08_IPC_v03.c\
-     c32_ODE_Hand_Model_v08_IPC_v03.c\
-     c33_ODE_Hand_Model_v08_IPC_v03.c
+     c22_ODE_Hand_Model_v08_IPC_v03.c
 MACHINE_SRC	= ODE_Hand_Model_v08_IPC_v03_sfun.c
 MACHINE_REG = ODE_Hand_Model_v08_IPC_v03_sfun_registry.c
 MEX_WRAPPER =

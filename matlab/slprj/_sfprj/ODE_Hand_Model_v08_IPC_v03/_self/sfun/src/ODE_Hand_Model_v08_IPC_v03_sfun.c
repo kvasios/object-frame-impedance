@@ -17,23 +17,9 @@
 #include "c14_ODE_Hand_Model_v08_IPC_v03.h"
 #include "c15_ODE_Hand_Model_v08_IPC_v03.h"
 #include "c16_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c17_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c18_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c19_ODE_Hand_Model_v08_IPC_v03.h"
 #include "c20_ODE_Hand_Model_v08_IPC_v03.h"
 #include "c21_ODE_Hand_Model_v08_IPC_v03.h"
 #include "c22_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c23_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c24_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c25_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c26_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c27_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c28_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c29_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c30_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c31_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c32_ODE_Hand_Model_v08_IPC_v03.h"
-#include "c33_ODE_Hand_Model_v08_IPC_v03.h"
 
 /* Type Definitions */
 
@@ -142,21 +128,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(SimStruct
     return 1;
   }
 
-  if (chartFileNumber==17) {
-    c17_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==18) {
-    c18_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==19) {
-    c19_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
   if (chartFileNumber==20) {
     c20_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
     return 1;
@@ -169,61 +140,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(SimStruct
 
   if (chartFileNumber==22) {
     c22_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==23) {
-    c23_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==24) {
-    c24_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==25) {
-    c25_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==26) {
-    c26_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==27) {
-    c27_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==28) {
-    c28_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==29) {
-    c29_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==30) {
-    c30_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==31) {
-    c31_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==32) {
-    c32_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
-    return 1;
-  }
-
-  if (chartFileNumber==33) {
-    c33_ODE_Hand_Model_v08_IPC_v03_method_dispatcher(simstructPtr, method, data);
     return 1;
   }
 
@@ -260,10 +176,10 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_process_check_sum_call( int nlhs,
       ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(0U);
       ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(0U);
     } else if (!strcmp(commandName,"makefile")) {
-      ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(130213479U);
-      ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(953993504U);
-      ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(2753784055U);
-      ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(200638852U);
+      ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(2038896325U);
+      ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(3449585500U);
+      ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(1576993075U);
+      ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(1512811521U);
     } else if (nrhs==3 && !strcmp(commandName,"chart")) {
       unsigned int chartFileNumber;
       chartFileNumber = (unsigned int)mxGetScalar(prhs[2]);
@@ -396,30 +312,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_process_check_sum_call( int nlhs,
           break;
         }
 
-       case 17:
-        {
-          extern void sf_c17_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c17_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 18:
-        {
-          extern void sf_c18_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c18_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 19:
-        {
-          extern void sf_c19_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c19_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
        case 20:
         {
           extern void sf_c20_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
@@ -444,94 +336,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_process_check_sum_call( int nlhs,
           break;
         }
 
-       case 23:
-        {
-          extern void sf_c23_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c23_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 24:
-        {
-          extern void sf_c24_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c24_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 25:
-        {
-          extern void sf_c25_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c25_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 26:
-        {
-          extern void sf_c26_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c26_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 27:
-        {
-          extern void sf_c27_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c27_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 28:
-        {
-          extern void sf_c28_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c28_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 29:
-        {
-          extern void sf_c29_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c29_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 30:
-        {
-          extern void sf_c30_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c30_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 31:
-        {
-          extern void sf_c31_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c31_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 32:
-        {
-          extern void sf_c32_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c32_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
-       case 33:
-        {
-          extern void sf_c33_ODE_Hand_Model_v08_IPC_v03_get_check_sum(mxArray
-            *plhs[]);
-          sf_c33_ODE_Hand_Model_v08_IPC_v03_get_check_sum(plhs);
-          break;
-        }
-
        default:
         ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(0.0);
         ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(0.0);
@@ -547,10 +351,10 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_process_check_sum_call( int nlhs,
       return 0;
     }
   } else {
-    ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(1638269933U);
-    ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(2023712967U);
-    ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(1341258963U);
-    ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(1684405603U);
+    ((real_T *)mxGetPr((plhs[0])))[0] = (real_T)(2216843058U);
+    ((real_T *)mxGetPr((plhs[0])))[1] = (real_T)(2403806556U);
+    ((real_T *)mxGetPr((plhs[0])))[2] = (real_T)(3903535412U);
+    ((real_T *)mxGetPr((plhs[0])))[3] = (real_T)(449880588U);
   }
 
   return 1;
@@ -711,30 +515,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_autoinheritance_info( int nlhs,
         break;
       }
 
-     case 17:
-      {
-        extern mxArray
-          *sf_c17_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c17_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 18:
-      {
-        extern mxArray
-          *sf_c18_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c18_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 19:
-      {
-        extern mxArray
-          *sf_c19_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c19_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
      case 20:
       {
         extern mxArray
@@ -756,94 +536,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_autoinheritance_info( int nlhs,
         extern mxArray
           *sf_c22_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
         plhs[0] = sf_c22_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 23:
-      {
-        extern mxArray
-          *sf_c23_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c23_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 24:
-      {
-        extern mxArray
-          *sf_c24_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c24_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 25:
-      {
-        extern mxArray
-          *sf_c25_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c25_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 26:
-      {
-        extern mxArray
-          *sf_c26_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c26_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 27:
-      {
-        extern mxArray
-          *sf_c27_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c27_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 28:
-      {
-        extern mxArray
-          *sf_c28_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c28_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 29:
-      {
-        extern mxArray
-          *sf_c29_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c29_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 30:
-      {
-        extern mxArray
-          *sf_c30_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c30_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 31:
-      {
-        extern mxArray
-          *sf_c31_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c31_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 32:
-      {
-        extern mxArray
-          *sf_c32_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c32_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
-        break;
-      }
-
-     case 33:
-      {
-        extern mxArray
-          *sf_c33_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info(void);
-        plhs[0] = sf_c33_ODE_Hand_Model_v08_IPC_v03_get_autoinheritance_info();
         break;
       }
 
@@ -1065,42 +757,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info( int
         break;
       }
 
-     case 17:
-      {
-        extern const mxArray
-          *sf_c17_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c17_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 18:
-      {
-        extern const mxArray
-          *sf_c18_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c18_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 19:
-      {
-        extern const mxArray
-          *sf_c19_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c19_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
      case 20:
       {
         extern const mxArray
@@ -1132,138 +788,6 @@ unsigned int sf_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info( int
           (void);
         mxArray *persistentMxArray = (mxArray *)
           sf_c22_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 23:
-      {
-        extern const mxArray
-          *sf_c23_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c23_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 24:
-      {
-        extern const mxArray
-          *sf_c24_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c24_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 25:
-      {
-        extern const mxArray
-          *sf_c25_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c25_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 26:
-      {
-        extern const mxArray
-          *sf_c26_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c26_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 27:
-      {
-        extern const mxArray
-          *sf_c27_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c27_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 28:
-      {
-        extern const mxArray
-          *sf_c28_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c28_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 29:
-      {
-        extern const mxArray
-          *sf_c29_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c29_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 30:
-      {
-        extern const mxArray
-          *sf_c30_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c30_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 31:
-      {
-        extern const mxArray
-          *sf_c31_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c31_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 32:
-      {
-        extern const mxArray
-          *sf_c32_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c32_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
-        plhs[0] = mxDuplicateArray(persistentMxArray);
-        mxDestroyArray(persistentMxArray);
-        break;
-      }
-
-     case 33:
-      {
-        extern const mxArray
-          *sf_c33_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info
-          (void);
-        mxArray *persistentMxArray = (mxArray *)
-          sf_c33_ODE_Hand_Model_v08_IPC_v03_get_eml_resolved_functions_info();
         plhs[0] = mxDuplicateArray(persistentMxArray);
         mxDestroyArray(persistentMxArray);
         break;
