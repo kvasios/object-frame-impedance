@@ -1,0 +1,11 @@
+1) Set up Compiler (>>mex -setup) Χρησιμοποίησα το c++ microsoft express visual studio
+2) >>build_ODE_Model_S_Func
+3) >>Set_Parameters
+4) run model ODE_Hand_Model_v08_IPC_v03
+
+
+bugs & fixies
+
+Απαιτούνται Matlab 32bit 
+Πιθανό πρόβλημα με windows 64bit με το παράθυρο απεικόνισης γραφικών
+
