@@ -17,6 +17,9 @@ A MATLAB/Simulink implementation of **object-level impedance control** for a sim
 
 **My actual contribution:**
 - Full mathematical analysis of the control framework (went a bit overboard honestly - the thesis is heavy on math)
+- Complete Forward Kinematics analysis with DH parameter determination for the 4-finger hand
+- Full dynamics equations of the fingers derived from scratch
+- Gravity compensation term computed symbolically in Mathematica (yes, the whole thing)
 - Mathematical justification for why the proposed stiffness parameters make sense
 - Enhanced damping control law (integrated from another paper)
 - Implementation in MATLAB/Simulink with ODE physics engine (which was a nightmare to set up back then)
