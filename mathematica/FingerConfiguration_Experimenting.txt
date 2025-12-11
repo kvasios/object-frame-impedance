@@ -1,0 +1,206 @@
+
+
+DOF=4
+
+
+
+(Robotica requires a line between DOF and joint1)
+
+
+
+
+
+joint1 = revolute
+
+
+
+
+
+a1 = 0
+
+
+
+
+
+alpha1 = Pi/2
+
+
+
+d1 = 0
+
+
+
+theta1 = q1
+
+
+
+
+
+joint2 = revolute
+
+
+
+
+
+a2 = L2
+
+
+
+
+
+alpha2 = 0
+
+
+
+
+
+d2 = 0
+
+
+
+theta2 = q2
+
+
+
+
+
+joint3 = revolute
+
+
+
+
+
+a3 = L3
+
+
+
+
+
+alpha3 = 0
+
+
+
+
+
+d3 = 0
+
+
+
+theta3 = q3
+
+
+
+
+
+joint4 = revolute
+
+
+
+
+
+a4 = L4
+
+
+
+
+
+alpha4 = 0
+
+
+
+
+
+d4 = 0
+
+
+
+theta4 = q4
+
+
+
+
+
+
+
+DYNAMICS
+
+
+
+
+
+(Robotica requires a line between DYNAMICS and gravity vector)
+
+gravity vector = {g,0,0}
+
+
+
+
+
+mass1 = 0
+
+
+
+center of mass1 = {0,0,0}
+
+
+
+inertia matrix = {0,0,0,0,0,0}
+
+
+
+mass2 = caspule1mass
+
+
+
+center of mass2 = {-L2/2,0,0}
+
+
+
+inertia matrix = {capsule1Inertia,0,0,capsule1Inertia,0,capsule1Inertia}
+
+
+
+
+
+mass3 = caspule2mass
+
+
+
+center of mass3 = {-L3/2,0,0}
+
+
+
+inertia matrix = {capsule2Inertia,0,0,capsule2Inertia,0,capsule2Inertia}
+
+
+
+
+
+mass4 = caspule3mass
+
+
+
+center of mass4 = {-L4/2,0,0}
+
+
+
+inertia matrix = {capsule3Inertia,0,0,capsule3Inertia,0,capsule3Inertia}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
