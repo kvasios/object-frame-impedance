@@ -1,0 +1,987 @@
+\documentclass[KVasios-ECE-Dipl.-Thesis.tex]{subfiles} 
+\begin{document}
+\chapter{Μοντελοποίηση \& Έλεγχος Ρομποτικής Λαβής:\\Θεωρητικό Υπόβαθρο}
+%\addcontentsline{toc}{chapter}{Εισαγωγή}
+%Μελέτη της επίδρασης διαφόρων τεχνικών βελτιστοποίησης κώδικα που στοχεύουν στην αξιοποίηση της cache
+%\apendix 
+%\section{Μοντέλο Συστήματος}
+%\addcontentsline{toc}{section}{Ρομποτική Επιστήμη}
+
+Βασικός στόχος ενός ρομποτικού χεριού είναι ο χειρισμός αντικειμένων και στις 6 διαστάσεις. Στο παρελθόν πολλοί αλγόριθμοι
+έχουν προταθεί βασιζόμενοι στην ψευδοαντίστροφη μήτρα της λαβής με κάποιο συντελεστή βάρους συνδυασμένοι με έλεγχο 
+εσωτερικής δύναμης. Οι περισσότερες από αυτές τις μεθοδολογίες απαιτούν εύρωστη ανίχνευση/παρακολούθηση των επαφών καθώς
+και διακοπτικούς ελεγκτές. Εισάγοντας την έννοια του \textit{εικονικού--αντικειμένου} (\textit{virtual--object}) έχουν αναπτυχθεί και αναφέρονται στη βιβλιογραφία τεχνικές ελέγχου ρομποτικής λαβής σε επίπεδο αντικειμένου (object--level)~\cite{WimboeckOttHirzinger2006,WimbockOttHinzinger2007,WimbockOttSchafferHirzinger}. Ο έλεγχος
+παίρνει ως είσοδο το επιθυμητό πλαίσιο του αντικειμένου και τις επιθυμητές δυνάμεις λαβής. Ο έλεγχος σε επίπεδο αντικειμένου
+έχει γενικά τα κάτωθι πλεονεκτήματα,
+\begin{itemize}
+\item Εύκολος ορισμός δυνάμεων λαβής ως αντιστάθμιση των αδρανειακών χαρακτηριστικών ρομπότ--αντικειμένου
+\item Εύκολος ορισμός εξωτερικών δυνάμεων που δρουν στο αντικείμενο 
+\item Αποφυγή αναίτιων μεγάλων εσωτερικών δυνάμεων
+\end{itemize}
+Ουσιαστικά ο στόχος της εργασίας αυτής είναι η δημιουργία εύρωστου και διαισθητικού νόμου ελέγχου για έλεγχο στο αντικείμενο
+ο οποίος δεν απαιτεί εύρωστη ανίχνευση/παρακολούθηση των επαφών. 
+
+\section{Μοντελοποίηση Ρομποτικού Χεριού}
+
+Σε αυτή την ενότητα δομούνται διαδοχικά το κινηματικό, διαφορικό και δυναμικό μοντέλο του ρομποτικού χεριού.
+
+\subsection{Κινηματικό Μοντέλο Ρομποτικού Χεριού}
+\phantom{1}
+
+\textbf{Ορθή Κινηματική Ανάλυση}
+\\
+
+Για την περιγραφή της θέσης και του προσανατολισμού μίας κινηματικής αλυσίδας η οποία αποτελείται από πρισματικές και στροφικές αρθρώσεις με τον ελάχιστο δυνατό αριθμό παραμέτρων ακολουθείται η μέθοδος Denavit--Hartenberg~\cite{G.TZAPHESTA:2003fk}. 
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.4\textwidth}{!}{\input{images_kefalaio3/denavit.tex}}
+   		\caption{Denavit--Hartenbeg Parameters~\cite{denavit_Hartenberg}}
+   		\label{fig:Denavit--HartenbegParameters}
+\end{figure}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c | c | c | c ||}
+\hline \hline
+Σύνδεσμος i & $a_i$ &$\alpha_i$ &$d_i$ &$\theta_i$\\ \hline
+1&   0&0 & 0 & $\theta_1$ \\
+\hline
+2 &$l_1$  & $\pi/2$&0& $\theta_2$ \\
+\hline
+3&$l_2$  &  0&0 & $\theta_3$ \\
+\hline
+4&$l_3$  &  0&0& $\theta_4$\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Πίνακας παραμέτρων Denavit--Hartenberg ανθρωπομορφικού δακτύλου 4 Βαθμών Ελευθερίας}
+\label{tab:Denavit--HartenbergParameters}
+\end{table}
+
+
+
+\begin{figure}[htbp]
+\centering
+	\begin{subfigure}[b]{0.35\textwidth}
+		\centering
+		\resizebox{0.95\textwidth}{!}{\input{images_kefalaio3/three-link-annotated2.tex}}
+		% \includegraphics[scale=0.45]{images_kefalaio3/three-link-annotated2.pdf} 
+		\caption{Πρόσοψη} \label{fig:figureone1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\resizebox{1.1\textwidth}{!}{\input{images_kefalaio3/three-link-annotated1.tex}}}
+			\caption{Πλάγια όψη} \label{fig:figureone}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth} %  figure placement: here, top, bottom, or page
+   			\centering
+   			\includegraphics[scale=0.45]{images_kefalaio3/finger_kinematic_structure.pdf} 
+			%\includegraphics*[0.5in,8.5in][2.5in,10.5in]{images_kefalaio3/finger_kinematic_structure.eps}
+		  	\caption{Τρισδιάστατη όψη}
+		          \label{fig:Denavit--Hartenbeg Parameters}
+		\end{subfigure}
+\caption{Κινηματική Δομή Ανθρωπομορφικού Δακτύλου 4 Βαθμών Ελευθερίας}		\label{fig:finger_kinematics}	
+\end{figure}	
+
+Έτσι λοιπόν για τη περιγραφή της κινηματικής σχέσης του ακροδακτύλου ως προς το κοινό πλαίσιο αναφοράς έχουμε τους ακόλουθους διαδοχικούς ομογενείς μετασχηματισμούς,
+\begin{multline}
+T_i(\theta_i)=A^O_{\Sigma_i}[Rot_z(\theta_{i1})*Rot_x(\pi/2)]\: [Rot_z(\theta_{i2})*Tra_x(l_1)]\\ [Rot_z(\theta_{i3})*Tra_x(l_2)]\:[Rot_z(\theta_{i4})*Tra_x(l_3)]
+\end{multline}
+Όπου $A^O_{\Sigma i}$ ο ομογενής μετασχηματισμός του πλαισίου βάσης $\Sigma_i$ του δακτύλου $i$ ως προς το κοινό πλαίσιο αναφοράς $O$ και $\theta_i=[\theta_{i1},\theta_{i2},\theta_{i3},\theta_{i4}]^T$. O πίνακας $T_i(\theta_i)$ απαρτίζεται από τη μήτρα στροφής $R_i(\theta) \in \mathbb{R}^{3\times3}$ και τη θέση $x_i(\theta_i)=[x_{i1},x_{i2},x_{i3}]^T \in \mathbb{R}^{3}$.
+\begin{equation}
+T_i(\theta_i) = 
+\left[
+ \begin{array}{ccccc}
+   &  & & x_{i1}(\theta_i)\\
+   & \text{\huge{$R_i(\theta_i)$}}& & x_{i2}(\theta_i)\\
+   & & & x_{i3}(\theta_i)\\
+0  &0 &0& 1
+ \end{array}
+ \right]
+\end{equation}\\
+Για N δάκτυλα η κινηματική μήτρα ολόκληρου του χεριού προκύπτει,
+%\left(
+% \begin{array}{ccccc}
+%   T_1(q_1)\\
+%    & T_1(q_1) & & \text{\huge0}\\
+%    & & \ddots\\
+%    & \text{\huge0} & & T_N(q_N)\\
+%%    & & & & 1
+% \end{array}
+%\right)
+\begin{equation}
+T(\theta)=\left[
+ \begin{array}{ccccc}
+    & T_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & T_N(\theta_N)\\
+%    & & & & 1
+ \end{array}
+ \right]
+\end{equation}
+όπου $\theta=[\theta_{1}^T,\theta_{2}^T,\dots,\theta_{N}^T]^T\in \mathbb{R}^{4N}$.\\
+
+%\newpage
+\textbf{Διαφορική Κινηματική Ανάλυση}
+\\
+
+Σε αυτό το στάδιο επιθυμούμε τον προσδιορισμό της διαφορικής απεικόνισης μεταξύ της γενικευμένης ταχύτητας του ακροδακτύλου ως προς τις ταχύτητες των αρθρώσεων.  \\
+
+Διαφορίζοντας τη τελική θέση του κάθε δακτύλου $x_i(\theta_i)$ έχουμε,
+\begin{equation}
+\dot{x}_i(\theta_i)=\frac{\partial x_i}{\partial \theta_i}\dot{\theta}_i
+\end{equation}
+και για τη γωνιακή ταχύτητα του ακροδακτύλου έχουμε,
+\begin{equation}
+[\omega_i \times]=R_i^T\dot{R}_i
+\end{equation}
+όπου\phantom{2}$[r\times]$\phantom{2}ο αντισυμμετρικός τελεστής στροφής (skew--symmetric operator) $[r \times] : \mathbb{R}^3 \rightarrow \mathbb{R}^{3\times3}$,
+\begin{equation}
+[r\times]=
+\begin{bmatrix}
+ 0 & - r_3 &r_2   \\
+  r_3& 0  & -r_1  \\
+  -r_2& r_1  & 0  
+\end{bmatrix}
+\end{equation}
+αναπτύσσοντας το $\dot{R}_i$ προκύπτει,
+\begin{equation}
+[\omega_i \times]=R_i^T\frac{\partial R_i}{\partial \theta_i}\dot{\theta}_i
+\end{equation}
+Τελικά μπορούμε να ορίσουμε ένα ανάστροφο τελεστή στροφής $[[r \times]\times^{-1}]: \mathbb{R}^{3\times3} \rightarrow \mathbb{R}^{3} $
+\begin{equation}
+[[r \times] \times^{-1}]=
+\begin{bmatrix}
+r_1& r_2 & r_3
+\end{bmatrix}
+\end{equation}
+Η ιακωβιανή μήτρα για το δάκτυλο $i$ προκύπτει λοιπόν,
+\begin{equation}
+J_i(\theta_i)=
+\begin{bmatrix}
+\frac{\partial x_i}{\partial \theta_i}\\
+[(R_i^T\frac{\partial R_i}{\partial \theta_i})\: \times^{-1}]
+\end{bmatrix}
+\end{equation}
+Η Ιακωβιανή μήτρα ολόκληρου του χεριού ορίζεται,
+\begin{equation}
+J_H(\theta)=\left[
+ \begin{array}{ccccc}
+    & J_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & J_N(\theta_N)\\
+%    & & & & 1
+ \end{array}
+ \right]
+ \label{eq:Hand_Jacobian}
+\end{equation}
+με τη σχέση των ταχυτήτων να είναι τελικά,
+\begin{equation}
+\begin{bmatrix}
+\dot{x}\\
+\omega
+\end{bmatrix}=
+J_H(\theta)
+\dot{\theta}
+\end{equation}
+
+
+
+
+\subsection{Δυναμικό Μοντέλο Ρομποτικού Χεριού}
+
+
+Το δυναμικό μοντέλο του ρομποτικού χεριού με $N$ δάκτυλα τεσσάρων βαθμών ελευθερίας περιγράφεται από την ακόλουθη διαφορική εξίσωση η οποία προκύπτει με τη δυναμική μέθοδο Lagrange.
+
+Η Lagrangian συνάρτηση ορίζεται για το δάκτυλο $i$,
+\begin{equation}
+L_i=K_i-P_i \label{eq:Lagrangian_Function}
+\end{equation}
+όπου $K_i=\sum^{4}_{j=1}K_{ij}$, $P_i=\sum^{4}_{j=1}P_{ij}$  η συνολική κινητική και δυναμική ενέργεια αντίστοιχα κάθε δακτύλου. 
+Η κινητική ενέργεια κάθε δακτύλου είναι το άθροισμα της κινητικής ενέργειας του κέντρου μάζας κάθε συνδέσμου ως προς τις γραμμικές μετατοπίσεις και της κινητικής ενέργειας λόγω περιστροφής.
+\begin{equation}
+K_{ij}=\frac{1}{2}m_{ij}\dot{x}_{cm\_ij}^T\dot{x}_{cm\_ij}+\frac{1}{2}\omega^T_{ij}I_{ij}\omega_{ij} \label{eq:Kinetic_Energy}
+\end{equation}
+\begin{equation}
+P_{ij}=m_{ij}gh_{ij} \label{Potential_Energy}
+\end{equation}
+με $m_{ij}$, $\dot{x}_{cm\_ij}$  τη μάζα και τη γραμμική ταχύτητα αντίστοιχα του κέντρου μάζας $cm$ συνδέσμου $ij$. $\omega_{ij} $, $I_{ij}$ η γωνιακή ταχύτητα και ο τανυστής αδρανείας του συνδέσμου $ij$. $h_{ij}$ είναι το ύψος του κένρου μάζας του συνδέσμου $ij$.\\
+
+
+Το δυναμικό μοντέλο Lagrange εκφράζεται,
+\begin{equation}
+\frac{d}{dt}\left(\frac{\partial L_i}{\partial \dot{\theta}_i}\right)-\frac{\partial L_i}{\partial \theta_i}=\tau_{i} \label{eq:Lagrangian_Dynamic_Model}
+\end{equation}
+
+Από τις \eqref{eq:Lagrangian_Function}--\eqref{eq:Lagrangian_Dynamic_Model} προκύπτει το δυναμικό μοντέλο του ρομποτικού δακτύλου $i$.
+\begin{equation}
+M_i(\theta_i)\ddot{\theta}_i+C_i(\theta_i,\dot{\theta}_i)\dot{\theta}_i+g_i(\theta_i)=\tau_i+\tau_{i\_ext}  \label{eq:finger_dynamic_equation}
+\end{equation}
+όπου, $\theta_i$, $\tau_i=[\tau_{i1},\tau_{i2},\tau_{i3},\tau_{i4}]^T$, $\tau_{i\_ext}$ $\in \mathbb{R}^{4}$ οι γωνίες των αρθρώσεων, οι ροπές στις αρθρώσεις και η εξωτερικά ασκούμενη ροπή αντίστοιχα. $M_i(\theta_i)$ $\in \mathbb{R}^{4N\times4N}$, $C_i(\theta_i,\dot{\theta}_i)$, $g(\theta_i)$ $\in \mathbb{R}^{4N}$ η μήτρα αδράνειας , οι φυγοκεντρικοί και Coriolis όροι και ο βαρυτικός δυναμικός όρος, αντίστοιχα. Όλοι αυτοί οι όροι είναι εκφρασμένοι στο χώρο των αρθρώσεων.\\
+
+Τελικά για το ρομποτικό χέρι N δακτύλων η δυναμική εξίσωση είναι,
+\begin{equation}
+M(\theta)\ddot{\theta}+C(\theta,\dot{\theta})\dot{\theta}+g(\theta)=\tau+\tau_{ext} \label{eq:hand_dynamic_equation}
+\end{equation}
+με,
+
+\begin{equation}
+M(\theta)=\left[
+ \begin{array}{ccccc}
+    & M_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & M_N(\theta_N)\\
+%    & & & & 1
+ \end{array}
+ \right]
+\end{equation}
+\begin{equation}
+C(\theta,\dot{\theta})=\left[
+ \begin{array}{ccccc}
+    & C_1(\theta_1,\dot{\theta}_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & C_N(\theta_N,\dot{\theta}_N)\\
+%    & & & & 1
+ \end{array}
+ \right]
+\end{equation}\begin{equation}
+g(\theta)=\left[
+ \begin{array}{ccccc}
+    & g_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & g_N(\theta_N)\\
+%    & & & & 1
+ \end{array}
+ \right]
+\end{equation}
+και $\tau=[\tau_{1}^T,\tau_{2}^T,\dots,\tau_{4}^T]^T\in \mathbb{R}^{4N}$.
+
+\subsection{Βασικές Ιδιότητες Δυναμικού Μοντέλου Ρομποτικού Χεριού}
+
+Η δυναμική εξίσωση \eqref{eq:finger_dynamic_equation} και κατ' επέκταση η \eqref{eq:hand_dynamic_equation}  είναι μη γραμμικές. Εφόσον λοιπόν τα εργαλεία της κλασικής θεωρίας ελέγχου γραμμικών--χρονικά αναλλοίωτων (LTI) συστημάτων δε μπορούν να χρησιμοποιηθούν, τουλάχιστον άμεσα, αναζητούνται νέες προσεγγίσεις βασιζόμενες στις  βασικές δομικές τους ιδιότητες.
+
+\begin{itemize}
+\item
+$M(\theta)>0$ \& $M(\theta)^T=M(\theta)$.
+\item
+$(\dot{M}-2C)^T=-(\dot{M}-2C)$ μήτρα αντισυμμετρική (skew--symmetric)
+\end{itemize}
+
+\subsection{Ρομποτικός Έλεγχος Βασιζόμενος στη Παθητικότητα}
+
+Από τη θεωρία μη--γραμμικών συστημάτων έχουμε τον ακόλουθο ορισμό για τα παθητικά συστήματα (Passive)~\cite{HassanKhalil:2002fk}.
+\\
+
+Έστω το σύστημα,
+\begin{equation}
+\dot{x}=f(x,u)
+\end{equation}
+\begin{equation}
+y=h(x)
+\end{equation}
+όπου $f(0,0)=0$ και $h(0)=0$. Το σύστημα αυτό είναι παθητικό (Passive) αν υπάρχει θετικά ημι--ορισμένη συνάρτηση $V(x)$ (συνάρτηση συσσώρευσης) τέτοια ώστε,
+\begin{equation}
+u^Ty\geq\dot{V}=\frac{\partial V}{\partial x}f(x,u).
+\end{equation}
+Το σύστημα είναι μάλιστα παρατηρήσιμο στη μηδενική--κατάσταση (zero--state observable) αν καμία λύση του $\dot{x}=f(x,0)$ δεν ανήκει στο σύνολο $\{x|h(x)=0\}$ εκτός από τη τετριμένη λύση $x(t)=0$.
+
+Σκεπτόμενοι τη συνάρτηση συσσώρευσης $V(x)$ ως την ενέργεια του συστήματος παρατηρούμε ότι ένα παθητικό σύστημα έχει ευσταθή κατάσταση ισορροπίας στην αφετηρία του ($x(t)=0$). Ο έλεγχος βασίζεται λοιπόν στη χρήση ανατροφοδότησης (feedback) η οποία εξαναγκάζει το σύστημα να είναι παθητικό. 
+\\
+
+Για οικουμενική σταθεροποίηση του παθητικού συστήματος στην αφετηρία του δεδομένης συμμετρικά μη φραγμένης θετικά ορισμένης συνάρτησης συσσώρευσης καθώς και με παρατηρησιμότητα μηδενικής κατάστασης (zero-state observable) μπορεί να εφαρμοστεί έλεγχος  της μορφής $u=-\phi(y)$ , όπου $\phi(y)$ τοπικά Lipschitz συνάρτηση τέτοια ώστε $\phi(0)=0$ και $y^T\phi(y)>0$, $\forall y \neq 0$. 
+\begin{equation}
+\dot{x}=f(x,-\phi(y))
+\end{equation}
+Με δεδομένη τη συνάρτηση συσσώρευσης $V(x)$ ως υποψήφια συνάρτηση Lyapunov έχουμε,
+\begin{equation}
+\dot{V}=\frac{\partial V}{\partial x}f(x,-\phi(y))\leq-y^T\phi(y)\leq 0
+\end{equation}
+έτσι ώστε η $\dot{V}$ να είναι αρνητικά ημι--ορισμένη. Παρατηρούμε ότι ισχύει $\dot{V}=0$ αν και μόνο αν $y=0$. Βάσει της αρχής της αμεταβολητότητας (invariance principle) του LaSalle για το σύστημα προκύπτει ασυμπτωτική ευστάθεια για $y=0$ που συνεπάγεται $u(t)=0$ και τελικά $x(t)=0$.
+\\
+
+Στο πρόβλημα του ελέγχου της ρομποτικής διάταξης επιθυμούμε τη σταθεροποίηση του συστήματος σε ένα σημείο αναφοράς $q=q_r$. Η δυναμική του σφάλματος παρακολούθησης τροχιάς $e=q-q_r$, $\dot{e}=\dot{q}$ προκύπτει από την \eqref{eq:hand_dynamic_equation},
+\begin{equation}
+M(\theta)\ddot{e}+C(\theta,\dot{\theta})\dot{e}+g(\theta)=\tau
+\end{equation}
+Το σημείο $(e=0, \dot{e}=0)$ δεν είναι ευσταθές σημείο της ανοικτής διάταξης (open-loop equilibrium state).
+
+Έστω το σήμα ελέγχου με όρο βαρυτικής αντιστάθμισης, συνάρτηση του σφάλματος θέσης και όρο απόσβεσης,
+\begin{equation}
+\tau=g(q)-\phi_p(e)-D\dot{e}
+\end{equation}
+όπου $\phi_p(0)=0$, $D$ θετικά ορισμένη $(D>0)$ μήτρα κέρδους ανάδρασης ταχύτητας,  και $e^T\phi_p(e)>0$, $\forall e \neq 0$. Η εξίσωση του κλειστού συστήματος είναι,
+\begin{equation}
+M(\theta)\ddot{e}+C(\theta,\dot{\theta})\dot{e}+D\dot{e}+\phi_p(e)=\tau_{ext}
+\end{equation}
+Η ενέργεια του συστήματος -- συνάρτηση συσσώρευσης είναι το άθροισμα κινητικής ενέργειας και δυναμικού του συστήματος,
+\begin{equation}
+V = \frac{1}{2}\dot{e}^TM(\theta)\dot{e}+V_d(e)
+\end{equation}
+όπου,
+\begin{equation}
+V_d(e)=\int_0^e \phi_p^T(\sigma) d\sigma
+\end{equation}
+Η ολική παράγωγος της ενέργειας του συστήματος είναι,
+\begin{equation}
+\dot{V} = \frac{1}{2}\dot{e}^T(\dot{M}-2C)\dot{e}-\dot{e}^TD\dot{e}-\dot{e}^T\phi_p(e)+\dot{e}^T\tau_{ext}+\phi_p^T(e)\dot{e} \leq \dot{e}^T\tau_{ext}
+\end{equation}
+και τελικά με $\tau_{ext}=0$,
+\begin{equation}
+\dot{V} = \frac{1}{2}\dot{e}^T(\dot{M}-2C)\dot{e}-\dot{e}^TD\dot{e} \leq 0
+\end{equation}
+Ορίζοντας ως έξοδο $y=\dot{e}$ παρατηρούμε ότι το σύστημα με είσοδο $\tau$ και έξοδο $y$ είναι παθητικό με $V$ ως συνάρτηση συσσώρευσης. 
+Από την invariance principle του LaSalle έχουμε για $\dot{V}=0\Rightarrow\dot{e}=0\Rightarrow\ddot{e}=0\Rightarrow\phi_p(e(t))=0\Rightarrow e(t)=0$.
+
+\section{Στατική Ανάλυση Λαβής}
+
+Στο κεφάλαιο αυτό διατυπώνονται οι σχέσεις του στατικού μοντέλου λαβής σημειακών επαφών με τριβή. Αρχικά ορίζεται η Μήτρα Μετασχηματισμού Λαβής (Grasp Force Transformation Matrix) μέσα από τη διατύπωση των σχέσεων στατικής ισορροπίας. Στη συνέχεια δίνεται ο ορισμός του φαινομένου της μηχανικής ακαμψίας (stiffness effect) και κατ' επέκταση συνθήκες ευστάθειας για τη ρομποτική λαβή. 
+
+%Τέλος διατυπώνεται η λύση ελάχιστων τετραγώνων για το ανάστροφο πρόβλημα προσδιορισμού των δυνάμεων στα ακροδάκτυλα δεδομένης ασκούμενης γενικευμένης δύναμης στο αντικείμενο.
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/hand_object.pdf} 
+   \caption{Σχηματικό Διάγραμα Αντικειμένου υπό Λαβή Ν-Δακτύλων Σημειακών Επαφών με Τριβή~\cite{SchleglBussSchmidt2002}}
+   \label{fig:Hand_Object_Schematic}
+\end{figure}
+
+\subsection{Στατική Ισορροπία \& Μήτρα Μετασχηματισμού Δυνάμεων Ρομποτικής Λαβής}
+
+Οι σχέσεις για τη στατική ισορροπία ως προς τις δυνάμεις και τις ροπές είναι,
+\begin{equation}
+\sum_{i=1}^{N}f_{ci}^o +f_{ext}=0
+\end{equation}
+\begin{equation}
+\sum_{i=1}^{N}(r_{ci} \times f_{ci}^o)+n_{ext}=0
+\end{equation}
+όπου $f_{ci}$ οι δυνάμεις που ασκούνται από το ακροδάκτυλο $i$, $f_{ext}$, $n_{ext}$ συνολική εξωτερικά ασκούμενη δύναμη και ροπή αντίστοιχα , $r_{ci}$ το διάνυσμα θέσης του ακροδακτύλου. Όλα αυτά τα μεγέθη είναι εκφρασμένα ως προς το τοπικό πλαίσιο του αντικειμένου. Γράφοντας τις σχέσεις αυτές σε μορφή μητρώων έχουμε,
+\begin{equation}
+\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      I_{3\times3} &I_{3\times3} & \dots &I_{3\times3} \\
+      [r_{c1}\times] & [r_{c2}\times]&\dots&[r_{cN}\times] \\
+   \end{bmatrix}
+ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         f_{c1}^ο \\
+          f_{c2}^ο \\
+          \vdots\\
+          f_{cN}^ο \\
+      \end{bmatrix} =
+      \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}   
+\end{equation}
+Τελικά συνοψίζουμε τη σχέση στη ακόλουθη μορφή,
+θεωρώντας την έκφραση των δυνάμεων στα ακροδάκτυλα ως προς το αντίστοιχο πλαίσιο στο οποίο είναι εκφρασμένα,
+\begin{equation}
+f_{c}^o=\begin{bmatrix}
+R_o^T & \mathbf{0}_{3\times3}\\
+\mathbf{0}_{3\times3}&R_o^T\\
+\end{bmatrix}f_c
+\end{equation}
+\begin{equation}
+\underbrace{\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      R_o^T &R_o^T & \dots &R_o^T \\
+      [r_{c1}\times]R_o^T & [r_{c2}\times]R_o^T&\dots&[r_{cN}\times]R_o^T \\
+   \end{bmatrix}}_{G}
+ \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         f_{c1} \\
+          f_{c2} \\
+          \vdots\\
+          f_{cN} \\
+      \end{bmatrix}}_{f_{c}} =
+       \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}}_{F_{ext}}   \label{eq:GraspMatrix_Relative}
+\end{equation}
+\begin{equation}
+F_{ext}=Gf_{c} \label{eq:total_external_object_force}
+\end{equation}
+όπου $G\in \mathbb{R}^{6\times3N}$ ο πίνακας μετασχηματισμού δυνάμεων της ρομποτικής λαβής. 
+
+Η γενική λύση βάση των ελάχιστων τετραγώνων $min||F_{ext}-Gf_{c}||$ είναι,
+\begin{equation}
+f_c=[G]^{+}F_{ext}+(\mathbf{I}-[G]^{+}G)\xi
+\label{eq:grasp_matrix_general_solution}
+\end{equation}
+όπου $[G]^{+}=G^Τ(GG^T)^{-1}$ η ψευδοαντίστροφη μήτρα Moore και $\xi \in \mathbb{R}^{4N}$ τυχαίο διάνυσμα.
+
+Ο απ' ευθείας έλεγχος δύναμης βάσει της σχέσης \eqref{eq:grasp_matrix_general_solution} αποφεύγεται συνήθως καθώς οι απ' ευθείας μετρήσεις των δυνάμεων στα ακροδάκτυλα είναι πρακτικά δύσκολες και όταν αυτές συμβαίνουν τα λαμβανόμενα σήματα είναι θορυβώδη και γενικά δύσκολα στην επεξεργασία~\cite{GregoryStarr1992,KimYiOhSuh2003,SchleglBussSchmidt2002,YussofOhka2009,BicchiKumar2000,KhalilPayeur2011}. Για αυτό το λόγο προτιμούνται σχήματα έμμεσου ελέγχου της δύναμης συνήθως εκφρασμένα μέσω τεχνικών ελέγχου μηχανικής εμπέδησης (impedance) ή της πιο απλοποιημένης μορφής, του ελέγχου μηχανικής ακαμψίας (stiffness).\\
+
+Το δυικό ανάλογο της σχέσης \eqref{eq:total_external_object_force} μας δίνει τη σχέση μεταξύ των ταχυτήτων του αντικειμένου και των ακροδακτύλων,
+\begin{equation}
+\dot{x}=G\dot{x}_o
+\end{equation}
+με τη πλήρη περιγραφή των κινηματικών περιορισμών για τη ρομποτική λαβή--αντικέιμενο να δίνεται,
+\begin{equation}
+J_H(\theta)\dot{\theta}=G\dot{x}_o
+\end{equation}
+
+%\subsection{Συσχέτιση Ακαμψίας Αντικειμένου με την  Ακαμψία Ακροδακτύλων--Αρθρώσεων}
+%
+%
+%\subsection{Φαινόμενο Μηχανικής Ακαμψίας--Συνθήκες Ευστάθειας}
+
+
+
+\section{Έλεγχος Μηχανικής Εμπέδισης σε Επίπεδο Αντικειμένου Βάσει Παθητικότητας}
+\label{sec:IPC}
+Στην ενότητα αυτή περιγράφεται μέθοδος ελέγχου ρομποτικής λαβής σε επίπεδο αντικειμένου βάσει παθητικότητας (Passivity Based Object Level Impedance Control), η οποία έχει αρκετά προταθεί από τους Wimboeck, Ott, Hirzinger για τον έλεγχο της εμπέδησης του αντικειμένου υπό χειρισμό με τη χρήση εικονικού πλαισίου. Το σχήμα αυτό αναφέρεται ως Εγγενώς Παθητικός Έλεγχος (Intrinsically Passive Control -- IPC).
+
+Επιπρόσθετα παρουσιάζουμε τεχνική αντιμετώπισης των πλεοναζόντων βαθμών ελευθερίας μέσω ορισμού κατάλληλης υποεργασίας στο μηδενικό χώρο του ρομποτικού χεριού. \\
+
+Για τη μοντελοποίηση της δυναμικής αλλά και το σχεδιασμό του σχήματος ελέγχου λαμβάνονται υπόψη οι κάτωθι παραδοχές ως προς τα χαρακτηριστικά ρομποτικής λαβής και χειρισμού αντικειμένου,
+\begin{itemize}
+\item Επαφές σημειακές με τριβή
+\item Οι εσωτερικές δυνάμες επιλέγονται έτσι ώστε να ικανοποιούνται οι περιορισμοί του μοντέλου τριβής.
+\item Για την επίτρεψη κίνησης του αντικειμένου σε 6D οι επαφές μεταξύ αντικειμένου και ρομποτικού χεριού περιορίζονται
+στα ακροδάκτυλα
+\end{itemize}
+
+
+\subsection{Εικονικό Πλαίσιο Αντικειμένου -- Virtual Object Frame}
+Για τον έλεγχο των ακροδακτύλων ορίζεται εικονικό πλαίσιο το οποίο βρίσκεται στο κέντρο των σημείων επαφής,
+\begin{equation}
+x_o(\theta)=\frac{\sum_{i=1}^{N} x_i(\theta)}{N} 
+\label{eq:frame_position}
+\end{equation}
+όπου $x_i(\theta) \in \mathbb{R}$ αναπαριστούν την καρτεσιανή θέση των ακροδακτύλων για το δάκτυλο $i$ ως προς το πλαίσιο βάσης (πλαίσιο 0).
+Ο προσανατολισμός $R_o=[r_{1,o},r_{2,o},r_{3,o}]$ του εικονικού πλαισίου ορίζεται επίσης βάσει των καρτεσιανών θέσεων των ακροδακτύλων. Για $N = 4$ δάκτυλα το μοναδιαίο διάνυσμα $r_{1,o}$ ορίζεται παράλληλο με το επίπεδο που σχηματίζουν οι άξονες που ορίζουν τα δάκτυλα $i=1,3$ και $i=2,4$ αντίστοιχα.
+\begin{equation}
+\tilde{r}_{1,o}=\frac{x_1-x_3}{||x_1-x_3||}+\frac{x_2-x_4}{||x_2-x_4||},\quad r_{1,o}=\frac{\tilde{r}_{1,o}}{||\tilde{r}_{1,o}||} \label{eq:r1_unit}
+\end{equation}
+Το μοναδιαίο διάνυσμα $r_{3,o}$ ορίζεται κάθετο σε αυτό το επίπεδο, και τέλος το $r_{2,o}$ ορίζεται έτσι ώστε το πλαίσιο του προσανατολισμού να ικανοποιεί το δεξιόστροφο κανόνα, $R_o \in SO(3)$ 
+\begin{equation}
+%\tilde{r}_{3,o}=\widehat{x_1-x_3}(x_2-x_4) \label{eq:r3_unit}
+\tilde{r}_{3,o}=[(x_1-x_3)\times](x_2-x_4),\quad r_{3,o}=\frac{\tilde{r}_{3,o}}{||\tilde{r}_{3,o}||}  \label{eq:r3_unit}
+\end{equation}
+\begin{equation}
+%\tilde{r}_{2,o}=\widehat{r_{3,o}}r_{1,o} \label{eq:r2_unit}
+r_{2,o}=[r_{3,o}\times]r_{1,o} \label{eq:r2_unit}
+\end{equation}
+
+Τελικά το εικονικό πλαίσιο του αντικειμένου $H_o$ ορίζεται,
+\begin{equation}
+H_o=[R_o,x_o] \in SE(3)
+\end{equation}
+Η αναπαράσταση αυτή παρουσιάζει ιδιομορφίες στη περίπτωση που για τα ακροδάκτυλα ισχύει $x_j-x_{j+2} = 0$ ή $(x_1-x_3)||(x_2-x_4)$. Αυτές οι ιδιομορφίες δεν προκαλούνται για κοινά κυρτά αντικείμενα με γεωμετρίες όπως αυτές του ορθογώνιου παραλληλογράμμου, κυλινδρικές ή σφαιρικές.\\
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/virtual_frame_construct.pdf} 
+   \caption{Κατασκευή Εικονικού Πλαισίου~\cite{WimboeckOttHirzinger2006}}
+   \label{fig:virtual_frame}
+\end{figure}
+
+
+
+
+
+Εφόσον έχει οριστεί το εικονικό πλαίσιο κεντρικό σημείο στην όλη προσπάθεια δόμησης κατάλληλου σχήματος ελέγχου αποτελεί η συσχέτιση αυτού με το πραγματικό πλαίσιο του χειριζόμενου αντικειμένου.\\
+
+Θεωρείται λοιπόν ότι το εικονικό πλαίσιο είναι συσχετιζόμενο κινηματικά με το πλαίσιο του αντικειμένου αν και μόνο αν, τα σημεία επαφής αντικειμένου δακτύλων παραμένουν σταθερά καθ' όλο το στάδιο του χειρισμού παραβλέποντας τυχών φαινόμενα κύλισης ή ολίσθησης. 
+
+
+
+\subsection{Νόμος ελέγχου στο επίπεδο του αντικειμένου}
+
+
+Το σήμα ελέγχου που είναι η ροπή στις αρθρώσεις σχηματίζεται ως εξής,
+\begin{equation}
+\tau=-D(\theta)\dot{\theta}-\frac{\partial V_d}{\partial \theta}(\theta)+g(\theta) \label{eq:control_law_tau}
+\end{equation}
+όπου $D(\theta)$ θετικά ορισμένος πίνακας δυναμικής απόσβεσης (damping). Ορίζουμε συνάρτηση επιθυμητής δυναμικής ενέργειας, η οποία περιλαμβάνει τους ακόλουθους υπερτιθέμενους όρους,
+\begin{equation}
+V_d(\theta)=V_{o,t}(\theta)+V_{o,r}(\theta)+V_{Conn}(\theta) \label{eq:Potentials_Definitions}
+\end{equation}
+όπου από αυτούς τους όρους των επιμέρους δυναμικών $V_{o,t}(\theta)$, $V_{o,r}(\theta)$, $V_{o,Conn}(\theta)$ μέσω μερικής παραγώγισης ως προς τις γωνίες των αρθρώσεων $\theta$ προκύπτει αντίστοιχα η ακαμψία μεταφορικής κίνησης, η ακαμψία περιστροφικής κίνησης καθώς και η ακαμψία μεταξύ ακροδακτύλων και κέντρου του εικονικού πλαισίου.
+
+Από τη θεωρία ελέγχου βασιζόμενη στη παθητικότητα (passivity based control) αν επιλέξουμε τη συνάρτηση $V_d(\theta)$ θετικά ημιορισμένη εξασφαλίζεται η παθητικότητα και για το σύστημα κλειστού βρόχου. Αν μάλιστα είναι θετικά ορισμένη τότε εξασφαλίζεται και η ευστάθεια. Για ασυμπτωτική ευστάθεια μπορεί να γίνει αναφορά στο θεώρημα του LaSalle.\\
+
+Οι συναρτήσεις δυναμικού σχεδιάζονται ως εξής,\\
+\begin{equation}
+V_{o,t}(\theta)=\frac{1}{2}(x_o-x_{o,des})^TR_oK_{o,t}R_o^T(x_o-x_{o,des}) \label{eq:translational_potential}
+\end{equation}\\
+\begin{equation}
+V_{o,r}(\theta)=2\epsilon^T_bK_{o,r}\epsilon_b \label{eq:rotational_potential}
+\end{equation}\\
+\begin{equation}
+V_{Conn}(\theta)=\frac{1}{2}\sum^N_{i=1}K_{Conn,i}[||\Delta x_i||-l_{i,des}]^2 \label{eq:connection_potential}
+\end{equation}\\
+όπου $x_{o,des}$, $\epsilon_b$ η επιθυμητή θέση και το λάθος της περιστροφής του εικονικού πλαισίου αναπαριστώμενο από το διανυσματικό κομμάτι του μοναδιαίου  quaternion το οποίο προκύπτει από το γινόμενο $R_o^TR_{o,des}$ με $R_{o,des}$ την επιθυμητή μήτρα περιστροφής. $K_{o,t}$, $K_{o,r}$ είναι οι μήτρες ακαμψίας ως προς τη γραμμική μετατόπιση και τη περιστροφή ως προς το πλαίσιο του αντικειμένου και $K_{Conn}=diag\{K_{Conn,1},K_{Conn,2},\ldots,K_{Conn,N}\}$ η μήτρα ακαμψίας των εικονικών ελατηρίων σύνδεσης των ακροδακτύλων με το κέντρο του πλαισίου. Επιλέγονται και οι τρεις μήτρες θετικά ορισμένες. Οι ακαμψίες όπως προκύπτουν από τα δυναμικά \eqref{eq:translational_potential}--\eqref{eq:connection_potential} απεικονίζονται στο σχήμα \ref{fig:IPC_Virtual_Linkages}\\
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio3/IPC_Block_Diagram.tex}}
+   		\caption{Εγγενώς Παθητικό Σχήμα Ελέγχου~\cite{WimbockOttSchafferHirzinger}}
+   		\label{fig:IPC_Block_Diagram}
+\end{figure}
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio3/Virtual_Linkages_IPC1.tex}}
+   		\caption{Τα ακροδάκτυλα $x=[x_1,x_2,x_3,x_4]^T$ συγκρατούν σφαιρικό--κυλινδρικό αντικείμενο με τα εικονικά ελατήρια που διαμορφώνουν τον έλεγχο όπως περιγράφεται στη σχέση \eqref{eq:Potentials_Definitions}}
+   		\label{fig:IPC_Virtual_Linkages}
+\end{figure}
+\newpage
+Στη συνέχεια παρουσιάζουμε αναλυτικά τον τρόπο με τον οποίο υπολογίζονται οι μερικές παράγωγοι των επιμέρους δυναμικών ως προς τη γωνία των αρθρώσεων $\theta$ για την εισαγωγή τους στο σχήμα ελέγχου ξεκινώντας από το δυναμικό της ακαμψίας της περιστροφικής κίνησης. \\
+
+
+
+
+\subsection{Περιστροφική Ακαμψία}
+
+Η σχέση της παραγώγου αυτής με τη μερική παράγωγο $\frac{\partial V_{o,r}(\theta)}{\partial \theta}$ είναι η ακόλουθη,
+\begin{equation}
+\dot{V}_{o,r}(\theta)=\dot{\theta}^T\frac{\partial V_{o,r}(\theta)}{\partial \theta}.\label{eq:rotational_potential_time_derivative_partial_derivative}
+\end{equation}
+Παραγώγιση στο χρόνο του δυναμικού $V_{o,r}$ όπως ορίστηκε στην \eqref{eq:rotational_potential} δίνει,
+\begin{equation}
+\dot{V}_{o,r}(\theta)=4\epsilon^T_bK_{o,r}\dot{\epsilon}_b. \label{eq:rotational_potential_time_derivative}
+\end{equation}
+Aπό το ρυθμό μεταβολής του κουατέρνιου $\dot{\epsilon}_b$ μπορούμε να πάρουμε τη σχέση που δίνει την αντίστοιχη γωνιακή ταχύτητα $\omega_o$ του πλαισίου. Η σχέση που επιτελεί αυτή την διαφορική αντιστοίχηση είναι η ακόλουθη,
+\begin{equation}
+\dot{\epsilon}_b = J_{\omega\epsilon}(\theta)\omega_o \label{eq:quaternion_rate}
+\end{equation}
+
+Η μετατροπή από ένα πίνακα στροφής $R$ στο αντίστοιχο quaternion $\epsilon=[\epsilon_0\phantom{1} (\epsilon_{b1}\phantom{1}\epsilon_{b3}$\\$\phantom{1}\epsilon_{b3})]$ δεν είναι μονοσήμαντη και γίνεται χρήση ειδικού αλγορίθμου επιλογής της κατάλληλης σχέσης κάθε φορά ανάλογα με τις τιμές των στοιχείων του πίνακα στροφής~\cite{Diebel:2006fk}. 
+Η Ιακωβιανή μήτρα $J_{\omega\epsilon}(\theta)$ είναι~\cite{Diebel:2006fk},
+\begin{equation}
+J_{\omega\epsilon}(\theta)=\frac{1}{2}
+\begin{bmatrix}
+\epsilon_0 &-\epsilon_3 &\epsilon_2\\
+\epsilon_3 &\epsilon_0 &-\epsilon_1\\
+-\epsilon_2 &\epsilon_1 &\epsilon_0\\   
+\end{bmatrix}^T
+\end{equation}
+Για τη γωνιακή ταχύτητα του πλαισίου ισχύει η ακόλουθη σχέση,
+\begin{equation}
+[\omega_o \times]=R_o^T\dot{R}_o \label{eq:omega_skew}
+\end{equation}
+Αναπτύσουμε το δεύτερο όρο με το κανόνα της αλυσίδας (chain rule) έτσι ώστε να προκύψουν διακριτά οι διαφορικοί κινηματικοί συσχετισμοί μεταξύ εικονικού πλαισίου -- ακροδακτύλων και ακροδακτύλων -- αρθρώσεων,
+\begin{equation}
+\dot{R}_o =  \frac{\partial R_o}{\partial x^T}\frac{\partial x}{\partial \theta^T}\dot{\theta}
+\end{equation}
+ο όρος $\frac{\partial R_o}{\partial x^T}$ μπορεί εύκολα να υπολογισθεί παραγωγίζοντας τις \eqref{eq:r1_unit} \eqref{eq:r3_unit} \eqref{eq:r2_unit} μερικώς ως προς το διάνυσμα $x^T$. Ο όρος $\frac{\partial x}{\partial \theta^T}$ είναι η Ιακωβιανή μήτρα του χεριού $J_{H} = \frac{\partial x}{\partial \theta^T}$\eqref{eq:Hand_Jacobian}.
+Τελικά έχουμε 
+\begin{equation}
+\omega_o=J_{o,r}(\theta)\dot{\theta}. \label{eq:jacobian_omega}
+\end{equation}
+%με
+%\begin{equation}
+%J_{o,r}(\theta)\dot{\theta}=
+%\begin{bmatrix}
+%R_o^T \frac{\partial R_o}{\partial x^T}\frac{\partial x}{\partial \theta^T}\times^{}
+%\end{bmatrix}
+%\end{equation}
+Με αντικατάσταση στην \eqref{eq:quaternion_rate} και στη συνέχεια στην \eqref{eq:rotational_potential_time_derivative} έχουμε
+\begin{equation}
+\dot{V}_{o,r}(\theta)=\dot{\theta}^TJ^T_{o,r}4J^T_{\omega\epsilon}K_{o,r}\epsilon_b \label{eq:final_rotational_potential_time_derivative}
+\end{equation}
+και από \eqref{eq:rotational_potential_time_derivative_partial_derivative} και \eqref{eq:final_rotational_potential_time_derivative} προκύπτει τελικά,
+\begin{equation}
+\frac{\partial V_{o,r}(\theta)}{\partial \theta}=J^T_{o,r}4J^T_{\omega\epsilon}K_{o,r}\epsilon_b \label{eq:rotational_term}
+\end{equation}
+\\
+
+\subsection{Ακαμψία Γραμμικής Μετατόπισης}
+
+Αυτή τη φορά παραγωγίζουμε τον όρο δυναμικού της γραμμικής μετατόπισης \eqref{eq:translational_potential} ως προς το χρόνο και έχουμε,
+\begin{equation}
+\dot{V}_{o,t}(\theta)=(x_o-x_{o,des})^TR_oK_{o,t}\frac{d}{dt}\{R_o^T(x_o-x_{o,des}) \label{eq:translational_potential_time_derivative}\}
+\end{equation}
+Αναπτύσουμε τον όρο $\frac{d}{dt}\{R_o^T(x_o-x_{o,des})\}$,
+\begin{equation}
+\frac{d}{dt}\{R_o^T(x_o-x_{o,des})\}=\dot{R}_o^T(x_o-x_{o,des})+R_O^T\frac{\partial x_o}{\partial x^T}\frac{\partial x^T}{\partial \theta^T}\dot{\theta}
+\end{equation}
+από \eqref{eq:omega_skew}\eqref{eq:jacobian_omega} σε συνδιασμό με τις ιδιότητες των συμμετρικών πινάκων στροφής $[v\times]^T=-[v\times]$, $[v\times]w=-[w\times]v$ βγαίνει κοινός παράγοντας η γωνιακή ταχύτητα των αρθρώσεων  $\dot{\theta}$
+\begin{equation}
+\frac{d}{dt}\{R_o^T(x_o-x_{o,des})\} = [[(R_o^T(x_o-x_{o,des}))\times]J_{o,r}+R_O^T\frac{\partial x_o}{\partial x^T}\frac{\partial x^T}{\partial \theta^T}]\dot{\theta}
+\end{equation}
+Η μερική παράγωγος της θέσης του πλαισίου ως προς τις θέσεις των ακροδακτύλων από την \eqref{eq:frame_position} $\frac{\partial x_o}{\partial x^T}=\frac{1}{N}I_{3N\times3}$ και $\frac{\partial x^T}{\partial \theta^T}$ είναι η ιακωβιανή μήτρα του χεριού $J_{H} = \frac{\partial x}{\partial \theta^T}$. Τελικά λοιπόν η παράγωγος του δυναμικού της γραμμικής μετατόπισης είναι,
+\begin{equation}
+\dot{V}_{o,t}(\theta)=\dot{\theta}^TJ^T_{o,t}K_{o,t}R^T_o(x_o-x_{o,des})
+\end{equation}
+απ' όπου προκύπτει η μερική παράγωγος που είναι και ο όρος που θα προστεθεί στο σήμα ελέγχου της ροπής στις αρθρώσεις είναι,
+\begin{equation}
+\frac{\partial V_{o,t}(\theta)}{\partial \theta}=J^T_{o,t}K_{o,t}R^T_o(x_o-x_{o,des}) \label{eq:translational_term}
+\end{equation}
+με 
+\begin{equation}
+J_{o,t} = [\frac{1}{N}J_{H}^T I_{3N\times 3}R_o -  J_{o,r}^T([(R_o^T(x_o-x_{o,des})\times])^T \label{eq:Translational_Jacobian_to_Vframe}
+\end{equation}
+
+Αθροίζοντας τις \eqref{eq:translational_term} \eqref{eq:rotational_term} ουσιαστικά διαμορφώνεται στο χώρο ένα ελατήριο 6 διαστάσεων, ως προς τις γραμμικές και περιστροφικές μετατοπίσεις, συσχετιζόμενο με το αντικείμενο. 
+\\
+
+
+\subsection{Συνδετική Ακαμψία}
+
+Για τον έλεγχο των εσωτερικών δυνάμεων (grasping forces) ορίζονται εικονικά ελατήρια μεταξύ ακροδακτύλων $x_i$ και της θέσης $x_o$ του εικονικού πλαισίου με ρυθμιζόμενο το σημείο ισορροπίας αυτών $l_{i,des}$ έτσι ώστε να ικανοποιούνται οι περιορισμοί των τριβών (βλ σχήμα \ref{eq:Potentials_Definitions}).
+
+Το εικονικό δυναμικό για τον όρο της συνδετικής ακαμψίας διαμορφώνεται σφαιρικά συμμετρικά ως προς τα ακροδάκτυλα,
+\begin{equation}
+V_{conn}(\theta)=\frac{1}{2}\sum_{i=1}^{N}K_{conn,i}[||\Delta x_i|| - l_{i,des} ]^2
+\end{equation}
+όπου $\Delta x_i = x_i - x_o$ και $K_{conn,i}$ η αντίστοιχη ακαμψία επιλέγεται πάντα θετική. Παραγωγίζοντας μερικώς ως προς τη γωνιακή θέση των αρθρώσεων $\theta$ έχουμε,
+\begin{equation}
+\frac{\partial V_{Conn}(\theta)}{\partial \theta} = J_H^T \sum_{i=1}^{N}[\frac{\partial \Delta x_i^T}{\partial x}\frac{K_{conn,i}(||\Delta x_i|| - l_{i,des})}{||\Delta x_i||}\Delta x_i ]  
+\end{equation}
+η μερική παράγωγος $\frac{\partial \Delta x_i^T}{\partial x}$ υπολογίζεται,
+\begin{equation} 
+\begin{matrix}
+\frac{\partial \Delta x_1^T}{\partial x} =  [(1-\frac{1}{N})I_{3\times3}\quad(-\frac{1}{N})I_{3\times3}\quad\dots\quad(-\frac{1}{N})I_{3\times3}]
+\\
+\frac{\partial \Delta x_2^T}{\partial x} =  [(-\frac{1}{N})I_{3\times3}\quad(1-\frac{1}{N})I_{3\times3}\quad\dots\quad(-\frac{1}{N})I_{3\times3}]\\
+\vdots\\
+\frac{\partial \Delta x_N^T}{\partial x} =  [(\underset{\text{\normalsize1}}{-\frac{1}{N})I_{3\times3}}\quad \underset{\text{\normalsize 2}}{(-\frac{1}{N})I_{3\times3}}\quad\dots\quad \underset{\text{\normalsize N}}{(1-\frac{1}{N})I_{3\times3}]}\\
+\end{matrix}
+\end{equation}
+τελικά ο όρος της συνδετικής ακαμψίας γράφεται πιο κομψά σε μορφή πινάκων ως εξής,
+\begin{equation}
+\frac{\partial V_{Conn}(\theta)}{\partial \theta}=J^T_{conn}K_{Conn}   \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      ||\Delta x_1|| - l_{1,des} \\
+      \vdots\\
+      ||\Delta x_N|| - l_{N,des}
+   \end{bmatrix}
+\end{equation}
+με,
+\begin{equation}
+J^T_{Conn}=J_H^T\begin{bmatrix}
+\frac{\partial \Delta x_1^T}{\partial x} \frac{\Delta x_1}{||\Delta x_1||}\phantom{1}\dots\phantom{1} \frac{\partial \Delta x_N^T}{\partial x} \frac{\Delta x_N}{||\Delta x_N||} \label{eq:Connection_Jacobian_to_Vframe}
+\end{bmatrix}
+\end{equation}
+και,
+\begin{equation}
+K_{Conn} = block diag\{K_{Conn,1}, \dots,K_{Conn,N}\}
+\end{equation}
+\\
+
+
+
+\subsection{Έλεγχος Πλεοναζόντων Βαθμών Ελευθερίας}
+
+Βάσει του μέχρι τώρα σχεδιασμού του ελεγκτή ουσιαστικά διατυπώνεται πλήρης ορισμός μόνο για τις θέσεις των ακροδακτύλων $x_i(\theta_i)$. Δεδομένου ότι η θέση $x_i$ είναι προφανώς διάνυσμα $\in \mathbb{R}^3$ και οι βαθμοί ελευθερίας του κάθε δακτύλου είναι 4 η ρομποτική διάταξη είναι κινηματικά πλεονασματική κατά 1 βαθμό ελευθερίας. 
+
+Εκμεταλευόμενοι αυτό το γεγονός ορίζουμε υποεργασία στο μηδενικό χώρο (Null Space) του ρομποτικού δακτύλου έτσι ώστε να εισάγουμε μία σύζευξη ανθρωπομορφικού χαρακτήρα μεταξύ των δύο τελευταίων αρθρώσεων $\theta_{i3}$ και $\theta_{i4}$ με στόχο την εξασφάλιση κάθετης προβολής του ακροδακτύλου στην επιφάνεια του αντικειμένου μεγιστοποιώντας τον κώνο τριβής. 
+
+Ο επιθυμητός έλεγχος διαμορφώνεται για πλεονασματικές διατάξεις με τον ακόλουθο τρόπο,
+\begin{equation}
+\tau_{d}=\tau_{d,cart}+N(\theta)\tau_{d,N}
+\end{equation}
+όπου $\tau_{d,cart}$, ο επιθυμητός έλεγχος στο καρτεσιανό επίπεδο των ακροδακτύλων όπως ουσιαστικά τον ορίσαμε στις αμέσως προηγούμενες ενότητες διά της ακαμψίας του εικονικού πλαισίου, $N(\theta)$ ο πίνακας προβολής στο μηδενικό χώρο της ρομποτικής λαβής και τέλος,
+\begin{equation}
+\tau_{d,N}=-K_N(\theta-\theta_N)-D_N\dot{\theta}
+\end{equation}
+ο νόμος ελέγχου PD της επιθυμητής υποεργασίας.\\
+
+Ο πίνακας προβολής μπορεί να προκύψει στατικά,
+\begin{equation}
+N(\theta)=V(\theta)^TV(\theta)
+\end{equation}
+όπου για τον πίνακα $V(\theta)$ ισχύει, 
+\begin{equation}
+V(\theta)J_Η^T(\theta)=0
+\end{equation} 
+Ο $V(\theta)$ αποτελεί ουσιαστικά έναν πίνακα μηδενισμού της Ιακωβιανής μήτρας και μπορεί να υπολογιστεί πρακτικά με ανάλυση της Ιακωβιανής σε ιδιάζουσες μορφές. Πρακτικά προκύπτει ότι αυτού του τύπου στατική ανάλυση για τη προβολή στο μηδενικό χώρο της Ιακωβιανής επηρεάζει τελικά το καρτεσιανό χώρο του στοιχείου δράσης~\cite{Alin-Albu-Schaffer:2003fk}. Προκειμένου να λάβουμε δυναμικά συνεπή συμπεριφορά μεταφέρουμε αρχικά τη δυναμική εξίσωση \eqref{eq:hand_dynamic_equation} του ρομποτικού χεριού από το χώρο των αρθρώσεων στο χώρο των ακροδακτύλων. Για τη ταχύτητα των ακροδακτύλων καθώς και για την επιτάχυνση ισχύει,
+\begin{equation}
+\dot{x}=J(\theta)\dot{\theta} \label{eq:Jacobian_velocities}
+\end{equation}
+\begin{equation}
+\ddot{x}=J(\theta)\ddot{\theta}+\dot{J}(\theta)\dot{\theta}  \label{eq:Jacobian_accelerations}
+\end{equation}
+Με αντικατάσταση στην \eqref{eq:hand_dynamic_equation}  έχουμε,
+\begin{equation}
+\ddot{x}-\dot{J}(\theta)\dot{\theta}+J(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta}+g(\theta))=J(\theta)M^{-1}(\theta)\tau_d \label{eq:Dynamics_Equation_Coordinates_Transformation}
+\end{equation}
+έτσι λοιπόν προκύπτει εύλογα ότι για την εξασφάλιση δυναμικά συνεπούς ελέγχου στο μηδενικό χώρο ο πίνακας προβολής πρέπει να εξασφαλίζει,
+\begin{equation}
+J(\theta)M(\theta)^{-1}N(\theta)=0
+\end{equation}
+τελικά η λύση που χρησιμοποιούμε για το δυναμικό πίνακα προβολής στο μηδενικό χώρο~\cite{O.Khatib:1987uq},
+\begin{equation}
+N(\theta)=(I-J^T(\theta)\Lambda(\theta)J(\theta)M^{-1}(\theta))
+\end{equation}
+όπου,
+\begin{equation}
+\Lambda(\theta)=(J(\theta)M^{-1}(\theta)J(\theta)^T)^{-1}
+\end{equation}
+
+%\begin{equation}
+%\tau_{red}=(I-J^+J)\xi
+%\end{equation}
+%όπου $J^+$ η ψευδοανάστροφη μήτρα Moore $J^+=J^T(JJ^T)^{-1}$ και 
+%$\xi$ η κλίση του δυναμικού που περιγράφει την επιθυμητή υποεργασία μέσω ελάττωσης αυτού,
+%\begin{equation}
+%\xi=k_r\frac{\partial V_{red}}{\partial \theta}
+%\end{equation}
+%Όπου $k_r$ το κέρδος του αναλογικού ελεγκτή πλεονάζοντων βαθμών ελευθερίας. Το δυναμικό επιλέγεται έτσι ώστε να επιτευχθεί σύζευξη των $\theta_{i3}$ και $\theta_{i4}$ με τον ακόλουθο τρόπο,
+Ο νόμος ελέγχου στο μηδενικό χώρο σχεδιάζεται, όπως προείπαμε για τη σύζευξη των δύο τελευταίων βαθμών ελευθερίας, με τον ακόλουθο τρόπο, 
+%\begin{equation}
+%V_{i,red}=\frac{1}{2}(\theta_{i3}-\alpha\theta_{i4})^2
+%\end{equation}
+\begin{equation}
+\tau_{d,N}=-K_{Null}(\theta_{i3}-\alpha\theta_{i4})-D_{Null}\dot{\theta}
+\end{equation}
+όπου $\alpha\in[0,1]$ ο συντελεστής με τον οποίο μπορούμε να ρυθμίσουμε τη σχέση της σύζευξης μεταξύ των $\theta_{i3}$ και $\theta_{i4}$.
+\\
+
+\subsection{Σχεδιασμός Όρου Απόσβεσης}
+
+Προκειμένου να καθοριστεί και η μεταβατική συμπεριφορά του συστήματος σχεδιάζεται ο δυναμικός όρος απόσβεσης $D(\theta)$ του ελεγκτή βάσει της ακόλουθης μεθοδολογίας~\cite{Alin-Albu-Schaffer:2003fk,Alin-Albu-Schaffer:2004kx,WimboeckOttHirzinger2006}. \\
+
+Αρχικά βάσει των διαφορικών αντιστοιχίσεων μεταξύ των γωνιακών ταχυτήτων των αρθρώσεων $\dot{\theta}$ και των ταχυτήτων των μεταβλητών στο χώρο εργασίας $\dot{x}_o$, $\omega_o$, $||\Delta\dot{x}||$ όπως περιγράφονται από τις σχέσεις   \eqref{eq:Translational_Jacobian_to_Vframe} \eqref{eq:jacobian_omega} \eqref{eq:Connection_Jacobian_to_Vframe} αντίστοιχα, μπορούν να ομαδοποιηθούν αυτοί οι διαφορικοί συσχετισμοί με τον ακόλουθο τρόπο,
+\begin{equation}
+\underbrace{\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      \dot{x}_o \\
+      \omega_{o,0} \\
+      ||\Delta \dot{x}||
+   \end{bmatrix}}_{\dot{\overline{x}}} = \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         J_{o,t} \\
+         J_{o,r}\\
+         J_{conn}
+      \end{bmatrix}}_{J_{tot}}\dot{\theta}
+\end{equation}
+ορίζοντας το $\dot{\overline{x}} \in \mathbb{R}^{6+N}$ το γενικευμένο διάνυσμα διαφορικών συντεταγμένων και $J_{tot}$ η συμπτυγμένη Ιακωβιανή μήτρα.\\
+
+Στις εξισώσεις, \eqref{eq:Jacobian_velocities} \eqref{eq:Jacobian_accelerations} \eqref{eq:Dynamics_Equation_Coordinates_Transformation}, βλέπουμε το μετασχηματισμό του δυναμικού μοντέλου του χεριού από το χώρο των γωνιών των αρθρώσεων στον καρτεσιανό χώρο μεταβλητών θέσης. Στη προκειμένη περίπτωση θεωρώντας το  $\overline{x}$ ως τις γενικευμένες μεταβλητές θέσης του συστήματος της ρομποτικής λαβής μετασχηματίζουμε αντίστοιχα και έχουμε, 
+\begin{equation}
+\ddot{\overline{x}}-\dot{J_{tot}}(\theta)\dot{\theta}+J_{tot}(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta}+g(\theta))=J_{tot}(\theta)M^{-1}(\theta)\tau 
+\end{equation}
+Με τον νόμο ελέγχου όπως τον έχουμε ορίσει για το σύστημα βάσει των σχέσεων \eqref{eq:control_law_tau} \eqref{eq:rotational_term} \eqref{eq:Connection_Jacobian_to_Vframe} έχουμε,
+\begin{equation}
+\ddot{\overline{x}}-\dot{J_{tot}}(\theta)\dot{\theta}+J_{tot}(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta}+g(\theta))=J_{tot}(\theta)M^{-1}(\theta)(-D(\theta)\dot{\theta}-\frac{\partial V_d}{\partial \theta}(\theta)+g(\theta))
+\end{equation}
+και ορίζοντας την ακόλουθη σχέση μεταξύ της απόσβεσης του χώρου των αρθρώσεων στο χώρο των γενικευμένων συντεταγμένων του χώρου εργασίας, 
+\begin{equation}
+D(\theta)=J_{tot}^TD_{\overline{x}}(\theta)J_{tot}
+\end{equation}
+έχουμε τελικά,
+\begin{equation}
+\ddot{\overline{x}}-\dot{J_{tot}}(\theta)\dot{\theta}+J_{tot}(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta})=J_{tot}(\theta)M^{-1}J_{tot}^T(\theta)(-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}}) \label{eq:dynamics_closed_system}
+\end{equation}
+όπου $F_{\overline{x}}=[f_o\phantom{1} m_o \phantom{1} f_{Conn}]^T=K_{\overline{x}}(\overline{x}-\overline{x}_{des})=K_{\overline{x}}e_{\overline{x},o}$ με $K_{\overline{x}}=blockdiag\{K_{o,t}\phantom{1} K_{o,r} \phantom{1} K_{Conn} \}$.  
+
+Για λόγους απλότητας λαμβάνονται υπ' όψη μόνο τα γνήσια αδρανειακά φαινόμενα 2ης τάξης για το σχεδιασμό του δυναμικού πίνακα απόσβεσης, παραλείποντας δηλαδή τους όρους Coriolis οι οποίοι περιλαμβάνουν τα γινόμενα μεταξύ γωνιακών ταχυτήτων. H προηγούμενη σχέση \eqref{eq:dynamics_closed_system} απλοποιείται ακολούθως, 
+\begin{equation}
+M_{H,\overline{x}}(\theta)\ddot{\overline{x}}=-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}}
+\end{equation}
+όπου,
+\begin{equation}
+M_{H,\overline{x}}(\theta)=(J_{tot}M(\theta)^{-1}J^T_{tot})^{-1} \label{eq:generalized_hand_coordinates_inertia}
+\end{equation}
+Σε αυτό το σημείο μπορούμε να εισάγουμε και τη δυναμική επίδραση του αντικειμένου, $F_o=M_o[\ddot{x}_o\phantom{1} \dot{\omega_o}\phantom{1} O_{N\times6}]^T$ (θεωρούμε ότι η βαρυτική δύναμη του αντικειμένου αντισταθμίζεται όπως εξηγούμε αναλυτικά στην επόμενη ενότητα), ως εξωτερική δύναμη, οπότε και έχουμε,
+\begin{equation}
+M_{H,\overline{x}}(\theta)\ddot{\overline{x}}=-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}}-F_o
+\end{equation}
+και τελικά,
+\begin{equation}
+M_{\overline{x}}(\theta)\ddot{\overline{x}}=-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}} \label{eq:dynamics_object_level}
+\end{equation}
+όπου,
+\begin{equation}
+M_{\overline{x}}(\theta)=M_{H,\overline{x}}(\theta)+   \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      I_{6\times 6} \\
+      0_{N\times 6} \\
+   \end{bmatrix}M_o [I_{6\times 6}, 0_{6\times N}]
+\end{equation}
+Η δυναμική του λάθους παρακολούθησης τροχιάς προκύπτει βάσει της \eqref{eq:dynamics_object_level} για μηδενικές εξωτερικές δυνάμεις, 
+\begin{equation}
+M_{\overline{x}}(\theta)\ddot{e_{\overline{x},o}}+D_{\overline{x}}\dot{e_{\overline{x},o}}+K_{\overline{x}}e_{\overline{x},o}=0
+\end{equation}
+
+Σε αυτό το σημείο ο όρος απόσβεσης επιλέγεται ως συνάρτηση της μήτρας αδράνειας $M_{\overline{x}}$ και του αναλογικού κέρδους $K_{\overline{x}}$ έτσι ώστε να προκύπτει δυναμικά συνεπής απόσβεση για όλες τις δυνατές θέσεις της διάταξης. 
+
+Βάσει της μεθοδολογίας της διπλής διαγωνοποίησης της θεωρίας της γραμμικής άλγεβρας προκύπτει ότι για ένα θετικά ορισμένο συμμετρικό πίνακα $n\times n$ $M_{\overline{x}}$ και για ένα πίνακα $K_{\overline{x}}$ συμμετρικό $n\times n$, υπάρχει πίνακας πλήρους τάξης $Q$ έτσι ώστε, $M_{\overline{x}}=QQ^T$ και  $K_{\overline{x}}=QK_{d0}Q^T$ για τυχαίο διαγώνιο πίνακα $K_{d0}$.
+
+Επιλέγοντας τον πίνακα απόσβεσης,
+\begin{equation}
+D_{\overline{x}}(\theta)=2Q(\theta)D_{\xi}K_{do}^{1/2}Q(\theta)^T
+\end{equation}
+η δυναμική του σφάλματος παρακολούθησης τροχιάς διαμορφώνεται,
+\begin{equation}
+Q(\theta)Q(\theta)^Τ\ddot{e_{\overline{x},o}}+2Q(\theta)D_{\xi}K_{do}^{1/2}Q(\theta)^T\dot{e_{\overline{x},o}}+Q(\theta)K_{do}Q(\theta)^Te_{\overline{x},o}=0
+\end{equation}
+Βγάζοντας κοινό παράγοντα τη μήτρα $Q(\theta)$ και ανάγοντας το σύστημα ως προς στο νέο χώρο γενικευμένων μεταβλητών $w=Q^T(\theta)e_{\overline{x},o}$ προκύπτει η επιθυμητή συμπεριφορά συστήματος,
+\begin{equation}
+\ddot{w}+2D_{\xi}K_{do}^{1/2}\dot{w}+K_{do}w=0
+\end{equation}
+
+  
+Προκύπτει ότι τα στοιχεία της διαγωνίου της μήτρας αδράνειας $M_{\overline{x}}$ είναι τα κυρίαρχα επηρεάζοντας ουσιαστικά τα αδρανειακά χαρακτηριστικά του συστήματος. Λαμβάνοντας υπόψη λοιπόν μόνο τα διαγώνια στοιχεία έχουμε, 
+\begin{equation}
+M_{\overline{x}}(\theta)=(blockdiag\{diag\{J_{tot}M(\theta)^{-1}J^T_{tot}\}\})^{-1} +   \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      I_{6\times 6} \\
+      0_{N\times 6} \\
+   \end{bmatrix}M_o [I_{6\times 6}, 0_{6\times N}]
+\end{equation}
+Οπότε επιλέγεται ουσιαστικά, $Q(\theta)=\sqrt{M_{\overline{x}}}$.
+
+Τελικά ο όρος της απόσβεσης που καθορίζει τη ματαβατική δυναμική συμπεριφορά του κλειστού συστήματος επιλέγεται ορίζοντας τα ακόλουθα διαγώνια στοιχεία
+% έτσι ώστε η σταθερά απόσβεσης του κλειστού συστήματος $\zeta$ να είναι 
+%\begin{equation}
+%\zeta=\frac{1}{\xi}
+%\end{equation}
+\begin{equation}
+D_{\overline{x},ii}(\theta)=2\xi_i\sqrt{M_{\overline{x},ii}(\theta)K_{\overline{x},ii}}
+\end{equation}
+όπου $\xi_i \in [0,1]$, ο επιθυμητός παράγωντας της απόσβεσης για την αντίστοιχη γενικευμένη μεταβλητή $\overline{x}_i$ και $K_{\overline{x},ii}$ τα διαγώνια στοιχεία της μήτρας των κερδών $K_{\overline{x}}=blockdiag\{K_{o,t},K_{o,r},K_{Conn}\}$. 
+
+
+\section{Επεκτάσεις--Τροποποιήσεις του Ελεγκτή Εμπέδησης στο επίπεδο του αντικειμένου}
+
+Ο έλεγχος των εσωτερικών δυνάμεων της λαβής με βάση το σχήμα συνδετικής ακαμψίας $V_{Conn}$ όπως περιγράφηκε στη προηγούμενη υποενότητα δίνει ικανοποιητικές επιδόσεις και εύρωστη--ευσταθή λαβή~\cite{WimboeckOttHirzinger2006,WimbockOttHinzinger2007,WimbockOttSchafferHirzinger}. Ιδιαίτερα εντυπωσιακό αν αναλογιστεί κανείς ότι ουσιαστικά το σύστημα είναι "τυφλό" καθώς δε βασίζεται σε κανενός είδους αισθητηριακή πληροφόρηση (force--sensor--tactile) με μόνη παραδοχή ότι τα αντικείμενα υπό χειρισμό θα προσεγγίζουν κανονικές τρισδιάστατες γεωμετρίες.\\
+
+Η κριτική που μπορεί κανείς να ασκήσει στο συγκεκριμένο σχήμα ελέγχου των εσωτερικών δυνάμεων αποτελείται από δύο βασικούς άξονες,
+\begin{itemize}
+\item
+Ιδιαίτερα αυξημένες απαιτήσεις από τον κώνο τριβής της επαφής στη περίπτωση χειρισμού αντικειμένου με επίπεδες επιφάνειες όπως φαίνεται και στο σχήμα~\ref{fig:contact_pressure} καθώς η κατεύθυνση του εικονικού ελατηρίου $V_{Conn,i}$ τείνει σε εφαπτομενικές ως προς την επιφάνεια του αντικειμένου διευθύνσεις.
+\item
+Πρακτικά δύσκολη η ρύθμιση των σημείων ισορροπίας $l_{i,des}$ για κάθε σύνδεση $V_{Conn,i}$ σε πραγματικό χρόνο για διαφορετικά αντικείμενα με αποτέλεσμα πιθανή παρουσία συνιστάμενης δύναμης στο αντικείμενο και κατά συνέπεια παρουσία τελικού σφάλματος θέσης.
+\end{itemize}
+
+
+\subsection{Έλεγχος Εσωτερικών Δυνάμεων βάσει Χαρακτηριστικών Επιφανείας (IPC--IF)}
+\label{subsect:IPC_IF}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.45\textwidth}{!}{\input{images_kefalaio3/Virtual_Linkages_IPC_Rectangle_Problem.tex}}
+   		\caption{Μεγάλη εφαπτομενική δύναμη ως προς την επιφάνεια του αντικειμένου στα ακροδάκτυλα $x_2$, $x_3$ από τις σφαιρικά συμμετρικές αντίστοιχες ακαμψίες $K_{Conn2}$, $K_{Conn4}$  }
+   		\label{fig:contact_pressure}
+\end{figure}
+
+
+Βασικό επιχείρημα στη προσέγγισή μας είναι ότι σε πραγματικές ολοκληρωμένες ρομποτικές εφαρμογές ρομποτικών χειριστών υπάρχουν τουλάχιστον ένα ή και περισσότερα αισθητηριακά σύνολα (Δυνάμεων, Αφής, Όρασης) ικανά να μας δώσουν πληροφορία για την επιφάνεια του αντικειμένου και συγκεκριμένα για τη κάθετη στην επιφάνεια κατεύθυνση.
+
+Έτσι λοιπόν, προτείνουμε επέκταση του Εγγενώς Παθητικού Ελεγκτή (IPC) εφαρμόζοντας έλεγχο των εσωτερικών δυνάμεων με την άσκηση δυνάμεων από τα ακροδάκτυλα με κατεύθυνση κάθετη και εσωτερική ως προς το αντικείμενο και την επιφάνειά που ορίζουν οι επαφές (IPC--IF) (βλ. σχήμα~\ref{fig:Perpendicular_Internal_Control}). 
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.45\textwidth}{!}{\input{images_kefalaio3/Perpendicular_Internal_Control.tex}}
+   		\caption{Εγγενώς Παθητικός Έλεγχος με Έλεγχο Εσωτερικών Δυνάμεων ασκώντας κάθετη πίεση στις επιφάνειες που ορίζουν οι επαφές (IPC--IF).}
+   		\label{fig:Perpendicular_Internal_Control}
+\end{figure}
+
+
+Για τη κατάλληλη ρύθμιση αυτών των εσωτερικών δυνάμεων προτείνουμε τη προβολή στο μηδενικό χώρο της μήτρας λαβής.. \\
+
+Κατά τη στατική ανάλυση \eqref{eq:GraspMatrix_Relative} έχουμε,
+\begin{equation}
+\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      R_o^T &R_o^T &R_o^T&R_o^T \\
+      [r_{c1}\times]R_o^T & [r_{c2}\times]R_o^T&[r_{c2}\times]R_o^T&[r_{cN}\times]R_o^T \\
+   \end{bmatrix}
+  \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         F_{s1} \\
+          F_{s2} \\
+         F_{s2}\\
+          F_{sN} \\
+      \end{bmatrix}=
+        \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}   \label{eq:Static_Relational}
+\end{equation}
+με το διάνυσμα $r_{ci}$ να ορίζεται,
+\begin{equation}
+r_{ci}=\frac{x_i-x_o}{||x_i-x_o||}
+\end{equation}
+Οι εσωτερικές, κάθετες στο αντικείμενο δυνάμεις είναι,
+\begin{equation}
+F_s=nf_s \label{eq:Perpendicular_Forces}
+\end{equation}
+όπου $n=blockdiag\{n_1, n_2, n_3, n_4\}\in \mathbb{R}^{12\times4}$ τα μοναδιαία διανύσματα $n_i$ κάθετα στην επιφάνεια της επαφής $i$ αντίστοιχα.
+Άρα έχουμε από  \eqref{eq:Static_Relational,eq:Perpendicular_Forces},
+\begin{equation}
+\underbrace{\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      R_o^Tn_1 &R_o^Tn_2 &R_o^Tn_3&R_o^Tn_4 \\
+      [r_{c1}\times]R_o^Tn_1 & [r_{c2}\times]R_o^Tn_2&[r_{c2}\times]R_o^Tn_3&[r_{cN}\times]R_o^Tn_4 \\
+   \end{bmatrix}}_{G}
+ \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         f_{s1} \\
+          f_{s2} \\
+          f_{s3}\\
+          f_{s4} \\
+      \end{bmatrix}}_{f_{s}} =
+       \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}}_{F_{ext}}   \label{eq:GraspMatrix_Relative}
+\end{equation}
+όπου $G \in \mathbb{R}^{6\times4}$ η προκύπτουσα μήτρα λαβής. Από \eqref{eq:grasp_matrix_general_solution} η προβολή στο μηδενικό χώρο της $G$ θα είναι,
+\begin{equation}
+f_{s,Null}=\underbrace{(\mathbf{I}-[G]^{+}G)}_{G_{s,Null}}f_s
+\end{equation}
+
+Τελικά ο νόμος ελέγχου $\tau_{N}$ για τις εσωτερικές δυνάμεις διαμορφώνεται,
+\begin{equation}
+\tau_{N}(\theta)=J_H^T(\theta)\phantom{1}(\mathbf{I}-[G]^{+}G)f_s
+\end{equation}
+
+
+
+\subsection{Βαρυτική Αντιστάθμιση}
+\label{subsec:Gravitational}
+Εφόσον έχουμε ορίσει τις ακαμψίες των γραμμικών και στροφικών μετατοπίσεων ορίζοντας τη δύναμη $f_o$ και τη ροπή εμπέδησης $m_o$ μπορούμε εύκολα να επεκτείνουμε την υπάρχουσα δομή για την εισαγωγή όρων αντιστάθμισης της βαρυτικής επίδρασης μέσω του βαρυτικού διανύσματος $G=[0,0,mg]$. Η μεταφορική επίδραση της βαρύτητας ως προς το πλαίσιο $Η_ο$ θα είναι,
+\begin{equation}
+f_{g}=R_o^TG
+\end{equation}
+και η ροπή που θα ασκεί,
+\begin{equation}
+m_{o,g}=[r_{COG}\times]R_o^TG
+\end{equation}
+όπου $r_{COG}$, το διάνυσμα θέσης του κέντρου βάρους του αντικειμένου ως προς το πλαίσιο $H_{o}$.
+
+Εισάγουμε του όρους αυτούς στις ~\eqref{eq:rotational_term}, ~\eqref{eq:translational_term} και έχουμε αντίστοιχα,
+\begin{equation}
+\frac{\partial V_{o,r}(\theta)}{\partial \theta}=J^T_{o,r}(\underbrace{4J^T_{\omega\epsilon}K_{o,r}\epsilon_b \label{eq:rotational_term_with_g}}_{m_o} +m_{o,g})
+\end{equation}
+\begin{equation}
+\frac{\partial V_{o,t}(\theta)}{\partial \theta}=J^T_{o,t}(\underbrace{K_{o,t}R^T_o(x_o-x_{o,des}) \label{eq:translational_term_with_g}}_{f_o}+f_{o,g})
+\end{equation}
+
+Η προσθήκη της βαρυτικής αντιστάθμισης απεικονίζεται γραφικά στο σχήμα~\ref{fig:Perpendicular_Internal_Control_PlusGravity}.
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.45\textwidth}{!}{\input{images_kefalaio3/Perpendicular_Internal_Control_plus_gravity.tex}}
+   		\caption{Έλεγχος Εσωτερικών Δυνάμεων με κάθετη πίεση στις επιφάνειες του αντικειμένου σε συνδυασμό με τους όρους βαρυτικής αντιστάθμισης.}
+   		\label{fig:Perpendicular_Internal_Control_PlusGravity}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}

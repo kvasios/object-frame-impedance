@@ -1,0 +1,35 @@
+%\documentclass{article}
+%
+%\usepackage{tikz}
+%\usetikzlibrary{arrows}
+%\usepackage{verbatim}
+%
+%\begin{document}
+%\pagestyle{empty}
+
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{1pt}
+
+\tikzstyle{int}=[draw, fill=blue!20, minimum size=2em]
+\tikzstyle{init} = [pin edge={to-,thin,black}]
+
+\begin{tikzpicture}[node distance=2.5cm,auto,>=latex']
+\node [int] (image) {\fbox{\includegraphics[width=0.25\textwidth]{images_kefalaio1/DaVinci_Man.pdf}}};
+\node (input) [left of=image,node distance=5 cm, coordinate] {};
+ \node [coordinate] (end) [right of=image, node distance=5cm]{};
+\path[->] (input) edge node {$u \in \mathbb{R}^{\sim3 \cdot10^8}$} (image);
+\path[->] (image) edge node {$y \in \mathbb{R}^{ 600\sim850}$} (end) ;
+    
+    
+%    \node [int, pin={[init]above:$v_0$}] (a) {$\frac{1}{s}$};
+%    \node (b) [left of=a,node distance=2cm, coordinate] {a};
+%    \node [int, pin={[init]above:$p_0$}] (c) [right of=a] {$\frac{1}{s}$};
+%    \node [coordinate] (end) [right of=c, node distance=2cm]{};
+%    \path[->] (b) edge node {$a$} (a);
+%    \path[->] (a) edge node {$v$} (c);
+%    \draw[->] (c) edge node {$p$} (end) ;
+
+ %    \draw[black,ultra thick] (0,0) rectangle (\textwidth,6.2);
+\end{tikzpicture}
+
+%\end{document}

@@ -1,0 +1,9 @@
+x=get_stiffness(importdata('f_x_translational_error.mat'));
+y=get_stiffness(importdata('f_y_translational_error.mat'));
+z=get_stiffness(importdata('f_z_translational_error.mat'));
+
+Kx=pinv(x(2:end)')*x(1)';
+Ky=pinv(y(2:end)')*x';
+Kz=pinv(z(2:end)')*f2';
+
+K_translational=diag([K_x(1) K_y(2) K_z(3)])

@@ -1,0 +1,70 @@
+%\documentclass{article}
+%
+%\usepackage{tikz}
+%\usetikzlibrary{arrows}
+%\usepackage{verbatim}
+%
+%\begin{document}
+%\pagestyle{empty}
+
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{1pt}
+
+%\tikzstyle{int}=[draw, fill=blue!20, minimum size=2em]
+%\tikzstyle{init} = [pin edge={to-,thin,black}]
+
+\begin{tikzpicture}[node distance=0.51\textwidth,auto,>=latex']
+\node (image1) {\fbox{\includegraphics[width=0.5\textwidth,height =0.3\textheight]{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/object_position_Force_x}}};
+\node [right of = image1](image2) {\fbox{\includegraphics[width=0.5\textwidth, height =0.3\textheight]{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/object_position_Force_y}}};
+\node [below of = image1](image3) {\fbox{\includegraphics[width=0.5\textwidth, height =0.3\textheight]{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/object_position_Force_z}}};
+%\node [right of = image2](image3) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{twendy-one-5}}};
+%\node [below of = image1](image4) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{festo_20110331_SmartBird}}};
+%\node [right of = image4](image5) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{honda-asimo}}};
+%\node [right of = image5](image6) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{nasa-NASA-curiosity-mars-rover-00}}};
+%\node [below of = image4](image7) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{PR2-robot}}};
+%\node [right of = image7](image8) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{Robonaut1}}};
+%\node [right of = image8](image9) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{Kuka}}};
+%\node [below of = image7](image10) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{drones-war}}};
+%\node [right of = image10](image11) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{maars_killbot}}};
+%\node [right of = image11](image12) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{google-car-cali_616}}};
+
+%\node (image1) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/boston-dynamics-alphadog-ls3-darpa-demo}}};
+%\node [right of = image1](image2) {\fbox{\includegraphics[width=0.32\textwidth, height =0.2\textheight]{images_kefalaio1/Robots/bostonatlas}}};
+%\node [right of = image2](image3) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/twendy-one-5}}};
+%\node [below of = image1](image4) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/festo_20110331_SmartBird}}};
+%\node [right of = image4](image5) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/honda-asimo}}};
+%\node [right of = image5](image6) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/nasa-NASA-curiosity-mars-rover-00}}};
+%\node [below of = image4](image7) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/PR2-robot}}};
+%\node [right of = image7](image8) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/Robonaut1}}};
+%\node [right of = image8](image9) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/Kuka}}};
+%\node [below of = image7](image10) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/drones-war}}};
+%\node [right of = image10](image11) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/da_vinci}}};
+%\node [right of = image11](image12) {\fbox{\includegraphics[width=0.32\textwidth,height =0.2\textheight]{images_kefalaio1/Robots/google-car-cali_616}}};
+
+
+
+
+
+
+
+
+
+
+%\node (input) [left of=image,node distance=5 cm, coordinate] {};
+% \node [coordinate] (end) [right of=image, node distance=5cm]{};
+%\path[->] (input) edge node {$u \in \mathbb{R}^{\sim3 \cdot10^8}$} (image);
+%\path[->] (image) edge node {$y \in \mathbb{R}^{ 600\sim850}$} (end) ;
+    
+    
+%    \node [int, pin={[init]above:$v_0$}] (a) {$\frac{1}{s}$};
+%    \node (b) [left of=a,node distance=2cm, coordinate] {a};
+%    \node [int, pin={[init]above:$p_0$}] (c) [right of=a] {$\frac{1}{s}$};
+%    \node [coordinate] (end) [right of=c, node distance=2cm]{};
+%    \path[->] (b) edge node {$a$} (a);
+%    \path[->] (a) edge node {$v$} (c);
+%    \draw[->] (c) edge node {$p$} (end) ;
+
+ %    \draw[black,ultra thick] (0,0) rectangle (\textwidth,6.2);
+\end{tikzpicture}
+
+%\end{document}
