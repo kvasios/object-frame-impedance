@@ -1,0 +1,389 @@
+\documentclass[KVasios-ECE-Dipl.-Thesis-EN.tex]{subfiles} 
+\begin{document}
+%\chapter{Dexterous Robotic Grasping \\ Control Techniques}
+\chapter{Dexterous Robotic Grasping Control: A Survey}
+In this chapter, we attempt a general literature review, mainly on the control techniques for dexterous robotic grasping, as well as on certain specific topics. \\
+
+\textbf{Problem Decomposition}
+\vspace{1ex}
+
+In order to analyze the complex subject of dexterous manipulation, it can be decomposed and examined separately based on the following semi-autonomous successive tasks. 
+\begin{enumerate}
+\item Approach of the target object-surface, a phase during which there is no constraint on motion and appropriate trajectory planning for approaching the contact points is performed. 
+\item Contact establishment and thus a specific constraint on motion through force exchange. In this phase, we desire control with respect to the interaction forces-torques as well as with respect to the position of the end effector.  
+\item Manipulation process. The manipulation process is achieved by simultaneously controlling the interaction forces as well as the corresponding position of the contact points in space.
+\end{enumerate}
+
+These individual problems are interconnected, as for example, the selection of contact points greatly affects the subsequent manipulation capability. Nevertheless, they can also be examined independently by developing control techniques for each of these sub-problems separately. \\
+
+In this diploma thesis, we deal mainly with the last part, that of dexterous manipulation of the object once successful approach of the contact points has been achieved.\\
+
+For the development of the analysis as well as for any other description, we first provide some fundamental classical definitions regarding the characteristics and properties of the grasping system.
+
+%\addcontentsline{toc}{chapter}{Introduction}
+%\apendix 
+\section{Essential Classical Definitions}
+%\addcontentsline{toc}{section}{Robotics Science}
+
+\textbf{Dexterity}
+\vspace{1ex}
+
+Refers to the ability to change the position and orientation of the manipulated object from an initial reference configuration in space to another arbitrarily defined one within the workspace of the fingers~\cite{KhalilPayeur2011,Bicchi:2000fk}.\\
+
+It constitutes a fairly broad concept that concerns the simultaneous capability as well as stability in performing movements of the manipulated object by the palm and fingers.
+\\
+
+\textbf{Grasp Robustness}
+\vspace{1ex}
+
+The ability to maintain the object stable regardless of disturbances of any form (such as unexpected forces, incorrect estimations of object characteristics) while at the same time the internal grasping forces (internal/grip forces) are constrained so as not to cause damage to the overall system.
+\\
+
+\textbf{Human Operability}
+\vspace{1ex}
+
+The capability for easy and safe interaction in an environment with human physical presence.\\
+
+In practical applications, these basic criteria may be difficult to coexist, requiring the designer to make compromise decisions~\cite{Bicchi:2000fk}.\\
+
+\textbf{Grasp Closure -- Contact Modeling}
+\vspace{1ex}
+
+
+A grasp is called closed if and only if it is in a state of equilibrium for any arbitrary vector of generalized external forces acting on the object~\cite{BicchiKumar2000}.\\
+
+The balancing forces that resist the movement of the object are produced through direct contact of the robotic device with the object. The criticality of selecting appropriate contact points as well as their dynamics is decisive for the behavior of the entire system.   
+Contact modeling is extremely important in the analysis of the robotic grasp-object system. Generally, in the literature, simplifying assumptions are usually made in contact modeling, considering them as point contacts with friction based on the Coulomb model. A basic classical categorization regarding contact models is the following.
+
+\begin{itemize}
+\item \textbf{Point Contact with or without friction -- \textit{Hard Finger}}. Exerts force in the direction of the object (locally perpendicular to the surface of the object at the contact points) and in the case of friction, tangentially as well.
+\item \textbf{Soft contact -- \textit{Soft Finger}}. Can additionally exert contact torque about the normal axis at the contact point.
+\end{itemize}
+ 
+ 
+ Very important properties that are taken into account in the contact model are the visco-elastic behavior (visco-elastic behaviour, rigid, isotropically elastic), the rolling and sliding conditions, i.e., the static and dynamic terms of the model, as well as whether the bodies in contact exhibit rolling (\textit{rolling contact}) or sliding (\textit{sliding contact}). On these topics, the classical works of Salisbury and Mason, professor researchers at MIT, are relevant, who with their now classic works in the 1980s laid the foundations for the analysis and design of dexterous robotic grasps. Salisbury first showed that the theoretically minimum number of degrees of freedom necessary to achieve dexterity in a hand with rigid fingers, without rolling and sliding phenomena, is 9, with each finger having at least 3 DOFs. Correspondingly, he also proceeded with the design-construction of a robotic hand with these characteristics.
+ 
+For increasing flexibility in manipulation operation, several researchers introduced redundant degrees of freedom in their designs, with the most classic addition being that of one additional but coupled degree of freedom per finger at the distal interphalangeal joint. This approach mimics the human model and essentially the degrees of freedom remain 3. 
+
+A basic prerequisite for the penetration of dexterous manipulation systems into the real world is the reduction of complexity at every level of implementation~\cite{Bicchi:2000fk}. The particularly complex nature of the individual mechanical parts comes into direct conflict with design criteria that impose a high degree of reliability, low cost, and low weight. The mechanical complexity of robotic hand construction is characteristically reflected in the number of actuators used, which starts from 9 and can reach 32 or more.
+
+On the topic of optimized design, it is very important to note that the required number of degrees of freedom to achieve dexterity is absolutely connected to the initial assumptions we make about the contact model. For example, under the assumption that the contacts are ``soft-finger,'' the minimum degrees of freedom for each finger to achieve dexterity result in 4~\cite{Bicchi:2000fk}.
+
+Thus, simpler configurations can be defined from the mechanical level to the control level that can be equally dexterous in manipulation by exploiting alternative techniques such as \textit{Regrasping \& Finger Gaiting} or techniques that exploit rolling and sliding phenomena of contacts, \textit{Rolling \& Sliding}~\cite{Bicchi:2000fk}. For these techniques, a major obstacle is the difficulty of establishing closed mathematical descriptions for these phenomena to a degree that would make the application of a suitable control technique feasible. Particularly for the phenomenon of rolling between a soft micro-finger and a rigid object, the Lagrangian dynamic model of the system has been defined only for two fingers with 2 DOFs in 2 dimensions~\cite{NguyenArimoto2002}. We will refer to these techniques in more detail in the next section.\\
+ 
+Based on this contact modeling as analyzed above, the corresponding types of grasp closure that can arise are defined.\\
+ 
+\textbf{Form Closure}
+\vspace{1ex}
+
+Refers to the ability of the grasp to prevent object movements based on constraints created by unilateral, frictionless contacts~\cite{Bicchi:2000fk,BicchiKumar2000,KhalilPayeur2011}. \\
+
+This problem, directly related to the design of mechanical devices for immobilizing objects in space for assembly and manufacturing processes, has been studied since the 19th century with the first significant theoretical results from the father of kinematics of mechanical systems, as Franz Reuleaux is characteristically called. Theoretical study shows that at least 4 frictionless contacts are needed to immobilize an object in the plane and 7 for 3D space. The form closure problem is also presented in reverse form, that of analysis, where given the grasp, it is examined whether there are available degrees of freedom for the object, and if so, in which direction. An extension of the classical definition of form closure, under the term ``immobilization problem,'' takes into account 2nd order phenomena that develop due to the relative morphology of the surface of the two bodies, ultimately providing greater accuracy in the analysis~\cite{Bicchi:2000fk}.\\
+
+\textbf{Force Closure}
+\vspace{1ex}
+
+Force closure determines the ability of the grasp to resist any external forces and usually refers to point contacts with friction. In the latter case, the grasp can withstand any force or applied torque given the existence of a sufficiently large normal force at the contact point~\cite{Bicchi:2000fk,BicchiKumar2000,KhalilPayeur2011}.\\
+
+Also, grasps that are force-closed, depending on whether the constraint points of object motion are active elements (i.e., whether they have the capability of controlled motion or not), can be characterized as \textit{Active (Active Force Closure)} or \textit{Passive (Passive Form Closure)} respectively. In case there are active and passive elements (such as a constraint from a kinetically inert element of the environment) acting in different directions, then the force-closed grasp is characterized as \textit{hybrid (Hybrid Force Closure)}~\cite{Yoshikawa2010}. By definition, form closure arises only under passive constraining elements.\\
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/Closure_Types} 
+   \caption{Closure types for planar motion. (a) Passive Form Closure. (b) Passive Force Closure. (c) Active Closure. (d) Hybrid Active/Passive Closure~\cite{Yoshikawa2010}}
+   \label{fig:Closure_Types}
+\end{figure}
+
+
+\textbf{Static Grasp Equilibrium}
+\vspace{1ex}
+ 
+ A grasp can be in equilibrium when the Convex Hull composed of the vectors of generalized forces exerted by the fingers on the object includes the zero point of the vector basis.\\
+ 
+ \textbf{Fingertip Grasp}
+\vspace{1ex}
+ 
+ The grasp is able to resist any arbitrary external force with the only contact points being those between fingertips and object.\\
+ 
+ 
+% \textbf{Power Grasp}
+%\vspace{1ex}
+% 
+%We also expect rejection of external disturbances but this time the contacts between robotic element and object are multiple and not limited to the fingertips.\\
+ 
+ \textbf{Power Grasp (or enveloping grasp)}
+\vspace{1ex}
+ 
+Refers to the type of grasp that is used for stabilizing-fixing objects using many contact points-surfaces to maximize capability for large loads and their stable attachment. \\
+
+%Other categories of grasp model description encountered in research are those of fingertip grasp and enveloping grasp. In the first, we expect the grasp to be able to resist any arbitrary external force with the only contact points being those between fingertips and object. In the case of enveloping grasp, we also expect rejection of external disturbances but this time the contacts between robotic element and object are multiple and not limited to the fingertips.\\
+ 
+%\begin{itemize}
+%...
+%\end{itemize}
+%  
+ 
+%\textbf{Grasp Quality}
+%\vspace{1ex}
+% 
+%\textbf{Grasp Transformation Matrix}
+%\vspace{1ex}
+%
+
+
+\textbf{Force Distribution Problem}
+\vspace{1ex}
+
+A very fundamental problem in dexterous robotic manipulation is the selection of appropriate grasping forces so as to avoid, or minimize, the risk of object slippage. The grasping forces, or otherwise called internal forces, lie in the null space of the grasp matrix. The contact forces that are not directly internal affect the equilibrium of the object and are referred to as manipulation forces. The problem of selecting joint torques so as to create appropriate manipulation forces for the task, while at the same time having internal forces that guarantee avoidance of loss of support through satisfaction of friction model conditions, is referred to as the force distribution problem. This is a common problem in other areas of robotics science as well, such as robotic walking, cooperative or constrained manipulation. An important property on which the nonlinear constraint optimization problem is based, and on which the force distribution problem is founded, is convexity. Given the satisfaction of this property, efficient finding of solutions to this complex problem becomes possible. For the same problem, numerical solutions of iterative form have also been proposed through the integration of smooth ordinary differential equations (ODE). Important for the formulation of the optimization problem is the finding that the nonlinear constraints for friction can be formulated as appropriately positive definite matrices. This formulation of constraints in matrix form also led to an extension, transforming the problem into a standard Linear Matrix Inequality (LMI) problem where ready mature solutions are implemented and available in widely available software.
+
+\section{System Description}
+
+\subsection{Modeling}
+\label{subsec:Modeling}
+The robotic manipulation system constitutes a complex nonlinear dynamics system. Additionally, its subsystems, links - joints, may be coupled. This inevitably leads to particularly advanced modeling and consequently control techniques. Also, during contact with the environment, a kinematic constraint is introduced into the system through a process of mechanical deformations. This deformation depends on the hardness - stiffness of the object as well as on the hardness - stiffness and shape of the end effector of each robotic configuration. Given this interaction, a reaction force is expected to be created at the end effector which is channeled to each link of the robotic configuration.\\
+
+\textbf{Hybrid Modeling of Grasping Dynamic System}
+\vspace{1ex}
+
+Dexterous control and manipulation of objects by a multi-finger robotic grasp combines characteristics from two types of interacting dynamic systems. On one hand, we have the complex multibody dynamics, which is modeled by a set of nonlinear differential equations, subject to holonomic kinematic and dynamic constraints. This part falls under the theory of Continuous Variable Dynamic Systems -- CVDS. 
+
+On the other hand, we have a set of discrete phenomena describing the state of contacts (\textit{discrete grasp states of fingers}) which are described by the theory of discrete event dynamic systems (DEDS). 
+
+For the modeling of systems that combine discrete and continuous dynamics, the theory of \textit{Hybrid Dynamical Systems}~\cite{HybridDynamicalSystems_Savkin_Evans} can be used, introducing the corresponding modeling-analysis as well as the related control techniques. 
+
+For robotic systems, an additional formalism can be introduced in their description in order to specialize the general theories and descriptions of hybrid dynamical systems theory for \textit{Mechatronic Multicontact Systems}~\cite{SchleglBussSchmidt2002}. 
+
+A central element in the description of hybrid dynamical systems is the \textit{Hybrid State Model--HSM}, in which the evolution of the system over time is given at any time either by the continuous-time differential equation, in case the appropriate selection function gives a non-zero value, or by the discrete state function for a zero value of the selection function. This approach of description - analysis - control through the theory of hybrid dynamical systems constitutes the highest level of formalism that one can achieve for the holistic description of the robotic grasping system~\cite{SchleglBussSchmidt2002}.
+
+The Hybrid description of the dynamic system, although complete, introduces a significant degree of complexity and difficulty in analysis and development of control techniques. Thus, usually most works dealing with dexterous manipulation focus on the continuous dynamics part that describes either the robotic system in free space or the grasp-object system under stable and closed grasp.
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/Hybrid_Modeling} 
+   \caption{Hybrid System HDS~\cite{SchleglBussSchmidt2002}}
+   \label{fig:Hybrid_System_Modeling}
+\end{figure}
+
+\subsection{Sensory Synthesis}
+
+For the realization of any intelligent action, through some control scheme, information about the state of the environment is necessary. 
+
+For robotic manipulation systems, two are the dominant sensory pathways from the environment and arise from vision systems and force/tactile sensors.\\
+
+\textbf{Vision Systems}
+\vspace{1ex}
+
+One of the first control methods used in robotic manipulators is visual information feedback. This type of control has proven to be an effective way for accurate guidance in free space, always within the robotic workspace, without prior accurate modeling of the system. Basic practical uses of such systems are found in trajectory planning tasks and in determining the geometry of unknown objects. Two configurations are more common: placement of the optical element at a fixed point in space and placement on the end effector.
+
+Practically, obtaining sufficient depth information with a single measurement is difficult. Thus, for 3D measurement, techniques such as multiple view synthesis and stereovision are used. Generally, approaches for vision-based control can be divided into two categories~\cite{KhalilPayeur2011}. 
+\begin{itemize}
+\item Position-based techniques, where a set of images are initialized together with a known camera model for extracting position/orientation information in 3D space. The variables under control are the Cartesian position and orientation of the object. In the case where the camera is at a fixed point and the object's position/orientation is under control, the variables describing position and orientation are reconstructed from the available images. Consequently, object detection can be accomplished by calculating the error in 3D space, and the object's position can be extracted using image information and a calibrated camera model.
+\item Image-based techniques. In this approach, the variables under control are defined directly as features in image space and thus full 3D scene reconstruction is not necessary. Object detection with this particular technique is accomplished by calculating the error in image space and applying control that guarantees this error will asymptotically decrease to zero. For a fixed camera, the image Jacobian matrix can be calculated using a camera model. Due to distortions introduced in the image, feature identification is not accurate. Even worse results are introduced in the camera-on-end-effector configuration.
+\end{itemize}
+
+Finally, both techniques, given their inaccuracy in determining position and orientation, are generally judged unsuitable for use in achieving and maintaining contact with the object surface~\cite{KhalilPayeur2011}. 
+
+However, we should not categorically reject techniques that aim to achieve stable grasp for an unknown object based solely on visual information. For example, in~\cite{WangJiangLiCaiLiu2005}, reconstruction of the unknown object model is performed through a specially adapted laser 3D scanner on the robotic arm's wrist with simultaneous adoption of optimal grasp selection technique based on closure criteria as well as motion within the friction cone, automating the object grasping process. In the case of two soft fingers, a quality criterion for grasping the object based on visual information consists of a term that minimizes the distance of the fingertips parallel with minimizing the distance of the geometric center of the object from the axis connecting the fingertips, and a second term that aims at applying force from the fingers as perpendicular as possible to its surface~\cite{Yoshikawa2010}.\\
+
+The vision system generally, however, seems to find complementary application in the first stage, that of approaching the object and perhaps early grasp formation~\cite{KhalilPayeur2011}. Once the robotic end effector reaches an appropriate distance, the process of achieving and optimizing stable contact is performed using information provided in real-time from tactile and force sensors. Control strategies that are adopted and make use of force and tactile sensors usually aim at minimizing internal forces (grasping forces) or optimizing the position/orientation of the object and ultimately achieving dexterous manipulation. The goal of the entire system is the autonomy of the manipulation system and its control only at the high level of direct object control.\\
+  
+\textbf{Generalized Force Sensors -- Tactile}
+\vspace{1ex}
+
+Force sensors that are commercially available are usually installed in the corresponding robotic wrist, or in the tendons of the robotic hand. They usually measure the forces and torques that develop in the robotic hand during interaction with the environment. The largest part of such sensor configurations consists of transducers that detect some geometric change - deformation of some appropriately designed - placed element, as a function of some applied force-torque.\\
+
+Tactile sensors are usually placed on the surface intended for direct contact, mainly the fingertips but also other internal points of the fingers and palm. The measurement concerns the applied pressure observed during interaction. This is performed through an electronic configuration that includes a planar symmetric array of smaller pressure detection sensor elements that collectively give us a mapping of the applied pressures. The most advanced of these sensors are able to give us a complete picture of the 6D force vector of the contact.\\
+ 
+ It is particularly important to mention at this point that traditional force sensors yield noisy signals, difficult to process~\cite{KimYiOhSuh2003}. This fact also serves as a trigger for the implementation of alternative dexterous manipulation techniques that do not make exclusive or any use of force sensors at contact points. 
+ 
+ Force-tactile sensor technology, however, seems to be evolving, with research efforts providing new solutions, offering the capability for accurate knowledge of the dynamic characteristics of the contact in real time, with the direct result of applying direct force control. An interesting approach is the development of high-precision optical tactile sensors capable of measuring normal as well as simultaneously tangential forces, which are able under an appropriate control scheme to acquire during the first approach of the object information about its stiffness, adapting the dynamic manipulation control parameters subsequently, offering robust dexterous manipulation for a wide range of objects of various mechanical properties~\cite{YussofOhka2009}. 
+ 
+ Another promising tactile sensor technology is able to acquire information about the texture of objects, in a manner similar to humans, by rubbing the sensor adapted to each fingertip on the surface of the object~\cite{10.3389/fnbot.2012.00004}. 
+ 
+ Finally, we should note that the technique of appropriate integration of force-tactile sensors in robotic hands with soft surfaces constitutes a particular challenge given that sensory information acquisition should not directly affect the manipulation process~\cite{LottiTiezziVassuraBiagiottiMelchiorri2004}.   
+
+\section{Robotic Grasping Control Methodologies}
+
+\subsection{Force Control}
+
+Two basic control categories that arise for a robotic kinematic chain are ``direct force control'' and ``indirect force control'' which achieves force control through kinematic control. The basic practical implementations of these two categories are achieved with hybrid position/force control and impedance control respectively.\\
+
+\textbf{Hybrid Position/Force Control}
+\vspace{1ex}
+
+Hybrid position/force control attempts to decouple the directions in which force and position control are performed. The direction in which there is no constraint is handled with position control and the direction in which there is constraint-contact with force control. Thus, in the final control design, there are two parallel control loops. Practically, the switching between these two loops may not happen fast enough to handle environmental changes~\cite{Yoshikawa2010}.\\
+
+\textbf{Impedance Control}
+\vspace{1ex}
+
+In contrast to hybrid position/force control, impedance control combines position/force control. This approach aims at smoothing the stiffness of the robotic manipulator by defining the desired impedance at the end effector. From a different perspective, this method aims at controlling position and force at the same time by expressing the desired task as the achievement of appropriately defined desired impedance. The final complex mechanical admittance of the environment, as well as the final position and applied force, will be a function of the robotic impedance. Impedance control is considered the most suitable solution for handling interactions in unstructured environments~\cite{KhalilPayeur2011}. Problems are identified due to modeling errors or due to unmodeled dynamics where the controller causes unwarranted action. 
+
+The impedance control scheme has two expressions. 
+
+\begin{itemize}
+\item Impedance Control. The robotic configuration reacts to deviation from the given trajectory by generating forces.
+\item Admittance Control. The robotic configuration reacts to external forces by deviation from the desired trajectory, maintaining interaction forces at desired values.
+\end{itemize}
+
+Special cases of Impedance and Admittance control are the stiffness control and compliance control techniques, respectively, where we are interested only in the static relationship between the position - orientation of the end effector and desired motion and the contact force - torque which are taken into account. If the relationship between the contact force-torque and the linear and angular velocities of the end effector are the quantities of interest, the control scheme is called damping control.  
+\\
+
+\textbf{Hybrid Impedance Control}
+\vspace{1ex}
+
+Hybrid impedance control combines hybrid control and impedance control, with an inner inverse dynamics control loop and an outer loop aimed at achieving appropriate desired characteristics, such as setpoint tracking, disturbance rejection, as well as robustness issues. Depending on what needs to be controlled each time, this scheme is renamed more specifically, hybrid impedance/position control or hybrid impedance/force control. For example, impedance control with respect to force can be used for the generation of those internal forces that will guarantee that contact with the object will not be lost, while impedance control with respect to position can place the fingers and thus objects at the desired point. 
+
+At the controller level itself, various classical as well as modern controllers have been proposed from the robotics science literature for controlling manipulator motion. These vary from classical PID to nonlinear modern approaches such as ``variable structure,'' adaptive, and robust. Recently, the trend in the robotics community is shifting to Artificial Intelligence topics, such as expert systems, fuzzy logic, neural networks. Industry, however, seems to remain loyal to analytical solutions, although simple learning algorithms always constitute a possible solution for industrial applications, especially at the task level.
+
+\subsection{Object-Level Stiffness Control}
+A dexterous hand has the capability to hold any arbitrary object as well as to react to arbitrary movements and forces that may act on the object. These movements and forces, being coupled and based on an appropriate control scheme, can determine the generalized stiffness of a manipulated object as well as its corresponding compliance center.
+
+Of interest is the application of this object stiffness control scheme so that the reaction force during interaction guides some assembly process as part of a broader task of the robotic manipulator. Practically, a robotic hand can be used in the production process at assembly points where they can provide active motion capabilities of mechanical compliance, which is traditionally done by an inherently passive manipulator or by a passive remote center compliance element. A robotic hand, due to its particularly low inertial characteristics, can potentially offer higher bandwidth compared to a typical serial link manipulator~\cite{GregoryStarr1992}.
+
+For the successful assembly process, the resultant force on the object must be properly coupled with the object's motion. This can be done in various ways, one of which is the introduction of an appropriate control scheme for determining the mechanical impedance of objects. This technique does not aim at dexterity as we defined it in terms of the ability to orient the object in space.
+
+Several approaches define control only with respect to the static term of the object impedance model, that of stiffness (object stiffness control). Control moves around the static equilibrium point, generating force on the object through the fingertips proportionally to the displacement from the equilibrium point, simultaneously with internal force control logic (Grasp Force Optimization) to avoid loss of support. 
+
+A technique for controlling internal forces that acts within the framework of object position stiffness control considers these forces parallel to the respective axes connecting the contact points of the fingers and incorporates them into the generalized force vector of the object. Subsequently, the grasp matrix is extended with respect to the rows for mapping from fingertip force space to internal force space on the object. Object stiffness control through determination of appropriate joint torques is done by inverting the now square grasp matrix and then using the Jacobian matrix. This approach, based on an experimental tendon-driven motion transmission configuration, has already yielded satisfactory results~\cite{GregoryStarr1992}. 
+
+\subsection{Object-Level Stiffness Control with Redundant Kinematic Configurations}
+
+In the case of object stiffness control using fingers with redundant degrees of freedom, the investigation of appropriate techniques for satisfying desired individual criteria is required. An interesting object stiffness control technique decomposes the problem by initially determining a static model with which the stiffness of the object space is connected to the individual stiffness parameters of the fingertips. Given the desired object stiffness, the problem is reduced to determining the stiffness parameters of the fingertips. Toward this direction, the initial model can be brought to linear form by assuming that the stiffness matrix has exclusively non-zero diagonal elements and forming with these a vector of stiffness coefficients. 
+
+The calculation of fingertip stiffness elements is done based on an optimization algorithm where minimization of the norm of the difference of stiffness elements with the minimum value they can have is required, satisfying, as an equality constraint, the linear equation of the system. This algorithm is called the Fingertip Stiffness Synthesis algorithm (FSS) and consists of two stages.
+\\
+
+\textbf{FSS Algorithm}
+\begin{itemize}
+\item Initially ensures the appropriateness of the selection of object stiffness parameters so that stability results for the system. 
+\item  Calculates the elements of the stiffness matrix based on the classical solution for least squares problems with equality constraint. 
+\end{itemize}
+
+Subsequently, the problem is reduced to determining joint stiffness based on the calculated stiffness matrix in the fingertip space. For this purpose, a control technique called Orthogonal Stiffness Decomposition Control (OSDC) has been developed.\\
+
+ \textbf{OSDC Algorithm}
+ \\
+ 
+Based on the static equation that connects joint torques with the force applied by the fingertips, through the Jacobian kinematic matrix, the relationship between joint stiffness and fingertip stiffness is derived. Given that the fingers have redundant degrees of freedom, a technique of defining the null space of the mapping through an appropriate similarity transformation is followed. 
+ 
+ Finally, control at the joint level includes the stiffness term with gain calculated based on OSDC, a dynamic damping term with gain determined by the inverse matrix of the stiffness matrix term mapping to the non-null space, and a dynamic gravity compensation term.   
+ 
+ The entire control scheme that combines the individual techniques FSS and OSDC, called Decentralized Object-Level Stiffness Control (DOSC), is effective in reliably determining stiffness at the object level with robotic fingers of redundant degrees of freedom~\cite{ChoiChungYoum1994}.
+ 
+ Another technique for determining joint stiffness for a given diagonal fingertip stiffness matrix in redundant kinematic configurations is based on the augmented spaces technique~\cite{KumazakiSvininLuoOdashimaHosoe2002}. Essentially, a subtask is defined in the null space of the Jacobian matrix of the kinematic configuration, decoupled from the main task. In this way, the stiffness of the main task, which is the stiffness in the fingertip space, can be mapped separately from the stiffness of the subtask, thus giving a full-rank joint stiffness matrix.
+
+\subsection{Admittance Control}
+
+As we have already mentioned, robotic admittance control aims to produce appropriate displacements of the robotic configuration, thus reacting to externally applied forces while maintaining interaction forces at desired values. For the robotic grasping system, this dynamic compliance behavior is desirable to be adopted in relation to the manipulated object.  
+
+In the case where admittance control is limited only to determining the static parameters of the dynamic model of the closed system, then the control scheme is called compliance control. This type of static analysis is generally useful for general conclusion extraction about the grasping system, particularly in linear approximation around an equilibrium point or during small motions where inertial terms are small.
+
+A methodology for achieving compliance control at the object level consists of appropriately determining the stiffness matrices, first with respect to the fingertips - contact points, and then with respect to the finger joints, as in object stiffness control as described in previous sections. In~\cite{KimYiOhSuh2003}, a control scheme is proposed for achieving compliance at the object level with a methodology for determining stiffness matrices so as to simultaneously achieve decoupling between fingers as well as between the joints of each finger. This decoupling facilitates hand control. More specifically, the implementation includes two basic stages implemented with two different algorithms respectively.   
+
+\begin{itemize}
+\item
+\textbf{Resolved Interfinger Decoupling Solver (RIFDS)}\\
+Initially, it is checked whether the desired object stiffness matrix is feasible by the respective robotic manipulation configuration based on a heuristic model implemented with predefined matrices that take into account the contact model as well as the kinematic configuration based on available degrees of freedom. Subsequently, once the Grasping Matrix is calculated for the current time step, the equations connecting the stiffness matrices of the object and fingertips, which arise from the static force-velocity equation of the grasp, are appropriately transformed into a linear relationship, with the calculation of the fingertip stiffness matrix now having been converted into a linear programming problem. 
+\item
+\textbf{Resolved Interjoint Decoupling Solver (RIJDS)}\\
+At this stage, the goal is to determine the stiffness parameters for each joint of the fingers given that the stiffness matrix with respect to the fingertip has already been determined with the RIFDS algorithm. In a similar manner, the mathematical relationship connecting the two stiffness matrices based on the differential Jacobian matrix is transformed into linear form, ensuring decoupled behavior between joints. The final solution is obtained by simple inversion of the linear mapping matrix of this relationship.
+\end{itemize}
+
+
+\subsection{Hybrid Dynamic Control of Robotic Grasping System}
+
+As we mentioned in the chapter dealing with system modeling \ref{subsec:Modeling}, the highest level of formalism we can achieve for the complete description of the robotic grasp - object system is that of hybrid dynamical systems that combine discrete and continuous nature dynamics. Schleg, Buss \& Schmidt in their work~\cite{SchleglBussSchmidt2002} attempt, within the framework of this holistic view of the problem, to introduce a complex control scheme with which they can endow the robotic grasp with almost all the characteristics that can characterize it as dexterous. More specifically, their design allows the robotic grasp robust object grasping, free placement in position and orientation, change of grasp configuration with regrasping, handling of disturbances and modeling inaccuracies.\\
+
+This complex control consists of three basic parts,
+
+\begin{itemize}
+\item
+Hybrid Reference Generator (HRG). The desired trajectories are generated using hybrid reference automata. The hybrid trajectory combines the desired contact state characterized by the number of fingers in contact, the type of contact, the desired position of the fingertips as well as their corresponding velocities.  
+
+\item
+Hybrid Controller (HC). This inner control loop drives the system toward the desired reference trajectory. In its discrete part, it generates an appropriate switch vector based on the discrete grasp state vector, aiming at switching between impedance controllers. In its continuous part, it undertakes the generation of the error signal that subsequently feeds the selected impedance controller.  
+\item
+Grasp Force Optimization (GFO) \& Impedance Control. The GFO technique used is analyzed in the next section~\cite{BussScleg1997}. The impedance controller has a series of individual impedance controllers from which the appropriate one is selected at each moment by the hybrid controller based on the vector describing the grasp state at each time instant (see figure \ref{fig:Bank_Impedance}), thus ensuring the desired dynamic response of the system for each given moment. 
+\end{itemize}
+
+Knowledge about the force applied to the object, necessary for the GFO control stage, is provided based on measurements from 6D generalized force sensors on the fingertips and mapping of these to the space of forces applied to the object through the grasp transformation matrix. 
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/Impedance_Hybrid} 
+   \caption{Bank of Impedance Controllers~\cite{SchleglBussSchmidt2002}}
+   \label{fig:Bank_Impedance}
+\end{figure}
+
+%\subsection{Regrasping \& Finger Gaiting}
+%\subsection{Sliding \& Rolling}
+
+\subsection{Grasping Force Optimization (GFO)}
+
+The application of grasping forces by the robotic manipulation configuration on the object in an optimal manner constitutes one of the basic prerequisites for achieving robust dexterous manipulation. Classical approaches to this particular problem operate under the assumptions of point contact with friction and the interaction of compact objects. Under this simplifying prism for analysis, the two most basic points that optimal grasping force control must satisfy are always moving within the friction cone, ensuring adequate support of the object, and simultaneously minimizing internal forces under the logic of minimum effort as well as protecting the overall system from damage. It is immediately obvious that these goals are diametrically opposed and require a compromise. 
+
+Regarding the formalism of describing the grasping force optimization problem, the formulation of the Coulomb friction model terms for each contact in the form of a positive definite matrix has contributed greatly. Based on this, a corresponding cost function can be formed that describes the optimization criteria mentioned above. Such a cost function could be, for example, the sum of elements of the weighted friction term matrix plus the sum of the weighted inverse matrix of friction terms. Thus, by selecting appropriate weighting matrices and minimizing the cost function, it is possible to satisfy the criteria we described. This weighting can even change dynamically for application in regrasping technique where smooth transition from the contact stage to the non-contact stage is required for each finger and vice versa, in combination with a set of additional linear constraints with respect to the friction term matrix for improving the effectiveness of the technique~\cite{BussScleg1997}. 
+
+Regarding the computational aspect of this method, there are many approaches based on classical optimization technique theory which, however, are not judged suitable for real-time application~\cite{BussScleg1997}. In the case where real-time response is required, algorithms of iterative numerical solution techniques are preferable, which indeed may reduce accuracy requirements in favor of system speed, i.e., to ensure immediate response. Buss and Schleg~\cite{BussScleg1997} propose an algorithm which, initially, given the external force with respect to the object, increases the internal forces linearly, so that the total force from each finger is within the friction cone, and subsequently the adjustment of internal forces is done by optimizing the cost function described above with an iterative numerical method.
+
+
+\subsection{Robotic Hand Preshaping}
+
+Essential for the manipulation of an object is the stage during which the robotic configuration approaches the object, forming an appropriate shape for establishing a closed grasp. This approach, although intuitively simple, presupposes a coordination of complex subtasks. 
+
+\begin{itemize}
+\item
+Recognition of the object, its position, shape, and size.
+\item
+Generation of appropriate control signals for the kinematic configuration for tracking object motion.
+\item
+Design of appropriate grasp based on the shape and surface morphology of the object, its application, and finally manipulation of the object.
+\end{itemize}
+
+An interesting approach~\cite{LuoTakahimSugimotoSugimotoOdashimaHosoe2002} sets up an appropriate virtual impedance scheme with two components. One component is defined as the virtual stiffness for each fingertip with respect to the object position at each time instant, thus ensuring tracking of object motion. The second virtual stiffness component ensures that the fingertips will symmetrically cover the space ``embracing'' the object symmetrically using appropriate functions that repel all fingers from each other, thus ensuring closure. These two virtual impedances are superimposed on the final control signal and mapped to joint space according to the classical static model with the inverse differential Jacobian matrix.\\
+
+\newpage
+\subsection{Other Techniques}
+
+\textbf{Machine Learning Techniques}
+\vspace{1ex}
+
+Machine learning techniques are constantly gaining ground in robotic systems, either complementary to classical control techniques or as standalone intelligent control systems. 
+
+In~\cite{NguyenArimoto2002}, a control technique is presented for a 2-finger 2 DOFs grasping system with soft fingertips with rolling capability on the object surface. The dynamics of this system, also referred to as ``Pinching Motion,'' is described with a Lagrangian dynamic model only for motion in a 2-dimensional plane. Control is based on the system being passive (Passivity Based Control) and includes three additive individual terms. The first term performs stable dynamic grasping by controlling internal forces, with the second undertaking object rotation, while the third term, a learning term, is iteratively updated using a dynamic regression integration differential term based on the dynamic characteristics of the Lagrangian robotic hand model. The goal of control is to perform stable periodic motion with gradual convergence to the desired trajectory by zeroing the position error with respect to the object through the dynamic learning term. This technique generalizes to 3 DOF fingers with successful results~\cite{NguyenArimoto2002}. \\
+
+\textbf{Control with Soft Contact Points}
+\vspace{1ex}
+
+As we have already mentioned, most analytical studies assume rigid fingers and rigid environment objects. 
+This creates instability and adaptability problems in different situations in practical applications. For this reason, there is particular development in the field of soft robotic systems (Soft Robotics).
+
+An interesting technique for manipulating objects with 2 soft fingertips that have adapted force sensors uses a classical PID controller at the joints where the desired position acts as a regulator of the applied force~\cite{Yoshikawa2010}. More specifically, first a filter is defined that denoises the signal from the force sensors. Then the grasping force is defined as the smaller value of the forces acting on the object along the axis between the two contact points. The error between the grasping force and the desired one is defined as proportional to the rate of change of the fingertip distance from the center. Based on inverse kinematics, the desired joint position is finally defined. An extension made to this particular scheme is the introduction of a compliance technique for large forces. In this case, when an externally applied force on the object greater than a threshold is detected, then the center between the two contact points is moved toward the direction of the externally applied force in order to reduce it. This technique can be used for executing tasks where external forces drive the task~\cite{Yoshikawa2010}.
+
+%\textbf{Use of Observer for Disturbance Rejection}
+%\vspace{1ex}
+
+
+\subsection{Stability Issues}
+
+One of the most important properties of the grasp is its stability. In the literature, the term stability is used based on at least two meanings~\cite{Bicchi:2000fk} and is determined mainly at the object level~\cite{KumazakiSvininLuoOdashimaHosoe2002}. One has to do with Lyapunov stability, and indicates (asymptotic) stability if the system dynamics are such that when the object is displaced from the reference position/orientation, it stays close (and eventually returns to it). A second definition, according to Lagrange stability, states that a conservative system is considered stable if it is at a strict local minimum of its potential energy. The second definition is the dominant one in the analysis and study of stability of robotic grasping systems. In stability analysis, the compliant dynamics of the system must also be taken into account, such as any elasticity phenomena in the fingers. 
+
+Lagrange stability analysis presents some practical problems. In mechanics, the position that an equilibrium point is unstable if it is not a minimum point of potential is not proven for systems with more than 2 degrees of freedom. In a real application, non-conservative forces can also act, created by imperfections in the mechanical structure of elements, or/and by the control law, rendering Lagrange stability analysis invalid. Lyapunov stability analysis as well as other structural properties (controllability, observability, stabilization) in the general grasping system are analyzed with respect to their linear approximation where the system is practically elastic around the equilibrium point. 
+
+In an elastic system, stability practically translates as the property according to which any displacement from the equilibrium point will create a force that will tend to return the system to the equilibrium state (\textit{stiffness-effect}). Energetically, this is interpreted in terms of the work that the system must produce for returning to the equilibrium point. For the analysis of this problem, the relationship between stiffness matrices between object, fingertips, and joints is usually first structured, which arises from the static analysis of the system at the object level through the grasp matrix and the hand Jacobian matrix. From this relationship, the grasp stability conditions are extracted, usually based on some simplifying assumptions to facilitate analysis, such as omitting gravitational effects or other unmodeled effects and second-order terms. In this simplifying assumption, setting the object stiffness matrix positive definite ensures stability for the elastic system. Usually, stiffness matrices are chosen diagonal, ensuring ease of analysis and decoupled behavior with respect to Cartesian directions. 
+
+Obviously, appropriate compensation of various effects on the system is deemed necessary for achieving stability. In this direction, in~\cite{ChoiChungYoum1994}, an algorithm for appropriate selection of object stiffness matrix through an iterative heuristic method is proposed that guarantees stability for the elastic system, taking into account each time the gravitational effect as well as the effect of internal forces. In~\cite{KumazakiSvininLuoOdashimaHosoe2002}, considering that a direct force control law (Closed Loop) acts on the fingertips of the grasping system, the grasp stability conditions for the linearized elastic system with gravitational effect are structured, under a simple model of point contacts with friction, extending the corresponding conditions for the open-loop system. Another approach proposes the introduction of a disturbance observer in the control scheme either of the servomechanism or in force or compliance control, for compensating uncertainty, the gravitational term, elasticity, and link friction. The effectiveness and performance of the disturbance observer is judged high, but stability cannot be guaranteed based on analytical solution a priori before the application of the controller to the final system. The stability conditions structured in research efforts so far are examined only with respect to certain components of disturbances in the system, and controller parameters are adjusted either through iterative or graphical methods, or intuitively~\cite{NakashimaYoshimastsuHayakawa2010}. In~\cite{NakashimaYoshimastsuHayakawa2010}, sufficient analytical conditions are first structured for ensuring stability (stiffness-effect) for small displacements around the equilibrium point where there is an elastic operating region under the effect of the gravitational term of the object and with respect to its mass, contact points, and elastic terms of the fingertips. Subsequently, for tuning the controller parameters (which incorporates a Disturbance Observer) for ensuring stability, a Lyapunov function for the system is structured from which satisfaction of the corresponding stability conditions is also required. Asymptotic stability is proven with LaSalle's invariance principle.
+ 
+
+For comparing stability between different grasps as well as generally for stability analysis, the calculation of a corresponding appropriate metric is judged useful, such as the real part of the dominant eigenvalues of the linearized grasp model. A more useful approach in several applications would be the calculation of the vector basis of generalized attractive forces around the equilibrium point, thus providing information about the range of force magnitude for which the system is stable. Efficient algorithms for calculating this quantity have not yet been developed~\cite{Bicchi:2000fk}.
+
+
+%Important is also the work done on control of grasping systems under the presence of uncertainty regarding some parameters, a situation quite common in real implementations.
+%It is important to mention the absence of sufficient geometric conditions for ensuring stability in a multi-finger grasping system with compliance control\cite{KimYiOhSuh2003}. 
+
+
+
+%\section{Implementation Architectures -- Hardware Implementation Architectures}
+
+
+\end{document}

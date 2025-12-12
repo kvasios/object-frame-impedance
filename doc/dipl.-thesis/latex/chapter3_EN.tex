@@ -1,0 +1,874 @@
+\documentclass[KVasios-ECE-Dipl.-Thesis-EN.tex]{subfiles} 
+\begin{document}
+\chapter{Modeling \& Control of Robotic Grasping:\\Theoretical Background}
+%\addcontentsline{toc}{chapter}{Introduction}
+%\apendix 
+
+A primary goal of a robotic hand is the manipulation of objects in all 6 dimensions. In the past, many algorithms have been proposed based on the pseudoinverse of the grasp matrix with some weighting factor, combined with internal-force control. Most of these methodologies require robust contact detection/tracking as well as switching controllers. By introducing the concept of the \textit{virtual object} (\textit{virtual--object}), object-level robotic grasping control techniques have been developed and are reported in the literature~\cite{WimboeckOttHirzinger2006,WimbockOttHinzinger2007,WimbockOttSchafferHirzinger}. The controller takes as input the desired object frame and the desired grasping forces. Object-level control generally has the following advantages:
+\begin{itemize}
+\item Easy definition of grasping forces to compensate for the inertial characteristics of the robot--object system
+\item Easy definition of external forces acting on the object
+\item Avoidance of unnecessarily large internal forces
+\end{itemize}
+Essentially, the goal of this work is to develop a robust and intuitive object-level control law that does not require robust contact detection/tracking.
+
+\section{Modeling of the Robotic Hand}
+
+In this section, we successively construct the kinematic, differential, and dynamic model of the robotic hand.
+
+\subsection{Kinematic Model of the Robotic Hand}
+\phantom{1}
+
+\textbf{Forward Kinematics}
+\\
+
+To describe the position and orientation of a kinematic chain consisting of prismatic and revolute joints with the minimum possible number of parameters, the Denavit--Hartenberg method is followed~\cite{G.TZAPHESTA:2003fk}. 
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.4\textwidth}{!}{\input{images_kefalaio3/denavit.tex}}
+   		\caption{Denavit--Hartenbeg Parameters~\cite{denavit_Hartenberg}}
+   		\label{fig:Denavit--HartenbegParameters}
+\end{figure}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c | c | c | c ||}
+\hline \hline
+Link $i$ & $a_i$ &$\alpha_i$ &$d_i$ &$\theta_i$\\ \hline
+1&   0&0 & 0 & $\theta_1$ \\
+\hline
+2 &$l_1$  & $\pi/2$&0& $\theta_2$ \\
+\hline
+3&$l_2$  &  0&0 & $\theta_3$ \\
+\hline
+4&$l_3$  &  0&0& $\theta_4$\\
+\hline \hline
+\end{tabular}
+\end{center}
+\caption{Denavit--Hartenberg parameter table for an anthropomorphic 4-DOF finger}
+\label{tab:Denavit--HartenbergParameters}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+	\begin{subfigure}[b]{0.35\textwidth}
+		\centering
+		\resizebox{0.95\textwidth}{!}{\input{images_kefalaio3/three-link-annotated2.tex}}
+		% \includegraphics[scale=0.45]{images_kefalaio3/three-link-annotated2.pdf} 
+		\caption{Front view} \label{fig:figureone1}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\resizebox{1.1\textwidth}{!}{\input{images_kefalaio3/three-link-annotated1.tex}}}
+			\caption{Side view} \label{fig:figureone}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.3\textwidth} %  figure placement: here, top, bottom, or page
+   			\centering
+   			\includegraphics[scale=0.45]{images_kefalaio3/finger_kinematic_structure.pdf} 
+			%\includegraphics*[0.5in,8.5in][2.5in,10.5in]{images_kefalaio3/finger_kinematic_structure.eps}
+		  	\caption{3D view}
+		          \label{fig:Denavit--Hartenbeg Parameters}
+		\end{subfigure}
+\caption{Kinematic structure of an anthropomorphic 4-DOF finger}		\label{fig:finger_kinematics}	
+\end{figure}	
+
+Thus, for describing the kinematic relationship of the fingertip with respect to the common reference frame, we have the following successive homogeneous transformations:
+\begin{multline}
+T_i(\theta_i)=A^O_{\Sigma_i}[Rot_z(\theta_{i1})*Rot_x(\pi/2)]\: [Rot_z(\theta_{i2})*Tra_x(l_1)]\\ [Rot_z(\theta_{i3})*Tra_x(l_2)]\:[Rot_z(\theta_{i4})*Tra_x(l_3)]
+\end{multline}
+where $A^O_{\Sigma i}$ is the homogeneous transformation of the base frame $\Sigma_i$ of finger $i$ with respect to the common reference frame $O$, and $\theta_i=[\theta_{i1},\theta_{i2},\theta_{i3},\theta_{i4}]^T$. The matrix $T_i(\theta_i)$ consists of the rotation matrix $R_i(\theta) \in \mathbb{R}^{3\times3}$ and the position $x_i(\theta_i)=[x_{i1},x_{i2},x_{i3}]^T \in \mathbb{R}^{3}$.
+\begin{equation}
+T_i(\theta_i) = 
+\left[
+ \begin{array}{ccccc}
+   &  & & x_{i1}(\theta_i)\\
+   & \text{\huge{$R_i(\theta_i)$}}& & x_{i2}(\theta_i)\\
+   & & & x_{i3}(\theta_i)\\
+0  &0 &0& 1
+ \end{array}
+ \right]
+\end{equation}\\
+
+For $N$ fingers, the kinematic matrix of the entire hand is:
+\begin{equation}
+T(\theta)=\left[
+ \begin{array}{ccccc}
+    & T_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & T_N(\theta_N)\\
+ \end{array}
+ \right]
+\end{equation}
+where $\theta=[\theta_{1}^T,\theta_{2}^T,\dots,\theta_{N}^T]^T\in \mathbb{R}^{4N}$.\\
+
+\textbf{Differential Kinematics}
+\\
+
+At this stage, we aim to determine the differential mapping between the generalized fingertip velocity and the joint velocities.\\
+
+By differentiating the final position of each finger $x_i(\theta_i)$, we have:
+\begin{equation}
+\dot{x}_i(\theta_i)=\frac{\partial x_i}{\partial \theta_i}\dot{\theta}_i
+\end{equation}
+and for the angular velocity of the fingertip:
+\begin{equation}
+[\omega_i \times]=R_i^T\dot{R}_i
+\end{equation}
+where\phantom{2}$[r\times]$\phantom{2}is the skew--symmetric operator $[r \times] : \mathbb{R}^3 \rightarrow \mathbb{R}^{3\times3}$:
+\begin{equation}
+[r\times]=
+\begin{bmatrix}
+ 0 & - r_3 &r_2   \\
+  r_3& 0  & -r_1  \\
+  -r_2& r_1  & 0  
+\end{bmatrix}
+\end{equation}
+Expanding $\dot{R}_i$ yields:
+\begin{equation}
+[\omega_i \times]=R_i^T\frac{\partial R_i}{\partial \theta_i}\dot{\theta}_i
+\end{equation}
+Finally, we can define an inverse skew operator $[[r \times]\times^{-1}]: \mathbb{R}^{3\times3} \rightarrow \mathbb{R}^{3} $:
+\begin{equation}
+[[r \times] \times^{-1}]=
+\begin{bmatrix}
+r_1& r_2 & r_3
+\end{bmatrix}
+\end{equation}
+Thus, the Jacobian matrix for finger $i$ is:
+\begin{equation}
+J_i(\theta_i)=
+\begin{bmatrix}
+\frac{\partial x_i}{\partial \theta_i}\\
+[(R_i^T\frac{\partial R_i}{\partial \theta_i})\: \times^{-1}]
+\end{bmatrix}
+\end{equation}
+The Jacobian matrix of the entire hand is defined as:
+\begin{equation}
+J_H(\theta)=\left[
+ \begin{array}{ccccc}
+    & J_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & J_N(\theta_N)\\
+ \end{array}
+ \right]
+ \label{eq:Hand_Jacobian}
+\end{equation}
+and the velocity relationship becomes:
+\begin{equation}
+\begin{bmatrix}
+\dot{x}\\
+\omega
+\end{bmatrix}=
+J_H(\theta)
+\dot{\theta}
+\end{equation}
+
+\subsection{Dynamic Model of the Robotic Hand}
+
+The dynamic model of the robotic hand with $N$ fingers of four degrees of freedom is described by the following differential equation, which is derived via the Lagrange method.
+
+The Lagrangian function is defined for finger $i$:
+\begin{equation}
+L_i=K_i-P_i \label{eq:Lagrangian_Function}
+\end{equation}
+where $K_i=\sum^{4}_{j=1}K_{ij}$ and $P_i=\sum^{4}_{j=1}P_{ij}$ are the total kinetic and potential energy of each finger, respectively. The kinetic energy of each finger is the sum of the kinetic energy of the center of mass of each link due to linear motion and the kinetic energy due to rotation:
+\begin{equation}
+K_{ij}=\frac{1}{2}m_{ij}\dot{x}_{cm\_ij}^T\dot{x}_{cm\_ij}+\frac{1}{2}\omega^T_{ij}I_{ij}\omega_{ij} \label{eq:Kinetic_Energy}
+\end{equation}
+\begin{equation}
+P_{ij}=m_{ij}gh_{ij} \label{Potential_Energy}
+\end{equation}
+with $m_{ij}$ and $\dot{x}_{cm\_ij}$ being the mass and linear velocity, respectively, of the center of mass $cm$ of link $ij$. $\omega_{ij}$ and $I_{ij}$ are the angular velocity and inertia tensor of link $ij$. $h_{ij}$ is the height of the link $ij$ center of mass.\\
+
+The Lagrange dynamic model is expressed as:
+\begin{equation}
+\frac{d}{dt}\left(\frac{\partial L_i}{\partial \dot{\theta}_i}\right)-\frac{\partial L_i}{\partial \theta_i}=\tau_{i} \label{eq:Lagrangian_Dynamic_Model}
+\end{equation}
+
+From \eqref{eq:Lagrangian_Function}--\eqref{eq:Lagrangian_Dynamic_Model}, the dynamic model of robotic finger $i$ follows:
+\begin{equation}
+M_i(\theta_i)\ddot{\theta}_i+C_i(\theta_i,\dot{\theta}_i)\dot{\theta}_i+g_i(\theta_i)=\tau_i+\tau_{i\_ext}  \label{eq:finger_dynamic_equation}
+\end{equation}
+where $\theta_i$, $\tau_i=[\tau_{i1},\tau_{i2},\tau_{i3},\tau_{i4}]^T$, and $\tau_{i\_ext}\in \mathbb{R}^{4}$ are the joint angles, joint torques, and externally applied joint torque, respectively. $M_i(\theta_i)\in \mathbb{R}^{4N\times4N}$, $C_i(\theta_i,\dot{\theta}_i)$, and $g(\theta_i)\in \mathbb{R}^{4N}$ are the inertia matrix, the centrifugal and Coriolis terms, and the gravity term, respectively. All these terms are expressed in joint space.\\
+
+Finally, for a robotic hand of $N$ fingers, the dynamic equation is:
+\begin{equation}
+M(\theta)\ddot{\theta}+C(\theta,\dot{\theta})\dot{\theta}+g(\theta)=\tau+\tau_{ext} \label{eq:hand_dynamic_equation}
+\end{equation}
+with:
+\begin{equation}
+M(\theta)=\left[
+ \begin{array}{ccccc}
+    & M_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & M_N(\theta_N)\\
+ \end{array}
+ \right]
+\end{equation}
+\begin{equation}
+C(\theta,\dot{\theta})=\left[
+ \begin{array}{ccccc}
+    & C_1(\theta_1,\dot{\theta}_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & C_N(\theta_N,\dot{\theta}_N)\\
+ \end{array}
+ \right]
+\end{equation}
+\begin{equation}
+g(\theta)=\left[
+ \begin{array}{ccccc}
+    & g_1(\theta_1) & & \text{\huge0}\\
+    & & \ddots\\
+    & \text{\huge0} & & g_N(\theta_N)\\
+ \end{array}
+ \right]
+\end{equation}
+and $\tau=[\tau_{1}^T,\tau_{2}^T,\dots,\tau_{4}^T]^T\in \mathbb{R}^{4N}$.
+
+\subsection{Basic Properties of the Robotic Hand Dynamic Model}
+
+The dynamic equation \eqref{eq:finger_dynamic_equation} and, by extension, \eqref{eq:hand_dynamic_equation} are nonlinear. Therefore, since the tools of classical control theory for linear time-invariant (LTI) systems cannot be used (at least not directly), new approaches are sought based on the basic structural properties of the system:
+
+\begin{itemize}
+\item $M(\theta)>0$ \& $M(\theta)^T=M(\theta)$.
+\item $(\dot{M}-2C)^T=-(\dot{M}-2C)$, i.e., a skew--symmetric matrix.
+\end{itemize}
+
+\subsection{Passivity-Based Robotic Control}
+
+From nonlinear systems theory, we have the following definition for passive systems~\cite{HassanKhalil:2002fk}.\\
+
+Consider the system:
+\begin{equation}
+\dot{x}=f(x,u)
+\end{equation}
+\begin{equation}
+y=h(x)
+\end{equation}
+where $f(0,0)=0$ and $h(0)=0$. This system is passive if there exists a positive semidefinite function $V(x)$ (storage function) such that:
+\begin{equation}
+u^Ty\geq\dot{V}=\frac{\partial V}{\partial x}f(x,u).
+\end{equation}
+The system is zero--state observable if no solution of $\dot{x}=f(x,0)$ belongs to the set $\{x|h(x)=0\}$ except for the trivial solution $x(t)=0$.
+
+Interpreting the storage function $V(x)$ as the energy of the system, we observe that a passive system has a stable equilibrium at the origin ($x(t)=0$). Control therefore relies on feedback that enforces passivity.\\
+
+For global stabilization of a passive system at the origin, given a radially unbounded positive definite storage function and zero-state observability, one may apply a control law of the form $u=-\phi(y)$, where $\phi(y)$ is locally Lipschitz such that $\phi(0)=0$ and $y^T\phi(y)>0$ for all $y\neq 0$:
+\begin{equation}
+\dot{x}=f(x,-\phi(y))
+\end{equation}
+Using $V(x)$ as a Lyapunov candidate, we obtain:
+\begin{equation}
+\dot{V}=\frac{\partial V}{\partial x}f(x,-\phi(y))\leq-y^T\phi(y)\leq 0
+\end{equation}
+so $\dot{V}$ is negative semidefinite. Note that $\dot{V}=0$ if and only if $y=0$. By LaSalle's invariance principle, asymptotic stability for $y=0$ follows, implying $u(t)=0$ and finally $x(t)=0$.\\
+
+In the control problem for the robotic system, we wish to stabilize the system at a reference point $q=q_r$. The tracking error dynamics $e=q-q_r$, $\dot{e}=\dot{q}$ follow from \eqref{eq:hand_dynamic_equation}:
+\begin{equation}
+M(\theta)\ddot{e}+C(\theta,\dot{\theta})\dot{e}+g(\theta)=\tau
+\end{equation}
+The point $(e=0,\dot{e}=0)$ is not an equilibrium point of the open-loop system.
+
+Let the control input include gravity compensation, a position-error term, and a damping term:
+\begin{equation}
+\tau=g(q)-\phi_p(e)-D\dot{e}
+\end{equation}
+where $\phi_p(0)=0$, $D$ is a positive definite $(D>0)$ velocity-feedback gain matrix, and $e^T\phi_p(e)>0$ for all $e\neq 0$. The closed-loop equation is:
+\begin{equation}
+M(\theta)\ddot{e}+C(\theta,\dot{\theta})\dot{e}+D\dot{e}+\phi_p(e)=\tau_{ext}
+\end{equation}
+The system energy (storage function) is the sum of kinetic energy and potential:
+\begin{equation}
+V = \frac{1}{2}\dot{e}^TM(\theta)\dot{e}+V_d(e)
+\end{equation}
+where:
+\begin{equation}
+V_d(e)=\int_0^e \phi_p^T(\sigma) d\sigma
+\end{equation}
+The total derivative of the system energy is:
+\begin{equation}
+\dot{V} = \frac{1}{2}\dot{e}^T(\dot{M}-2C)\dot{e}-\dot{e}^TD\dot{e}-\dot{e}^T\phi_p(e)+\dot{e}^T\tau_{ext}+\phi_p^T(e)\dot{e} \leq \dot{e}^T\tau_{ext}
+\end{equation}
+and for $\tau_{ext}=0$:
+\begin{equation}
+\dot{V} = \frac{1}{2}\dot{e}^T(\dot{M}-2C)\dot{e}-\dot{e}^TD\dot{e} \leq 0
+\end{equation}
+Defining the output as $y=\dot{e}$, we observe that the system with input $\tau$ and output $y$ is passive with storage function $V$. By LaSalle's invariance principle, $\dot{V}=0\Rightarrow\dot{e}=0\Rightarrow\ddot{e}=0\Rightarrow\phi_p(e(t))=0\Rightarrow e(t)=0$.
+
+\section{Static Grasp Analysis}
+
+In this section, we formulate the relations of the static grasp model for point contacts with friction. First, we define the Grasp Force Transformation Matrix through the static equilibrium relations. Then, we provide the definition of the stiffness effect and, by extension, stability conditions for robotic grasping.
+
+%\noindent Finally, the least-squares solution is formulated for the inverse problem of determining fingertip forces given an applied generalized wrench on the object.
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/hand_object.pdf} 
+   \caption{Schematic diagram of an object grasped by an $N$-finger hand with point contacts and friction~\cite{SchleglBussSchmidt2002}}
+   \label{fig:Hand_Object_Schematic}
+\end{figure}
+
+\subsection{Static Equilibrium \& Grasp Force Transformation Matrix}
+
+The static equilibrium relations with respect to forces and torques are:
+\begin{equation}
+\sum_{i=1}^{N}f_{ci}^o +f_{ext}=0
+\end{equation}
+\begin{equation}
+\sum_{i=1}^{N}(r_{ci} \times f_{ci}^o)+n_{ext}=0
+\end{equation}
+where $f_{ci}$ are the forces exerted by fingertip $i$, $f_{ext}$ and $n_{ext}$ are the total externally applied force and torque respectively, and $r_{ci}$ is the fingertip position vector. All these quantities are expressed with respect to the local object frame. Writing these relations in matrix form yields:
+\begin{equation}
+\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      I_{3\times3} &I_{3\times3} & \dots &I_{3\times3} \\
+      [r_{c1}\times] & [r_{c2}\times]&\dots&[r_{cN}\times] \\
+   \end{bmatrix}
+ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         f_{c1}^o \\
+          f_{c2}^o \\
+          \vdots\\
+          f_{cN}^o \\
+      \end{bmatrix} =
+      \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}   
+\end{equation}
+
+We summarize the relation in the following form, expressing fingertip forces with respect to the corresponding frame they are expressed in:
+\begin{equation}
+f_{c}^o=\begin{bmatrix}
+R_o^T & \mathbf{0}_{3\times3}\\
+\mathbf{0}_{3\times3}&R_o^T\\
+\end{bmatrix}f_c
+\end{equation}
+\begin{equation}
+\underbrace{\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      R_o^T &R_o^T & \dots &R_o^T \\
+      [r_{c1}\times]R_o^T & [r_{c2}\times]R_o^T&\dots&[r_{cN}\times]R_o^T \\
+   \end{bmatrix}}_{G}
+ \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         f_{c1} \\
+          f_{c2} \\
+          \vdots\\
+          f_{cN} \\
+      \end{bmatrix}}_{f_{c}} =
+       \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}}_{F_{ext}}   \label{eq:GraspMatrix_Relative}
+\end{equation}
+\begin{equation}
+F_{ext}=Gf_{c} \label{eq:total_external_object_force}
+\end{equation}
+where $G\in \mathbb{R}^{6\times3N}$ is the grasp force transformation matrix. 
+
+The general least-squares solution for $min||F_{ext}-Gf_{c}||$ is:
+\begin{equation}
+f_c=[G]^{+}F_{ext}+(\mathbf{I}-[G]^{+}G)\xi
+\label{eq:grasp_matrix_general_solution}
+\end{equation}
+where $[G]^{+}=G^T(GG^T)^{-1}$ is the Moore pseudoinverse, and $\xi \in \mathbb{R}^{4N}$ is an arbitrary vector.
+
+Direct force control based on \eqref{eq:grasp_matrix_general_solution} is usually avoided, because direct measurements of fingertip forces are practically difficult; and when available, the acquired signals are noisy and generally hard to process~\cite{GregoryStarr1992,KimYiOhSuh2003,SchleglBussSchmidt2002,YussofOhka2009,BicchiKumar2000,KhalilPayeur2011}. For this reason, indirect force-control schemes are preferred, typically expressed through impedance-control techniques (impedance) or, in a simplified form, stiffness control.\\
+
+The dual relation of \eqref{eq:total_external_object_force} yields the relationship between object and fingertip velocities:
+\begin{equation}
+\dot{x}=G\dot{x}_o
+\end{equation}
+and a full description of the kinematic constraints for the hand--object grasp is given by:
+\begin{equation}
+J_H(\theta)\dot{\theta}=G\dot{x}_o
+\end{equation}
+
+\section{Passivity-Based Object-Level Impedance Control}
+\label{sec:IPC}
+
+In this section, we describe an object-level grasping control method based on passivity (Passivity Based Object Level Impedance Control), which has been proposed by Wimboeck, Ott, and Hirzinger for controlling the impedance of a manipulated object using a virtual frame. This scheme is referred to as Intrinsically Passive Control (IPC).
+
+In addition, we present a technique for dealing with redundant degrees of freedom by defining an appropriate subtask in the null space of the robotic hand.\\
+
+For modeling the dynamics and designing the control scheme, we assume the following regarding grasping and object manipulation:
+\begin{itemize}
+\item Point contacts with friction
+\item Internal forces are selected so as to satisfy the constraints of the friction model
+\item To allow object motion in 6D, contacts between object and robotic hand are restricted to the fingertips
+\end{itemize}
+
+\subsection{Virtual Object Frame}
+
+For fingertip control, a virtual frame is defined at the center of the contact points:
+\begin{equation}
+x_o(\theta)=\frac{\sum_{i=1}^{N} x_i(\theta)}{N} 
+\label{eq:frame_position}
+\end{equation}
+where $x_i(\theta)\in \mathbb{R}$ represent the Cartesian positions of the fingertips for finger $i$ with respect to the base frame (frame 0).
+
+The orientation $R_o=[r_{1,o},r_{2,o},r_{3,o}]$ of the virtual frame is also defined based on the Cartesian fingertip positions. For $N=4$ fingers, the unit vector $r_{1,o}$ is defined to be parallel to the plane formed by the axes defined by fingers $i=1,3$ and $i=2,4$, respectively:
+\begin{equation}
+\tilde{r}_{1,o}=\frac{x_1-x_3}{||x_1-x_3||}+\frac{x_2-x_4}{||x_2-x_4||},\quad r_{1,o}=\frac{\tilde{r}_{1,o}}{||\tilde{r}_{1,o}||} \label{eq:r1_unit}
+\end{equation}
+The unit vector $r_{3,o}$ is defined to be orthogonal to this plane, and finally $r_{2,o}$ is defined such that the orientation frame satisfies the right-hand rule, $R_o \in SO(3)$:
+\begin{equation}
+%\tilde{r}_{3,o}=\widehat{x_1-x_3}(x_2-x_4) \label{eq:r3_unit}
+\tilde{r}_{3,o}=[(x_1-x_3)\times](x_2-x_4),\quad r_{3,o}=\frac{\tilde{r}_{3,o}}{||\tilde{r}_{3,o}||}  \label{eq:r3_unit}
+\end{equation}
+\begin{equation}
+%\tilde{r}_{2,o}=\widehat{r_{3,o}}r_{1,o} \label{eq:r2_unit}
+r_{2,o}=[r_{3,o}\times]r_{1,o} \label{eq:r2_unit}
+\end{equation}
+
+Finally, the virtual object frame $H_o$ is defined as:
+\begin{equation}
+H_o=[R_o,x_o] \in SE(3)
+\end{equation}
+This representation exhibits singularities in the case where the fingertips satisfy $x_j-x_{j+2}=0$ or $(x_1-x_3)||(x_2-x_4)$. These singularities do not occur for common convex objects with geometries such as rectangular parallelepipeds, as well as cylindrical or spherical objects.\\
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.8\textwidth]{images_kefalaio3/virtual_frame_construct.pdf} 
+   \caption{Virtual frame construction~\cite{WimboeckOttHirzinger2006}}
+   \label{fig:virtual_frame}
+\end{figure}
+
+Once the virtual frame is defined, a central point in the overall effort of constructing a suitable control scheme is relating it to the actual frame of the manipulated object.\\
+
+Thus, the virtual frame is considered to be kinematically associated with the object frame if and only if the object--finger contact points remain fixed throughout the manipulation stage, neglecting any rolling or sliding phenomena.
+
+\subsection{Object-Level Control Law}
+
+The control signal, i.e., the joint torque, is formed as follows:
+\begin{equation}
+\tau=-D(\theta)\dot{\theta}-\frac{\partial V_d}{\partial \theta}(\theta)+g(\theta) \label{eq:control_law_tau}
+\end{equation}
+where $D(\theta)$ is a positive definite dynamic damping matrix. We define a desired potential-energy function which includes the following superposed terms:
+\begin{equation}
+V_d(\theta)=V_{o,t}(\theta)+V_{o,r}(\theta)+V_{Conn}(\theta) \label{eq:Potentials_Definitions}
+\end{equation}
+where, through partial differentiation with respect to the joint angles $\theta$, the individual potentials $V_{o,t}(\theta)$, $V_{o,r}(\theta)$, and $V_{o,Conn}(\theta)$ yield, respectively: translational stiffness, rotational stiffness, and connection stiffness between the fingertips and the center of the virtual frame.
+
+From passivity-based control theory, if we choose $V_d(\theta)$ to be positive semidefinite, passivity is ensured for the closed-loop system. If it is positive definite, stability is also ensured. For asymptotic stability, one may refer to LaSalle's theorem.\\
+
+The potential functions are designed as follows:\\
+\begin{equation}
+V_{o,t}(\theta)=\frac{1}{2}(x_o-x_{o,des})^TR_oK_{o,t}R_o^T(x_o-x_{o,des}) \label{eq:translational_potential}
+\end{equation}\\
+\begin{equation}
+V_{o,r}(\theta)=2\epsilon^T_bK_{o,r}\epsilon_b \label{eq:rotational_potential}
+\end{equation}\\
+\begin{equation}
+V_{Conn}(\theta)=\frac{1}{2}\sum^N_{i=1}K_{Conn,i}[||\Delta x_i||-l_{i,des}]^2 \label{eq:connection_potential}
+\end{equation}\\
+where $x_{o,des}$ and $\epsilon_b$ are the desired position and the rotation error of the virtual frame, represented by the vector part of the unit quaternion obtained from the product $R_o^TR_{o,des}$, with $R_{o,des}$ being the desired rotation matrix. $K_{o,t}$ and $K_{o,r}$ are the stiffness matrices for linear displacement and rotation with respect to the object frame, and $K_{Conn}=diag\{K_{Conn,1},K_{Conn,2},\ldots,K_{Conn,N}\}$ is the stiffness matrix of the virtual connection springs between the fingertips and the frame center. All three matrices are chosen positive definite. The stiffness components resulting from the potentials \eqref{eq:translational_potential}--\eqref{eq:connection_potential} are illustrated in Figure \ref{fig:IPC_Virtual_Linkages}.\\
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio3/IPC_Block_Diagram.tex}}
+   		\caption{Intrinsically Passive Control scheme~\cite{WimbockOttSchafferHirzinger}}
+   		\label{fig:IPC_Block_Diagram}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio3/Virtual_Linkages_IPC1.tex}}
+   		\caption{The fingertips $x=[x_1,x_2,x_3,x_4]^T$ hold a spherical/cylindrical object using the virtual springs that define the control, as described in \eqref{eq:Potentials_Definitions}}
+   		\label{fig:IPC_Virtual_Linkages}
+\end{figure}
+\newpage
+
+Next, we present in detail how the partial derivatives of the individual potentials with respect to the joint angles $\theta$ are computed for inclusion in the control scheme, starting from the rotational-stiffness potential.\\
+
+\subsection{Rotational Stiffness}
+
+The relationship between the time derivative and the partial derivative $\frac{\partial V_{o,r}(\theta)}{\partial \theta}$ is:
+\begin{equation}
+\dot{V}_{o,r}(\theta)=\dot{\theta}^T\frac{\partial V_{o,r}(\theta)}{\partial \theta}.\label{eq:rotational_potential_time_derivative_partial_derivative}
+\end{equation}
+Differentiating in time the potential $V_{o,r}$ as defined in \eqref{eq:rotational_potential} yields:
+\begin{equation}
+\dot{V}_{o,r}(\theta)=4\epsilon^T_bK_{o,r}\dot{\epsilon}_b. \label{eq:rotational_potential_time_derivative}
+\end{equation}
+From the quaternion rate $\dot{\epsilon}_b$, we can obtain the relation that yields the corresponding angular velocity $\omega_o$ of the frame. The relation implementing this differential mapping is:
+\begin{equation}
+\dot{\epsilon}_b = J_{\omega\epsilon}(\theta)\omega_o \label{eq:quaternion_rate}
+\end{equation}
+
+The conversion from a rotation matrix $R$ to the corresponding quaternion $\epsilon=[\epsilon_0\phantom{1} (\epsilon_{b1}\phantom{1}\epsilon_{b3}$\\$\phantom{1}\epsilon_{b3})]$ is not unique; a special selection algorithm is used each time depending on the values of the elements of the rotation matrix~\cite{Diebel:2006fk}. 
+The Jacobian matrix $J_{\omega\epsilon}(\theta)$ is~\cite{Diebel:2006fk}:
+\begin{equation}
+J_{\omega\epsilon}(\theta)=\frac{1}{2}
+\begin{bmatrix}
+\epsilon_0 &-\epsilon_3 &\epsilon_2\\
+\epsilon_3 &\epsilon_0 &-\epsilon_1\\
+-\epsilon_2 &\epsilon_1 &\epsilon_0\\   
+\end{bmatrix}^T
+\end{equation}
+For the angular velocity of the frame, the following relation holds:
+\begin{equation}
+[\omega_o \times]=R_o^T\dot{R}_o \label{eq:omega_skew}
+\end{equation}
+We expand the second term using the chain rule so that the differential kinematic relations between virtual frame--fingertips and fingertips--joints appear explicitly:
+\begin{equation}
+\dot{R}_o =  \frac{\partial R_o}{\partial x^T}\frac{\partial x}{\partial \theta^T}\dot{\theta}
+\end{equation}
+The term $\frac{\partial R_o}{\partial x^T}$ can be computed by partially differentiating \eqref{eq:r1_unit}, \eqref{eq:r3_unit}, and \eqref{eq:r2_unit} with respect to the vector $x^T$. The term $\frac{\partial x}{\partial \theta^T}$ is the hand Jacobian matrix $J_{H} = \frac{\partial x}{\partial \theta^T}$ \eqref{eq:Hand_Jacobian}. Finally, we obtain:
+\begin{equation}
+\omega_o=J_{o,r}(\theta)\dot{\theta}. \label{eq:jacobian_omega}
+\end{equation}
+Substituting into \eqref{eq:quaternion_rate} and then into \eqref{eq:rotational_potential_time_derivative} gives:
+\begin{equation}
+\dot{V}_{o,r}(\theta)=\dot{\theta}^TJ^T_{o,r}4J^T_{\omega\epsilon}K_{o,r}\epsilon_b \label{eq:final_rotational_potential_time_derivative}
+\end{equation}
+and from \eqref{eq:rotational_potential_time_derivative_partial_derivative} and \eqref{eq:final_rotational_potential_time_derivative} we finally obtain:
+\begin{equation}
+\frac{\partial V_{o,r}(\theta)}{\partial \theta}=J^T_{o,r}4J^T_{\omega\epsilon}K_{o,r}\epsilon_b \label{eq:rotational_term}
+\end{equation}
+\\
+
+\subsection{Translational Stiffness}
+
+This time, we differentiate the translational-displacement potential term \eqref{eq:translational_potential} with respect to time:
+\begin{equation}
+\dot{V}_{o,t}(\theta)=(x_o-x_{o,des})^TR_oK_{o,t}\frac{d}{dt}\{R_o^T(x_o-x_{o,des}) \label{eq:translational_potential_time_derivative}\}
+\end{equation}
+We expand the term $\frac{d}{dt}\{R_o^T(x_o-x_{o,des})\}$:
+\begin{equation}
+\frac{d}{dt}\{R_o^T(x_o-x_{o,des})\}=\dot{R}_o^T(x_o-x_{o,des})+R_O^T\frac{\partial x_o}{\partial x^T}\frac{\partial x^T}{\partial \theta^T}\dot{\theta}
+\end{equation}
+From \eqref{eq:omega_skew} and \eqref{eq:jacobian_omega}, in combination with properties of skew matrices $[v\times]^T=-[v\times]$ and $[v\times]w=-[w\times]v$, we obtain a common factor of the joint angular velocity $\dot{\theta}$:
+\begin{equation}
+\frac{d}{dt}\{R_o^T(x_o-x_{o,des})\} = [[(R_o^T(x_o-x_{o,des}))\times]J_{o,r}+R_O^T\frac{\partial x_o}{\partial x^T}\frac{\partial x^T}{\partial \theta^T}]\dot{\theta}
+\end{equation}
+The partial derivative of the frame position with respect to fingertip positions from \eqref{eq:frame_position} is $\frac{\partial x_o}{\partial x^T}=\frac{1}{N}I_{3N\times3}$, and $\frac{\partial x^T}{\partial \theta^T}$ is the hand Jacobian matrix $J_{H} = \frac{\partial x}{\partial \theta^T}$. Therefore, the derivative of the translational-displacement potential becomes:
+\begin{equation}
+\dot{V}_{o,t}(\theta)=\dot{\theta}^TJ^T_{o,t}K_{o,t}R^T_o(x_o-x_{o,des})
+\end{equation}
+from which the partial derivative (the term added to the joint-torque control signal) is:
+\begin{equation}
+\frac{\partial V_{o,t}(\theta)}{\partial \theta}=J^T_{o,t}K_{o,t}R^T_o(x_o-x_{o,des}) \label{eq:translational_term}
+\end{equation}
+with:
+\begin{equation}
+J_{o,t} = [\frac{1}{N}J_{H}^T I_{3N\times 3}R_o -  J_{o,r}^T([(R_o^T(x_o-x_{o,des})\times])^T \label{eq:Translational_Jacobian_to_Vframe}
+\end{equation}
+
+Summing \eqref{eq:translational_term} and \eqref{eq:rotational_term} essentially forms in space a 6D spring, with respect to linear and rotational displacements, associated with the object.\\
+
+\subsection{Connection Stiffness}
+
+For controlling the internal forces (grasping forces), virtual springs are defined between the fingertips $x_i$ and the position $x_o$ of the virtual frame, with an adjustable equilibrium point $l_{i,des}$ so as to satisfy friction constraints (see \eqref{eq:Potentials_Definitions}).
+
+The virtual potential for the connection-stiffness term is formed spherically symmetric with respect to the fingertips:
+\begin{equation}
+V_{conn}(\theta)=\frac{1}{2}\sum_{i=1}^{N}K_{conn,i}[||\Delta x_i|| - l_{i,des} ]^2
+\end{equation}
+where $\Delta x_i = x_i - x_o$ and $K_{conn,i}$ is always chosen positive. Partially differentiating with respect to the joint angles $\theta$ yields:
+\begin{equation}
+\frac{\partial V_{Conn}(\theta)}{\partial \theta} = J_H^T \sum_{i=1}^{N}[\frac{\partial \Delta x_i^T}{\partial x}\frac{K_{conn,i}(||\Delta x_i|| - l_{i,des})}{||\Delta x_i||}\Delta x_i ]  
+\end{equation}
+The partial derivative $\frac{\partial \Delta x_i^T}{\partial x}$ is computed as:
+\begin{equation} 
+\begin{matrix}
+\frac{\partial \Delta x_1^T}{\partial x} =  [(1-\frac{1}{N})I_{3\times3}\quad(-\frac{1}{N})I_{3\times3}\quad\dots\quad(-\frac{1}{N})I_{3\times3}]
+\\
+\frac{\partial \Delta x_2^T}{\partial x} =  [(-\frac{1}{N})I_{3\times3}\quad(1-\frac{1}{N})I_{3\times3}\quad\dots\quad(-\frac{1}{N})I_{3\times3}]\\
+\vdots\\
+\frac{\partial \Delta x_N^T}{\partial x} =  [(\underset{\text{\normalsize1}}{-\frac{1}{N})I_{3\times3}}\quad \underset{\text{\normalsize 2}}{(-\frac{1}{N})I_{3\times3}}\quad\dots\quad \underset{\text{\normalsize N}}{(1-\frac{1}{N})I_{3\times3}]}\\
+\end{matrix}
+\end{equation}
+Finally, the connection-stiffness term can be written more compactly in matrix form as:
+\begin{equation}
+\frac{\partial V_{Conn}(\theta)}{\partial \theta}=J^T_{conn}K_{Conn}   \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      ||\Delta x_1|| - l_{1,des} \\
+      \vdots\\
+      ||\Delta x_N|| - l_{N,des}
+   \end{bmatrix}
+\end{equation}
+with:
+\begin{equation}
+J^T_{Conn}=J_H^T\begin{bmatrix}
+\frac{\partial \Delta x_1^T}{\partial x} \frac{\Delta x_1}{||\Delta x_1||}\phantom{1}\dots\phantom{1} \frac{\partial \Delta x_N^T}{\partial x} \frac{\Delta x_N}{||\Delta x_N||} \label{eq:Connection_Jacobian_to_Vframe}
+\end{bmatrix}
+\end{equation}
+and:
+\begin{equation}
+K_{Conn} = block diag\{K_{Conn,1}, \dots,K_{Conn,N}\}
+\end{equation}
+\\
+
+\subsection{Control of Redundant Degrees of Freedom}
+
+Based on the controller design so far, a complete specification is essentially provided only for the fingertip positions $x_i(\theta_i)$. Since $x_i$ is a vector in $\mathbb{R}^3$ and each finger has 4 degrees of freedom, the robotic configuration is kinematically redundant by 1 degree of freedom.
+
+Exploiting this fact, we define a subtask in the null space of the robotic finger in order to introduce an anthropomorphic coupling between the last two joints $\theta_{i3}$ and $\theta_{i4}$, aiming to ensure a perpendicular projection of the fingertip onto the object surface, thereby maximizing the friction cone.
+
+The desired control for redundant configurations is formed as:
+\begin{equation}
+\tau_{d}=\tau_{d,cart}+N(\theta)\tau_{d,N}
+\end{equation}
+where $\tau_{d,cart}$ is the desired Cartesian-level control at the fingertips (as defined in the previous subsections via the stiffness of the virtual frame), $N(\theta)$ is the projection matrix onto the null space of the robotic grasp, and:
+\begin{equation}
+\tau_{d,N}=-K_N(\theta-\theta_N)-D_N\dot{\theta}
+\end{equation}
+is the PD control law for the desired subtask.\\
+
+The projection matrix can be obtained statically:
+\begin{equation}
+N(\theta)=V(\theta)^TV(\theta)
+\end{equation}
+where for the matrix $V(\theta)$ it holds:
+\begin{equation}
+V(\theta)J_Η^T(\theta)=0
+\end{equation}
+$V(\theta)$ is essentially a nullifying matrix of the Jacobian and can be computed in practice via singular-value decomposition of the Jacobian. Practically, it turns out that this type of static projection onto the Jacobian null space ultimately affects the Cartesian space of the end-effector~\cite{Alin-Albu-Schaffer:2003fk}. To obtain dynamically consistent behavior, we first transfer the hand dynamic equation \eqref{eq:hand_dynamic_equation} from joint space to fingertip space. For fingertip velocity and acceleration, we have:
+\begin{equation}
+\dot{x}=J(\theta)\dot{\theta} \label{eq:Jacobian_velocities}
+\end{equation}
+\begin{equation}
+\ddot{x}=J(\theta)\ddot{\theta}+\dot{J}(\theta)\dot{\theta}  \label{eq:Jacobian_accelerations}
+\end{equation}
+Substituting into \eqref{eq:hand_dynamic_equation} gives:
+\begin{equation}
+\ddot{x}-\dot{J}(\theta)\dot{\theta}+J(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta}+g(\theta))=J(\theta)M^{-1}(\theta)\tau_d \label{eq:Dynamics_Equation_Coordinates_Transformation}
+\end{equation}
+Thus, it follows that to ensure dynamically consistent null-space control, the projection matrix must satisfy:
+\begin{equation}
+J(\theta)M(\theta)^{-1}N(\theta)=0
+\end{equation}
+Finally, the solution we use for the dynamic null-space projection matrix~\cite{O.Khatib:1987uq} is:
+\begin{equation}
+N(\theta)=(I-J^T(\theta)\Lambda(\theta)J(\theta)M^{-1}(\theta))
+\end{equation}
+where:
+\begin{equation}
+\Lambda(\theta)=(J(\theta)M^{-1}(\theta)J(\theta)^T)^{-1}
+\end{equation}
+
+The null-space control law is designed, as mentioned, for coupling the last two degrees of freedom, as follows:
+\begin{equation}
+\tau_{d,N}=-K_{Null}(\theta_{i3}-\alpha\theta_{i4})-D_{Null}\dot{\theta}
+\end{equation}
+where $\alpha\in[0,1]$ is the coefficient by which we can tune the coupling relationship between $\theta_{i3}$ and $\theta_{i4}$.
+\\
+
+\subsection{Damping-Term Design}
+
+In order to determine the transient behavior of the system, the dynamic damping term $D(\theta)$ of the controller is designed based on the following methodology~\cite{Alin-Albu-Schaffer:2003fk,Alin-Albu-Schaffer:2004kx,WimboeckOttHirzinger2006}.\\
+
+First, based on the differential mappings between the joint angular velocities $\dot{\theta}$ and the workspace-variable velocities $\dot{x}_o$, $\omega_o$, $||\Delta\dot{x}||$ as described by \eqref{eq:Translational_Jacobian_to_Vframe}, \eqref{eq:jacobian_omega}, and \eqref{eq:Connection_Jacobian_to_Vframe}, respectively, these differential relations can be grouped as:
+\begin{equation}
+\underbrace{\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      \dot{x}_o \\
+      \omega_{o,0} \\
+      ||\Delta \dot{x}||
+   \end{bmatrix}}_{\dot{\overline{x}}} = \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         J_{o,t} \\
+         J_{o,r}\\
+         J_{conn}
+      \end{bmatrix}}_{J_{tot}}\dot{\theta}
+\end{equation}
+defining $\dot{\overline{x}} \in \mathbb{R}^{6+N}$ as the generalized differential coordinate vector and $J_{tot}$ as the compact Jacobian.\\
+
+In \eqref{eq:Jacobian_velocities}, \eqref{eq:Jacobian_accelerations}, and \eqref{eq:Dynamics_Equation_Coordinates_Transformation}, we see the transformation of the hand dynamic model from joint-angle space to the Cartesian space of position variables. In the present case, considering $\overline{x}$ as the generalized position variables of the robotic grasping system, we similarly transform and obtain:
+\begin{equation}
+\ddot{\overline{x}}-\dot{J_{tot}}(\theta)\dot{\theta}+J_{tot}(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta}+g(\theta))=J_{tot}(\theta)M^{-1}(\theta)\tau 
+\end{equation}
+With the control law as defined for the system via \eqref{eq:control_law_tau}, \eqref{eq:rotational_term}, and \eqref{eq:Connection_Jacobian_to_Vframe}, we have:
+\begin{equation}
+\ddot{\overline{x}}-\dot{J_{tot}}(\theta)\dot{\theta}+J_{tot}(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta}+g(\theta))=J_{tot}(\theta)M^{-1}(\theta)(-D(\theta)\dot{\theta}-\frac{\partial V_d}{\partial \theta}(\theta)+g(\theta))
+\end{equation}
+Defining the following relation between joint-space damping and damping in generalized workspace coordinates:
+\begin{equation}
+D(\theta)=J_{tot}^TD_{\overline{x}}(\theta)J_{tot}
+\end{equation}
+we finally obtain:
+\begin{equation}
+\ddot{\overline{x}}-\dot{J_{tot}}(\theta)\dot{\theta}+J_{tot}(\theta)M^{-1}(\theta)(C(\theta,\dot{\theta})\dot{\theta})=J_{tot}(\theta)M^{-1}J_{tot}^T(\theta)(-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}}) \label{eq:dynamics_closed_system}
+\end{equation}
+where $F_{\overline{x}}=[f_o\phantom{1} m_o \phantom{1} f_{Conn}]^T=K_{\overline{x}}(\overline{x}-\overline{x}_{des})=K_{\overline{x}}e_{\overline{x},o}$ with $K_{\overline{x}}=blockdiag\{K_{o,t}\phantom{1} K_{o,r} \phantom{1} K_{Conn} \}$.  
+
+For simplicity, only genuine second-order inertial phenomena are considered for designing the dynamic damping matrix, omitting the Coriolis terms that include products between joint angular velocities. The previous relation \eqref{eq:dynamics_closed_system} is simplified as:
+\begin{equation}
+M_{H,\overline{x}}(\theta)\ddot{\overline{x}}=-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}}
+\end{equation}
+where:
+\begin{equation}
+M_{H,\overline{x}}(\theta)=(J_{tot}M(\theta)^{-1}J^T_{tot})^{-1} \label{eq:generalized_hand_coordinates_inertia}
+\end{equation}
+At this point, we can also introduce the dynamic effect of the object, $F_o=M_o[\ddot{x}_o\phantom{1} \dot{\omega_o}\phantom{1} O_{N\times6}]^T$ (assuming that the object's gravitational force is compensated as explained in the next subsection), as an external force, so that:
+\begin{equation}
+M_{H,\overline{x}}(\theta)\ddot{\overline{x}}=-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}}-F_o
+\end{equation}
+and finally:
+\begin{equation}
+M_{\overline{x}}(\theta)\ddot{\overline{x}}=-D_{\overline{x}}\dot{\overline{x}}-F_{\overline{x}} \label{eq:dynamics_object_level}
+\end{equation}
+where:
+\begin{equation}
+M_{\overline{x}}(\theta)=M_{H,\overline{x}}(\theta)+   \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      I_{6\times 6} \\
+      0_{N\times 6} \\
+   \end{bmatrix}M_o [I_{6\times 6}, 0_{6\times N}]
+\end{equation}
+The tracking-error dynamics follow from \eqref{eq:dynamics_object_level} for zero external forces:
+\begin{equation}
+M_{\overline{x}}(\theta)\ddot{e_{\overline{x},o}}+D_{\overline{x}}\dot{e_{\overline{x},o}}+K_{\overline{x}}e_{\overline{x},o}=0
+\end{equation}
+
+At this point, the damping term is chosen as a function of the inertia matrix $M_{\overline{x}}$ and the proportional gain $K_{\overline{x}}$ so that dynamically consistent damping results for all possible configurations.
+
+Based on the double diagonalization methodology from linear algebra theory, it follows that for a positive definite symmetric $n\times n$ matrix $M_{\overline{x}}$ and a symmetric $n\times n$ matrix $K_{\overline{x}}$, there exists a full-rank matrix $Q$ such that $M_{\overline{x}}=QQ^T$ and $K_{\overline{x}}=QK_{d0}Q^T$ for an arbitrary diagonal matrix $K_{d0}$.
+
+Choosing the damping matrix:
+\begin{equation}
+D_{\overline{x}}(\theta)=2Q(\theta)D_{\xi}K_{do}^{1/2}Q(\theta)^T
+\end{equation}
+the tracking-error dynamics become:
+\begin{equation}
+Q(\theta)Q(\theta)^Τ\ddot{e_{\overline{x},o}}+2Q(\theta)D_{\xi}K_{do}^{1/2}Q(\theta)^T\dot{e_{\overline{x},o}}+Q(\theta)K_{do}Q(\theta)^Te_{\overline{x},o}=0
+\end{equation}
+Factoring out $Q(\theta)$ and mapping the system to the new generalized-variable space $w=Q^T(\theta)e_{\overline{x},o}$ yields the desired system behavior:
+\begin{equation}
+\ddot{w}+2D_{\xi}K_{do}^{1/2}\dot{w}+K_{do}w=0
+\end{equation}
+
+It follows that the diagonal elements of the inertia matrix $M_{\overline{x}}$ dominate, essentially affecting the inertial characteristics of the system. Considering only the diagonal elements, we have:
+\begin{equation}
+M_{\overline{x}}(\theta)=(blockdiag\{diag\{J_{tot}M(\theta)^{-1}J^T_{tot}\}\})^{-1} +   \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      I_{6\times 6} \\
+      0_{N\times 6} \\
+   \end{bmatrix}M_o [I_{6\times 6}, 0_{6\times N}]
+\end{equation}
+Thus, we essentially choose $Q(\theta)=\sqrt{M_{\overline{x}}}$.
+
+Finally, the damping term that determines the transient dynamic behavior of the closed system is selected by defining the following diagonal elements:
+\begin{equation}
+D_{\overline{x},ii}(\theta)=2\xi_i\sqrt{M_{\overline{x},ii}(\theta)K_{\overline{x},ii}}
+\end{equation}
+where $\xi_i \in [0,1]$ is the desired damping ratio for the corresponding generalized variable $\overline{x}_i$, and $K_{\overline{x},ii}$ are the diagonal elements of the gain matrix $K_{\overline{x}}=blockdiag\{K_{o,t},K_{o,r},K_{Conn}\}$. 
+\\
+
+\section{Extensions and Modifications of the Object-Level Impedance Controller}
+
+Internal-force control based on the connection-stiffness scheme $V_{Conn}$, as described in the previous subsection, yields satisfactory performance and robust, stable grasping~\cite{WimboeckOttHirzinger2006,WimbockOttHinzinger2007,WimbockOttSchafferHirzinger}. This is particularly impressive considering that the system is essentially ``blind,'' since it does not rely on any type of sensory feedback (force--sensor--tactile), with the only assumption being that the manipulated objects will have regular 3D geometries.\\
+
+The criticism that can be made of this internal-force control scheme consists of two main points:
+\begin{itemize}
+\item Particularly increased requirements on the contact friction cone in the case of manipulating objects with planar surfaces, as shown in Figure~\ref{fig:contact_pressure}, since the direction of the virtual spring $V_{Conn,i}$ tends to become tangential to the object surface.
+\item Practically difficult real-time tuning of the equilibrium points $l_{i,des}$ for each connection $V_{Conn,i}$ for different objects, resulting in a possible resultant force on the object and, consequently, a final steady-state positioning error.
+\end{itemize}
+
+\subsection{Internal-Force Control Based on Surface Characteristics (IPC--IF)}
+\label{subsect:IPC_IF}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.45\textwidth}{!}{\input{images_kefalaio3/Virtual_Linkages_IPC_Rectangle_Problem.tex}}
+   		\caption{Large tangential force with respect to the object surface at fingertips $x_2$ and $x_3$ due to the spherically symmetric connection stiffnesses $K_{Conn2}$ and $K_{Conn4}$}
+   		\label{fig:contact_pressure}
+\end{figure}
+
+The main argument in our approach is that in real integrated robotic-manipulation applications, there exist at least one or more sensor suites (Force, Tactile, Vision) capable of providing information about the object surface, and specifically the direction normal to the surface.
+
+Thus, we propose an extension of the Intrinsically Passive Controller (IPC) by applying internal-force control through exerting forces from the fingertips in a direction normal and inward with respect to the object and the surface defined by the contacts (IPC--IF) (see Figure~\ref{fig:Perpendicular_Internal_Control}). 
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.45\textwidth}{!}{\input{images_kefalaio3/Perpendicular_Internal_Control.tex}}
+   		\caption{Intrinsically Passive Control with internal-force control by applying normal pressure on the surfaces defined by the contacts (IPC--IF).}
+   		\label{fig:Perpendicular_Internal_Control}
+\end{figure}
+
+For appropriate tuning of these internal forces, we propose projection onto the null space of the grasp matrix.\\
+
+In the static analysis \eqref{eq:GraspMatrix_Relative}, we have:
+\begin{equation}
+\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      R_o^T &R_o^T &R_o^T&R_o^T \\
+      [r_{c1}\times]R_o^T & [r_{c2}\times]R_o^T&[r_{c2}\times]R_o^T&[r_{cN}\times]R_o^T \\
+   \end{bmatrix}
+  \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         F_{s1} \\
+          F_{s2} \\
+         F_{s2}\\
+          F_{sN} \\
+      \end{bmatrix}=
+        \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}   \label{eq:Static_Relational}
+\end{equation}
+with the vector $r_{ci}$ defined as:
+\begin{equation}
+r_{ci}=\frac{x_i-x_o}{||x_i-x_o||}
+\end{equation}
+The internal forces perpendicular to the object are:
+\begin{equation}
+F_s=nf_s \label{eq:Perpendicular_Forces}
+\end{equation}
+where $n=blockdiag\{n_1, n_2, n_3, n_4\}\in \mathbb{R}^{12\times4}$ are the unit vectors $n_i$ normal to the surface at contact $i$, respectively.
+Thus, from \eqref{eq:Static_Relational,eq:Perpendicular_Forces}, we have:
+\begin{equation}
+\underbrace{\begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+      R_o^Tn_1 &R_o^Tn_2 &R_o^Tn_3&R_o^Tn_4 \\
+      [r_{c1}\times]R_o^Tn_1 & [r_{c2}\times]R_o^Tn_2&[r_{c2}\times]R_o^Tn_3&[r_{cN}\times]R_o^Tn_4 \\
+   \end{bmatrix}}_{G}
+ \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         f_{s1} \\
+          f_{s2} \\
+          f_{s3}\\
+          f_{s4} \\
+      \end{bmatrix}}_{f_{s}} =
+       \underbrace{ \begin{bmatrix} % or pmatrix or bmatrix or Bmatrix or ...
+         -f_{ext} \\
+         -n_{ext}
+      \end{bmatrix}}_{F_{ext}}   \label{eq:GraspMatrix_Relative}
+\end{equation}
+where $G \in \mathbb{R}^{6\times4}$ is the resulting grasp matrix. From \eqref{eq:grasp_matrix_general_solution}, the projection onto the null space of $G$ is:
+\begin{equation}
+f_{s,Null}=\underbrace{(\mathbf{I}-[G]^{+}G)}_{G_{s,Null}}f_s
+\end{equation}
+
+Finally, the control law $\tau_{N}$ for the internal forces becomes:
+\begin{equation}
+\tau_{N}(\theta)=J_H^T(\theta)\phantom{1}(\mathbf{I}-[G]^{+}G)f_s
+\end{equation}
+
+\subsection{Gravity Compensation}
+\label{subsec:Gravitational}
+
+Having defined the stiffnesses of linear and rotational displacements by defining the force $f_o$ and the impedance torque $m_o$, we can easily extend the existing structure by introducing gravity-compensation terms through the gravity vector $G=[0,0,mg]$. The translational effect of gravity with respect to the frame $H_o$ is:
+\begin{equation}
+f_{g}=R_o^TG
+\end{equation}
+and the torque it induces is:
+\begin{equation}
+m_{o,g}=[r_{COG}\times]R_o^TG
+\end{equation}
+where $r_{COG}$ is the position vector of the object's center of gravity with respect to frame $H_{o}$.
+
+We introduce these terms into \eqref{eq:rotational_term} and \eqref{eq:translational_term}, obtaining respectively:
+\begin{equation}
+\frac{\partial V_{o,r}(\theta)}{\partial \theta}=J^T_{o,r}(\underbrace{4J^T_{\omega\epsilon}K_{o,r}\epsilon_b \label{eq:rotational_term_with_g}}_{m_o} +m_{o,g})
+\end{equation}
+\begin{equation}
+\frac{\partial V_{o,t}(\theta)}{\partial \theta}=J^T_{o,t}(\underbrace{K_{o,t}R^T_o(x_o-x_{o,des}) \label{eq:translational_term_with_g}}_{f_o}+f_{o,g})
+\end{equation}
+
+The addition of gravity compensation is illustrated in Figure~\ref{fig:Perpendicular_Internal_Control_PlusGravity}.
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.45\textwidth}{!}{\input{images_kefalaio3/Perpendicular_Internal_Control_plus_gravity.tex}}
+   		\caption{Internal-force control with normal pressure on the object surfaces in combination with gravity-compensation terms.}
+   		\label{fig:Perpendicular_Internal_Control_PlusGravity}
+\end{figure}
+
+\end{document}
+
+

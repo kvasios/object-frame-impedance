@@ -1,0 +1,30 @@
+\documentclass[KVasios-ECE-Dipl.-Thesis-EN.tex]{subfiles}
+\begin{document}
+\begin{center}
+\textbf{Abstract}\\
+\end{center}
+
+\noindent
+This diploma thesis deals with the subject of dexterous robotic manipulation with anthropomorphic robotic hand (comprising opposing kinematic chains). The goal of any dexterous robotic manipulation task is to achieve a desired pose (position / orientation) for the manipulated object by means of the internal coordinated motion of the robotic fingers within the workspace of the hand, along with achieving absolute control of the internal grasping forces.
+
+This diploma thesis starts by presenting a literature survey covering the major issues in the field of dexterous robotic manipulation, outlining the state-of-the-art with particular focus on the control design for robot grasping.
+This work is based on a custom-adapted dynamic simulation platform, using features from the Open Dynamics Engine (ODE) open source API, in particular: physics-based simulation, multi-body dynamics and collision detection and handling. These features are integrated within a Simulink environment using a custom-modified MEX C++ Function Block.
+Within this simulation platform, a robot hand has been modeled and dynamically simulated based on the kinematic and dynamic characteristics of the DLR Hand II.
+
+From a theoretical point of view, in this work we apply an integrated passivity-based impedance control scheme to achieve stable robot grasping by properly defining the static and dynamic properties along with the internal forces on the manipulated object. In addition, we deal with the redundant degrees of freedom of the hand, by exploiting the null-space of the fingers task-space.
+
+Analyzing the performance of this robot-grasping control scheme leads to the conclusion that it presents certain drawbacks, namely: steady-state positioning errors, inconsistencies regarding the definition of a decoupled stiffness matrix, as well as increased risk of potential contact slippage for specific object geometries. In this diploma thesis, we propose an extension of this passivity-based object-level impedance control scheme, aiming to control more efficiently the internal grasping forces, using information based on the local object surface geometry properties. The goal is to reduce steady-state errors, as well as to mitigate the effect of coupling between independent degrees of freedom, in order to produce a more consistent object-level grasping stiffness matrix and to achieve better control of the contact forces inside the friction cones constraints, thus reducing slippage possibility.
+Finally, this impedance control scheme is further extended by introducing an active gravity-compensation term, aiming to minimize any static errors that may be due to the effect of the manipulated object's weight. Simulation results, obtained by conducting extensive trials within the dynamic simulation platform described above, demonstrate the efficacy of the proposed robot grasping control scheme and the improved object-level impedance characteristics achieved.
+
+\vfill
+\begin{center}
+\textbf{Key Words}
+\end{center}
+
+\noindent
+Dexterous Robotic Grasping, passivity--based dynamic control, Grasp Force Optimization, robot impedance control, Dynamic Modeling and Simulation, internal force optimization, gravity compensation
+
+\newpage
+\end{document}
+
+

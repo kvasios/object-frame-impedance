@@ -1,0 +1,727 @@
+\documentclass[KVasios-ECE-Dipl.-Thesis.tex]{subfiles} 
+\begin{document}
+\chapter{Υλοποίηση \& Αποτελέσματα Προσομοίωσης}
+Στο παρόν κεφάλαιο παρουσιάζουμε τη μεθοδολογία υλοποίησης και τα αποτελέσματα της δυναμικής προσομοίωσης που πραγματοποιήσαμε για τον έλεγχο ρομποτικού χεριού με κινηματικά και δυναμικά χαρακτηριστικά κατ' αναλογία όμοια με αυτά του DLR Hand 2 του γερμανικού κέντρου αεροδιαστημικής. Αρχικά υλοποιούμε τον Εγγενώς Παθητικό Ελεγκτή -- IPC, με χρήση εικονικού πλαισίου λαμβάνοντας αντίστοιχα μετρήσεις σε σενάριο γραμμικής αλλά και στροφικής μετατοπίσεως καθώς και κατά την άσκηση εξωτερικών δυνάμεων. Στη συνέχεια εισάγουμε το προτεινόμενο σχήμα ελέγχου των εσωτερικών δυνάμεων βασιζόμενο στα επιφανειακά χαρακτηριστικά του αντικειμένου IPC -- IF, επαναλαμβάνοντας το ίδιο σύνολο μετρήσεων και συγκρίνοντας τα αποτελέσματα με τη προηγούμενη περίπτωση. Τέλος υλοποιούμε τον ελεγκτή βαρυτικής αντιστάθμισης
+%Τέλος παρουσιάζουμε ένα δυναμικό σύστημα εκτίμησης των αδρανειακών χαρακτηριστικών του αντικειμένου υπό χειρισμό τα οποία και τα εισάγουμε στη συνέχεια κατά το σχεδιασμό          
+\section{Δόμηση Περιβάλλοντος Προσομοίωσης}
+Εξετάζοντας ιστορικά τα συστήματα αυτόματου ελέγχου παρατηρούμε ότι αρχικά, και ιδιαίτερα πριν αρχίσει η μαθηματική θεμελίωση τους μετά τα μέσα του 19ου αιώνα, αποτελούσαν κατασκευές κυρίως εμπειρικές με απ' ευθείας εφαρμογή και ρύθμιση της διάταξης του ελεγκτή στη τελική κατασκευή. Ενώ η μαθηματική θεμελίωση του κλάδου των συστημάτων αυτόματου ελέγχου σημείωσε ραγδαία πρόοδο με την ωρίμανση της κλασικής θεωρίας μέχρι και τη δεκαετία του '50 η προσαρμογή και τελική ρύθμιση των ελεγκτών εξακολουθούσε να πραγματοποιείται στις περισσότερες περιπτώσεις απ' ευθείας στο τελικό σύστημα καθιστώντας την εν δυνάμει επικίνδυνη και δαπανηρή ίσως και σε ορισμένες περιπτώσεις αδύνατη αναλογιζόμενοι ότι οι εφαρμογές μπορεί να απαντώνται σε συστήματα όπως αυτά της αεροδιαστημικής ή και πυρηνικής τεχνολογίας.
+
+Για την αντιμετώπιση αυτών των θεμάτων ήταν προφανές ότι η εισαγωγή μίας διάταξης που να προσομοιώνει επιμέρους υποσυστήματα ή και ολόκληρο το σύστημα ήταν απαραίτητη για τη δοκιμή και ρύθμιση των ελεγκτών. Χαρακτηριστικό και ακραίο παράδειγμα αυτού αποτελεί το σύστημα προσομοίωσης της σεληνιακής ατράκτου του προγράμματος Apollo τη δεκαετία του '60, το οποίο περιελάμβανε όλα τα συστήματα του οχήματος, με τους δυναμικούς υπολογισμούς να πραγματοποιούνται από αναλογικό υπολογιστή λυχνιών κενού, ο οποίος καταλάμβανε πλήρως ένα κτίριο τεσσάρων ορόφων. Στη συνέχεια τα ψηφιακά συστήματα με την άφθονη υπολογιστική τους ισχύ, την ικανότητα εύκολου προγραμματισμού τους καθώς και τη δυνατότητα επαναχρησιμοποίησης λογισμικού αποτέλεσαν τον πυρήνα για τη δόμηση περιβαλλόντων προσομοίωσης. 
+
+Σήμερα η προσομοίωση  αποτελεί κοινή πρακτική για την κατασκευή οποιουδήποτε ολοκληρωμένου συστήματος συμπεριλαμβάνοντας στο βρόχο ειδικά προσαρμοσμένα κομμάτια υλικού (Hardware in the Loop -- HiL) ή και λογισμικού (Software in the Loop -- SiL) βελτιώνοντας τη τελική ποιότητα, μειώνοντας το χρόνο και το κόστος ανάπτυξης παραμένοντας σε ασφαλές και ελεγχόμενο περιβάλλον.
+
+ Για την προσομοίωση της δυναμικής συστημάτων μηχανικής πολλαπλών σωμάτων υπάρχουν πολλές διαθέσιμες επιλογές σε επίπεδο λογισμικού για υλοποιήσεις σε επαγγελματικό ή μη επίπεδο. Οι επαγγελματικές εφαρμογές συνήθως προσφέρουν αρκετά εξειδικευμένες λύσεις προσαρμοσμένες στο κάθε πρόβλημα και είναι εμπορικά διαθέσιμες έναντι κάποιου κόστους. Ενώ τα περισσότερα από αυτά τα συστήματα είναι σε θέση να προσομοιώσουν κινηματικές μηχανικές δομές υπό περιορισμούς καθώς και ένα πλήθος παράλληλων φυσικών φαινομένων η λίστα των διαθέσιμων εφαρμογών μικραίνει ιδιαίτερα όταν η ανίχνευση και διαχείριση συγκρούσεων και επαφών μεταξύ των προσομοιωμένων σωμάτων (Collision Detection \& Handling) τίθεται ως προαπαιτούμενο. Αυτό αποτελεί και το βασικό χαρακτηριστικό των προσομοιωτών φυσικής (Physics Engines) οι οποίοι φέρουν όλους τους υπολογισμούς για τη κίνηση των στερεών σωμάτων αλλά ταυτόχρονα είναι σε θέση να ανιχνεύσουν και να διαχειριστούν φαινόμενα επαφών και συγκρούσεων μεταξύ των. Η διαχείριση γεγονότων σύγκρουσης είναι προφανούς χρησιμότητας για συστήματα ρομποτικής ιδιαίτερα για ρομποτικά συστήματα βάδισης ή χειρισμού. 
+
+Γενικά μπορούμε να συναντήσουμε προσομοιωτές φυσικής για χρήση σε εφαρμογές όπως,
+\begin{itemize}
+\item
+3D Animation εφαρμογές όπως παιχνίδια, ταινίες, καθώς και κάθε εφαρμογή γραφικών.
+\item
+Επιστημονικές -- Βιομηχανικές εφαρμογές για μοντελοποίηση έρευνα και ανάπτυξη τεχνολογικών εφαρμογών όπως αυτών της ρομποτικής, διαστημικής, αυτοκινητοβιομηχανίας καθώς και ανάπτυξη εφαρμογών για εκπαιδευτικούς προσομοιωτές χειριστών οχημάτων παντός τύπου.
+\end{itemize}
+
+\subsection{DLR Hand 2}
+
+Στην υποενότητα αυτή παρουσιάζουμε μερικά από τα βασικά χαρακτηριστικά του Ρομποτικού Χεριού DLR Hand 2 δημιούργημα του γερμανικού κέντρου αεροδιαστημικής (DLR German Space Center) το οποίο και χρησιμοποιούμε ως πρότυπο για τη δόμηση του περιβάλλοντος προσομοίωσης του ρομποτικού χεριού αποτελώντας το πεδίο δοκιμών για την εφαρμογή των σχημάτων ελέγχου που υλοποιούμε.
+\\
+
+Το DLR Hand 2 είναι ένα πολυαρθρωτό ρομποτικό χέρι τεσσάρων δακτύλων ανθρωπομορφικού τύπου όπου το κάθε δάκτυλο έχει τέσσερις βαθμούς ελευθερίας με τους δύο τελευταίους να είναι συζευγμένοι. Η κινηματική δομή του κάθε δακτύλου απεικονίζεται στο σχήμα \ref{fig:finger_kinematics}. Επιπρόσθετα το DLR Hand 2 διαθέτει 2 βαθμούς ελευθερίας ακόμα για τη μετακίνηση του αντίχειρα αλλά και του 4ου δακτύλου οι οποίοι κρίθηκαν απαραίτητοι για την εισαγωγή της δυνατότητας της πραγματοποίησης λαβών δύναμης αλλά και επιδέξιου χειρισμού με τα ακροδάχτυλα. Το μέγεθος του ρομποτικού χεριού είναι 1.5 φορές μεγαλύτερο περίπου από το ανθρώπινο.
+
+Για την πραγματοποίηση αυτών των κινήσεων επιστρατεύεται σύστημα επενεργητών στις αρθρώσεις το οποίο αποτελείται από κινητήρες συνεχούς, οδοντωτούς ιμάντες για τις συζευγμένες αρθρώσεις και harmonic drives για τις υπόλοιπες. Τελικά το κάθε δάκτυλο είναι σε θέση να ασκήσει εφαπτομενικά στο άκρο του δακτύλου δύναμη μέχρι 30Ν. 
+
+Το αισθητηριακό σύνολο του DLR Hand 2 αποτελείται από τους ακόλουθους αισθητήρες σε κάθε δάκτυλο, 
+\begin{itemize}
+\item
+3 αισθητήρες θέσης των αρθρώσεων ειδικά σχεδιασμένοι βασιζόμενοι σε επαγωγικό συνθετικό ποτενσιόμετρο.
+\item
+3 αισθητήρες ροπής στις αρθρώσεις βασιζόμενοι σε μέτρηση της παραμορφωτικής ιδιότητας.
+\item
+3 αισθητήρες μέτρησης θέσης--ταχύτητας, αναλογικοί Hall Sensors, με παρεμβολή.
+\item
+1 αισθητήρας δύναμης έξι διαστάσεων στο ακροδάκτυλο βασιζόμενος σε μέτρηση της παραμορφωτικής ιδιότητας.
+\item
+3 αισθητήρες μέτρησης θερμοκρασίας στους κινητήρες.
+\item
+3 αισθητήρες μέτρησης θερμοκρασίας για θερμοκρασιακή αντιστάθμιση.
+\end{itemize}
+
+Τα ηλεκτρονικά στοιχεία του χεριού είναι πλήρως ενσωματωμένα στο κυρίως σώμα κάτι το οποίο έγινε εφικτό με τη χρήση εύκαμπτων τυπωμένων κυκλωμάτων (flexible PCBs). Σε κάθε σύνδεσμο κάθε δακτύλου υπάρχει τουλάχιστον ένα κύκλωμα, μετατροπέας αναλογικού--ψηφιακού 8 καναλιών ανάλυσης 12-bit για την ανάγνωση των σημάτων των αισθητήρων. Ακόμα είναι σημαντικό να αναφέρουμε ότι τα ηλεκτρονικά ισχύος κάθε κινητήρα είναι τοποθετημένα κοντά στον κινητήρα. Έτσι λοιπόν το DLR Hand 2 επιτυγχάνει πλήρη ικανότητα αυτονόμησης όντας ικανό να τοποθετηθεί σε οποιοδήποτε ρομποτικό βραχίονα χωρίς να απαιτείται ειδική υποδομή.
+
+Ο έλεγχος πραγματοποιείται από εξωτερικό υπολογιστή. Για την επικοινωνία μεταξύ των επιμέρους στοιχείων και αυτών με το εξωτερικό υπολογιστικό σύστημα χρησιμοποιείται ένα προηγμένο πλήρως ενσωματωμένο σύστημα σειριακού ελέγχου με στόχο την ελαχιστοποίηση των εσωτερικών καλωδιώσεων. Η δομή του συστήματος αυτού είναι ιεραρχική αποτελούμενη αρχικά από ένα τηλεπικοινωνιακό ελεγκτή στη βάση του κάθε δακτύλου ο οποίος πραγματοποιεί επεξεργασία στα σήματα του αντίστοιχου δακτύλου (40 κανάλια 12-bits ανάλυση) καθώς και ένα τηλεπικοινωνιακό ελεγκτή στη βάση του χεριού υπεύθυνο για την επικοινωνία μεταξύ του ελεγκτή κάθε δακτύλου και του εξωτερικού υπολογιστικού συστήματος.  
+
+Το συνολικό βάρος κάθε ενός από τα 4 πανομοιότυπα δάκτυλα, είναι $375 gr$. Η πυκνότητας κατανομής μάζας, θεωρώντας απλουστευτικά ότι είναι σταθερή καθ' όλο το συνολικό μήκος συνδέσμων $l_1+l_2+l_3=155mm$, προκύπτει $d=2.49gr/mm$ . Στον πίνακα \ref{tab:DLRHand2Parameters} παραθέτουμε τα βασικά γεωμετρικά -- αδρανειακά χαρακτηριστικά του DLR Hand 2. 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c |c  ||}
+\hline \hline
+Σύνδεσμος i & Μήκος $[mm]$ & Μάζα $[gr]$\\ \hline
+1&75 & 187  \\
+\hline
+2 &40  &  94 \\
+\hline
+3&40  &  94\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Πίνακας βασικών γεωμετρικών -- αδρανειακών χαρακτηριστικών DLR Hand 2}
+\label{tab:DLRHand2Parameters}
+\end{table}
+
+
+\subsection{Open Dynamics Engine (ODE)}
+
+Μία δημοφιλής λύση για την προσομοίωση της φυσικής στερεών σωμάτων βάσει ενός απλού και αποτελεσματικού API (Appication Programming Interface) σε C ή C++  ανοικτού κώδικα, αποτελεί η Open Dynamics Engine (ODE) η οποία βρίσκει ευρύτατη εφαρμογή και στους δύο κλάδους που προαναφέραμε, αυτών των 3D Animations καθώς των προσομοιωτών για επιστημονικές και βιομηχανικές εφαρμογές. Ιδιαίτερα δε στο τομέα της ρομποτικής χρησιμοποιείται ευρύτατα για την ανάπτυξη εφαρμογών είτε ως μέρος προσαρμοσμένης λύσης είτε ως μέρος κάποιου έτοιμου ολοκληρωμένου προγράμματος προσομοίωσης για συστήματα ρομποτικής όπως για παράδειγμα το Webots ή το V-Rep αλλά και το ROS. 
+
+Μερικά χαρακτηριστικά που καθιστούν την ODE ικανή για δυναμικές προσομοιώσεις συστημάτων πολλών σωμάτων είναι,
+\begin{itemize}
+\item
+Ευσταθής και εύρωστη αριθμητική ολοκλήρωση για τον υπολογισμό της κίνησης των σωμάτων.
+\item
+Δυνατότητα άσκησης σήματος ελέγχου ροπής απ' ευθείας στις επιθυμητές αρθρώσεις.
+\item
+Εύκολος έλεγχος και ορισμός κάθε παραμέτρου του συστήματος.
+\end{itemize}
+
+%Πρέπει να τονίσουμε ότι χρειάζεται ιδιαίτερη προσοχή στο χειρισμό
+Όπως και σε κάθε προσομοιωτή φυσικής λαμβάνεται από τον κατασκευαστή ένας θεμελιώδης σχεδιαστικός συμβιβασμός μεταξύ ακρίβειας και ευστάθειας -- ταχύτητας -- ευρωστίας. Η ODE είναι προσομοιωτής ξεκάθαρα προσανατολισμένος στην ευστάθεια και τη ταχύτητα των υπολογισμών με αποτέλεσμα να χρειάζεται ιδιαίτερη προσοχή ως προς την εξαγωγή συμπερασμάτων που τυχών προκύπτουν από τα αποτελέσματα κάθε προσομοίωσης. Για τον ίδιο λόγο χρησιμοποιείται από την ODE ένα ιδιαίτερα απλοποιημένο μοντέλο χειρισμού των φαινομένων τριβής το οποίο απέχει ακόμα και από το κλασικό στατικό μοντέλο του κώνου τριβής\cite{ODEInternals}. 
+
+Για την μετρίαση αυτών των χαρακτηριστικών ακολουθούμε τους ακόλουθους κανόνες,
+\begin{itemize}
+\item
+Μικρό χρονικό βήμα world time step για τη βελτίωση της ακρίβειας και της αριθμητικής ευρωστίας
+\item
+Ο λόγος μεταξύ των μαζών ιδιαίτερα αυτών που συνδέονται μέσω συνδέσμου φροντίζουμε να είναι όσο το δυνατό πιο κοντά στη μονάδα και σε καμία περίπτωση να μην είναι μεγαλύτερος του 10.
+\end{itemize} 
+
+Οι παράμετροι προσομοίωσης που επιλέγουμε απεικονίζονται στον πίνακα \ref{tab:ODEParameters}. Εφόσον επιλέγουμε μικρό χρονικό βήμα, πρακτικά η τιμή διόρθωσης σφαλμάτων (error reduction parameter -- ERP)  μπορεί να παραμείνει σχετικά χαμηλή. Επίσης θεωρούμε απόλυτα άκαμπτες επαφές επιλέγοντας μηδενική τιμή για τη παράμετρο constraint force mixing -- CFM της ODE. 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c  ||}
+\hline \hline
+World Time Step & $656.25\phantom{1} \mu sec$ \\ \hline
+ERP&0.2  \\
+\hline
+CFM &$\sim 0$  \\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Τιμές παραμέτρων ODE}
+\label{tab:ODEParameters}
+\end{table}
+
+
+
+\subsection{Open Dynamics Engine S-Function Block -- Προσομοίωση Ρομποτικού Χεριού}
+
+ Ως βασικό εργαλείο για την ανάπτυξη του ελεγκτή επιδέξιου ρομποτικού χειρισμού επιλέγουμε το Simulink της Mathworks. Μερικοί λόγοι που συντελούν σε αυτή την επιλογή είναι,
+ \begin{itemize}
+ \item
+Έτοιμες βιβλιοθήκες Blocks με τυπικά αλλά και εξελιγμένα εργαλεία για τον αυτόματο έλεγχο.
+%\item
+%Διάφορες παραμετροποιήσεις. 
+\item
+Το γραφικό περιβάλλον με τα blocks δίνει τη δυνατότητα για εύκολες αλλαγές, εύκολο εντοπισμό λαθών καθώς και εποπτικό έλεγχο όλων των παραμέτρων του συστήματος.
+\item
+Εξαιρετική ευελιξία ως προς την ανάπτυξη προσαρμοσμένων και εξειδικευμένων λύσεων με δυνατότητα ανάπτυξης δομικών στοιχείων blocks σε C, C++ ή Matlab κώδικα με τη λειτουργική συναρτησιακή δομή s-function.
+\item
+Αυτοματοποιημένη παραγωγή C, C++ κώδικα για τη βελτίωση των επιδόσεων καθώς και την εύκολη μεταφορά της υλοποίησης στο τελικό σύστημα πραγματικού χρόνου (real time target machine). 
+ \end{itemize}
+
+Να σημειώσουμε ότι ο λόγος που δε χρησιμοποιούμε τις βιβλιοθήκες και τα έτοιμα blocks SimMechanics του Simulink για τη προσομοίωση του συστήματός μας είναι η απουσία συστήματος ανίχνευσης και διαχείρισης γεγονότων συγκρούσεων και επαφών(Collision Detection \& Handling). Ενώ ένα τέτοιο σύστημα χειρισμού συγκρούσεων απουσιάζει στη βασική του μορφή, είναι δυνατό να πραγματοποιηθεί προσαρμοσμένα με χρήση επιμέρους στοιχείων του Simulink \cite{FicucielloPhd2010}.  
+
+Τελικά η λύση που προτείνουμε και υλοποιούμε είναι η κατασκευή προσαρμοσμένου block ως s-function Mex file το οποίο θα χρησιμοποιεί το API της ODE για τη προσομοίωση του ρομποτικού συστήματος. Μεγάλη συνεισφορά προς αυτή τη κατεύθυνση προσέφερε η παρόμοια προσπάθεια \cite{odefrank}.
+
+Όπως ήδη αναφέραμε βασιζόμαστε στα κινηματικά -- δυναμικά χαρακτηριστικά του DLR Hand 2 για την κατασκευή του μοντέλου του ρομποτικού χεριού. Προσομοιώνουμε τον κάθε ρομποτικό σύνδεσμο με χρήση του γεωμετρικού αντικειμένου κυλινδρικού τύπου ``κάψουλα" (capsule) της ODE. Η ακτίνα της κάθε κάψουλας ορίζεται μικρή έτσι ώστε να προσομοιωθεί όσο το δυνατόν πιο πιστά η συνθήκη για σημειακές επαφές με τριβή. Η ODE στην εσωτερική της λειτουργία δεν αντιμετωπίζει τα μεγέθη με την αυστηρή φυσική τους σημασία παρά μόνο κατ΄ αναλογία. Βάση αυτού λοιπόν, ορίζουμε την απόλυτη τιμή στα σχετικά μεγέθη βάσει των οδηγιών του κατασκευαστή για μέγιστη αξιοπιστία προσομοίωσης, όπως απεικονίζονται στον πίνακα \ref{tab:HandModelParameters}.
+
+Όλα τα δάκτυλα τοποθετούνται έτσι ώστε οι βάσεις του να βρίσκονται στο ίδιο επίπεδο, με τις σχετικές τους θέσεις να ορίζονται αντίστοιχα για τα δάκτυλα $1$, $2$, $3$ και $4$,  $(-0.7,0,0)$, $(0.6,-0.4,0)$, $(0.7,0,0)$, και $(0.6,0.4,0)$.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c |c  | c ||}
+\hline \hline
+Σύνδεσμος i & Μήκος & Μάζα&Ακτίνα συνδέσμου ``κάψουλας" \\ \hline
+1&1 & 2.49&0.04  \\
+\hline
+2 &0.53  &  1.25 &0.04 \\
+\hline
+3&0.53  &  1.25&0.02\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Πίνακας βασικών γεωμετρικών -- αδρανειακών χαρακτηριστικών του προσομοιωθέντος ρομποτικού χεριού}
+\label{tab:HandModelParameters}
+\end{table}
+
+ 
+
+
+%\section{Υλοποίηση Ελεγκτή IPC}
+
+%Οι παράμετροι των προσομοιώσεων για το σύστημα φαίνονται στους πίνακες .... 
+%
+%ODE
+%
+%Hand
+%
+%Object
+\subsection{Συγκεντρωτική Δομή Υλοποίησης Συστήματος}
+
+Το σύστημά μας δομείται στο Simulink σε ιεραρχικά επίπεδα. Το ανώτερο ιεραρχικά επίπεδο το οποίο δίνει τη γενική εικόνα του συστήματος φαίνεται στο σχήμα~\ref{fig:Simulink_High_Level} περιγράφοντας τη  διασύνδεση μεταξύ των βασικών δομικών στοιχείων τα οποία είναι,
+\begin{itemize}
+\item
+Mex C S-Function Block Open Dynamics Engine Προσομοίωση Ρομποτικού Χεριού και περιβάλλοντος.
+\item
+Ελεγκτής
+\item
+Σχεδιασμός Δρόμου σε επίπεδο αντικειμένου
+\item
+Σύστημα Εξαγωγής Χαρακτηριστικών Επιφανείας -- Εξαγωγή κάθετου διανύσματος επιφανείας αντικειμένου $n_i$
+\item
+Σύστημα Άσκησης Εξωτερικών Δυνάμεων και Ροπών στο Αντικείμενο υπό χειρισμό.
+\end{itemize}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\fbox{\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Simulink_Model/Simulink_Model_High_Level}} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Ανώτερο επίπεδο υλοποίησης Simulink με το μοντέλο του συστήματος τον ελεγκτή και τα επιμέρους εργαλεία.}
+   		\label{fig:Simulink_High_Level}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\fbox{\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Simulink_Model/Simulink_Model_Controler}}
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Γενική άποψη δομής ελεγκτή Simulink}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\fbox{\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Simulink_Model/Simulink_Model_Stiffnesses}}
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Όψη των όρων στροφικής, μεταφορικής εσωτερικής ακαμψίας Simulink}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+Η γραφική αναπαράσταση γίνεται στον ίδιο χρόνο που πραγματοποιείται η προσομοίωση στο Simulink. Η αρχική διάταξη με αντικείμενο σφαίρα υπό χειρισμό φαίνεται στο σχήμα~\ref{fig:General_Hand_View}.
+\newpage
+\section{Αποτελέσματα Προσομοίωσης Ελεγκτή IPC}
+
+Στη παράγραφο αυτή παρουσιάζουμε τα αποτελέσματα που προκύπτουν από την εφαρμογή του ελεγκτή ρομποτικής λαβής IPC, ο οποίος έχει περιγραφεί αναλυτικά στην ενότητα \ref{sec:IPC} του προηγούμενου κεφαλαίου.  Αρχικά εφαρμόζουμε τον έλεγχο βάσει της παθητικής ιδιότητας όπως περιγράφηκε στο κεφάλαιο 3 με έλεγχο των εσωτερικών δυνάμεων βάσει ακαμψίας σύνδεσης με το εικονικό πλαίσιο. Εξάγουμε τις απαραίτητες μετρήσεις αρχικά διεγείροντας το σύστημα βηματικά και στη συνέχεια επιτυγχάνουμε μέτρηση της ακαμψίας με την εφαρμογή εξωτερικών δυνάμεων και ροπών στο αντικείμενο.
+\\
+
+Τα κέρδη της ακαμψίας για τη μεταφορική--στροφική κίνηση ο συντελεστής απόσβεσης καθώς και τα σημεία ισορροπίας για την ακαμψία σύνδεσης ορίζονται αντίστοιχα,
+
+\[
+K_{o,r}=
+\begin{bmatrix}
+700&0&0\\
+0&700&0\\
+0&0&700\\
+\end{bmatrix},\qquad
+K_{o,t}=
+\begin{bmatrix}
+200&0&0\\
+0&200&0\\
+0&0&200\\\end{bmatrix}\]
+\vspace{2ex}
+\[\qquad \xi=0.9,\qquad l_{i,des}=0.15m,\phantom{1}i=1,2,3,4\]
+
+Επίσης τα κέρδη για τον ελεγκτή του μηδενικού χώρου του ρομποτικού χεριού επιλέγονται έτσι ώστε, να είναι χαμηλού εύρους ζώνης, επηρεάζοντας όσο το δυνατόν λιγότερα το χώρο εργασίας με τις ακόλουθες τιμές,
+\[K_N=50, \qquad D_N=0.13K_N^{1/2}\]
+
+
+\subsection{Βηματική Απόκριση -- Μεταφορική και Στροφική κίνηση}
+
+Αρχικά εξετάζουμε δύο σενάρια χειρισμού για μία σφαίρα διαμέτρου $0.54$ και βάρους $0.8$ (οι φυσικές τιμές των μεγεθών δεν έχουν ιδιαίτερο νόημα για την ODE, όπως ήδη αναφέραμε). Το ένα αφορά στροφική μετατόπιση ως προς τον κάθετο άξονα $z$, $rotz(0.6 rad)$ και το δεύτερο γραμμική μετατόπιση κατά τον άξονα $x$, $tranx(0.40 m)$. Ουσιαστικά και οι δύο αυτοί οι χειρισμοί αποτελούν βηματική είσοδο στο σύστημα, κατά τη κλασσική θεωρία συστημάτων αυτόματου ελέγχου, αναδεικνύοντας τα θεμελιώδη χαρακτηριστικά της αποτελεσματικότητας και των επιδόσεων του τελικού κλειστού συστήματος όπως μεταβατική απόκριση, υπερπήδηση (overshoot), τελικό σφάλμα θέσης, ταλαντώσεις.\\
+
+Οι τιμές των κερδών $K_{Conn}$ για τη σύνδεση των ακροδακτύλων με το εικονικό πλαίσιο είναι,
+
+\[
+K_{Conn}=
+\begin{bmatrix}
+800&0&0&0\\
+0&800&0&0\\
+0&0&800&0\\
+0&0&0&800\\
+\end{bmatrix}
+\]
+\vspace{10pt}
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio4/Hand_Rendering.tex}}
+   		\caption{Γενική όψη αρχικής διάταξης λαβής με αντικείμενο υπό χειρισμό σφαίρα}
+   		\label{fig:General_Hand_View}
+\end{figure}
+%\vspace{-10pt}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio4/Step_Response/Rotation.tex}}
+   		\caption{Κάτοψη -- Τελική Θέση μετά τη στροφική μετατόπιση κατά τον $z$ άξονα (στροφή 0.6 rad)}
+   		\label{fig:Translation_Graphics}
+\end{figure}
+%\vspace{-10pt}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Κάτοψη -- Μετατόπιση κατά τον $x_o$ άξονα (μεταφορά 40cm)}
+   		\label{fig:Rotation_Graphics}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/mO_rotationall_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Ροπή Εμπέδησης $m_O$ κατά τη στροφή ως προς τον $z$ άξονα (στροφή 0.6 rad)}
+   		\label{fig:mO_Torque_Rotation1}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/fO_rotationall_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Δύναμη Εμπέδησης $f_O$ κατά τη στροφή ως προς τον $z$ άξονα (στροφή 0.6 rad)}
+   		\label{fig:fO_Torque_Rotation1}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth, height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Σύνδεση δακτύλων με το εικονικό πλαίσιο $f_{Conn}$ κατά τη στροφή ως προς τον $z$ άξονα (στροφή 0.6 rad)}
+   		\label{fig:fConn_Torque_Rotation1}
+\end{figure}
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/Finger_Torques.tex}}
+   		\caption{Ασκούμενες ροπές στις αρθώσεις των δακτύλων 2,3,4,1--thumb, κατά τη στροφική κίνηση ως προς τον $z$ άξονα (στροφή 0.6 rad).}
+   		\label{fig:Finger_Torques1}
+\end{figure}
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/xO_translational_step_response_IPC_Normal} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Θέση $xO$ αντικειμένου κατά τη μετατόπιση ως προς τον $x_o$ άξονα (μεταφορά 40cm)}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/mO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Ροπή Εμπέδησης $m_O$ κατά τη μετατόπιση ως προς τον $x_o$ άξονα (μεταφορά 40cm)}
+   		\label{fig:mO_translation}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,  height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/fO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Δύναμη Εμπέδησης $f_O$ κατά τη μετατόπιση ως προς τον $x_o$ άξονα (μεταφορά 40cm)}
+   		\label{fig:fO_translation}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth, height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/fConn_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Σύνδεση δακτύλων με το εικονικό πλαίσιο $f_{Conn}$ κατά τη μετατόπιση ως προς τον $x_o$ άξονα (μεταφορά 40cm)}
+   		\label{fig:fconn_under_translation}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{1\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/Finger_Torques_translation.tex}}
+   		\caption{Ασκούμενες ροπές στις αρθώσεις των δακτύλων 2,3,4,1--thumb, κατά τη μεταφορική κίνηση $x$, $0.40m$ όπως προκύπτουν από το νόμο ελέγχου.}
+   		\label{fig:Finger_Torques2}
+\end{figure}
+\newpage
+Βάσει των μετρήσεων παρατηρούμε ότι το σύστημά μας είναι σε θέση να εκτελέσει με επιτυχία τις επιθυμητές κινήσεις εντός του χώρου εργασίας με μικρή ή και μηδενική σύζευξη μεταξύ των διαφορετικών βαθμών ελευθερίας. Η βασική μας κριτική εστιάζει στη παρουσία μόνιμων σφαλμάτων θέσης στη τελική κατάσταση όπως μπορούμε να δούμε χαρακτηριστικά στα σχήματα ~\ref{fig:fO_Torque_Rotation1}, ~\ref{fig:mO_translation}, και~\ref{fig:fO_translation}. 
+Συγκεκριμένα, παρατηρείται μόνιμο σφάλμα θέσης:
+\begin{itemize}
+\item[-]
+ως προς τη δύναμη εμπέδησης $f_o$ (3.8Ν στον άξονα $z$, 0.7N στον άξονα $y$, μηδενικό σφάλμα στον άξονα $x$, βλ. Σχήματα \ref{fig:fO_Torque_Rotation1}, \ref{fig:fO_translation})
+\item[-]
+ως προς τη ροπή εμπέδησης $m_o$ (0.1Ν στον άξονα $x$ όπως και στον $y$, μηδενικό σφάλμα στον άξονα $x$, βλ. Σχήμα \ref{fig:mO_translation}). 
+\end{itemize}
+ Αρχική μας υποψία είναι η εισαγωγή μη μηδενικής συνιστάμενης δύναμης στο αντικείμενο από το μηχανισμό ελέγχου εσωτερικών δυνάμεων μέσω σύνδεσης με το εικονικό πλαίσιο η οποία θέτει το σημείο στατικής ισορροπίας του συστήματος μακριά από το επιθυμητό.   
+Σχετικά με τον χώρο των εσωτερικών δυνάμεων έχει ενδιαφέρον να παρατηρήσει κανείς στα σχήματα ~\ref{fig:fConn_Torque_Rotation1}, ~\ref{fig:fconn_under_translation}, ~\ref{fig:Finger_Torques1}, ~\ref{fig:Finger_Torques1} την σημαντικά εντονότερη προσπάθεια που καταβάλει ο αντίχειρας ($finger1$) σε κάθε χρονική στιγμή.
+
+
+
+\subsection{Μέτρηση Ακαμψίας}
+Σε αυτό το σενάριο μετρήσεων ασκούμε διαδοχικά αυξανόμενες Δυνάμεις/Ροπές στο πλαίσιο $H_o$ στο αντικείμενο έτσι ώστε να εξάγουμε τη προκύπτουσα ακαμψία του  συστήματος $K_{\overline{x}}$.
+
+Ξεκινάμε με εφαρμογή αυξανόμενης δύναμης διαδοχικά στους άξονες $x$, $y$, $z$ και παρατηρούμε τις μετατοπίσεις--στροφές που προκύπτουν. Αυξάνουμε τη δύναμη κατά 20Ν κάθε 0.7s. Η περίοδος των 0.7sec θεωρείται ικανή, έτσι ώστε το σύστημα να βρεθεί στη τελική θέση ισορροπίας του. Στη συνέχεια, βάσει της ίδιας λογικής, ασκούμε ροπή η οποία αυξάνεται διαδοχικά κατά 3Nm κάθε 0.7sec  και στους τρεις άξονες. 
+Η μεταφορική και στροφική ακαμψία προκύπτουν αντίστοιχα βάσει ελάχιστου τετραγωνικού σφάλματος από τις μετρηθείσες τιμές, 
+\[
+K_{tr,measured}=
+\begin{bmatrix}
+697.9&0&0\\
+0&703.2&0\\
+0&0&710.2\\
+\end{bmatrix},\qquad
+K_{rot,measured}=
+\begin{bmatrix}
+189&0&0\\
+0&195&0\\
+0&0&192\\
+\end{bmatrix}
+\]
+\\
+
+Παρατηρούμε ότι οι τιμές αυτές είναι αρκετά κοντά στις τιμές που ορίσαμε στον έλεγχο ($k_{translation}=700$, $k_{rotation}=200$ )με μικρές αποκλίσεις αλλά με συνεπή γραμμική συμπεριφορά όπως βλέπουμε στο σχήμα ~\ref{fig:Translational_Stiffness}. Παράλληλα παρατηρούμε τη παρουσία μικρής σύζευξης σε μερικές διευθύνσεις όπως μπορούμε να παρατηρήσουμε στα σχήματα ~\ref{fig:x_o_under_forces} ~\ref{fig:quaternions_under_forces} ~\ref{fig:quaternion_under_torque}.
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Forces_Sphere/Translation_UnderForce_Error.tex}}
+   		\caption{Θέση $x_o$ εικονικού πλαισίου κατά την άσκηση δυνάμεων κατά τον $x$, $y$, $z$ άξονα αντίστοιχα.}
+   		\label{fig:x_o_under_forces}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Forces_Sphere/Rotation_UnderForce_Error.tex}}
+   		\caption{Quaternion $e_b$ εικονικού πλαισίου κατά την άσκηση δυνάμεων κατά τον $x$, $y$, $z$ άξονα αντίστοιχα.}
+   		\label{fig:quaternions_under_forces}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Forces_Sphere/StiffnessK.tex}}
+   		\caption{Θέση $x_o$ αντικειμένου μετά την άσκηση των δυνάμεων κατά τους άξονες $x$, $y$, $z$ του πλαισίου $H_o$ αντίστοιχα.}
+   		\label{fig:Translational_Stiffness}
+\end{figure}
+\phantom{10}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Torques_Sphere/Translation_UnderTorque_Error.tex}}
+   		\caption{Θέση $x_o$ εικονικού πλαισίου κατά την άσκηση ροπών κατά τον $x$, $y$, $z$ άξονα αντίστοιχα.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Torques_Sphere/Rotation_UnderTorque_Error.tex}}
+   		\caption{Quaternion $e_b$ εικονικού πλαισίου κατά την άσκηση ροπών κατά τον $x$, $y$, $z$ άξονα αντίστοιχα.}
+   		\label{fig:quaternion_under_torque}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Torques_Sphere/StiffnessK.tex}}
+   		\caption{Quaternion αντικειμένου μετά την άσκηση των ροπών κατά τους άξονες $x$, $y$, $z$ του πλαισίου $H_o$ αντίστοιχα.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+
+\newpage
+\section{Αποτελέσματα Προσομοίωσης ελεγκτή ρομποτικής λαβής IPC--IF με αντιστάθμιση εσωτερικών δυνάμεων}
+
+Σε αυτή την ενότητα επαναλαμβάνουμε το ίδιο σύνολο μετρήσεων--δοκιμών (Βηματική Απόκριση--Μέτρηση Ακαμψίας) βάσει της προτεινόμενης επέκτασης του ελεγκτή IPC για αντιστάθμιση εσωτερικών δυνάμεων (IPC--IF), ο οποίος αναλύθηκε αναλυτικά στην παράγραφο \ref{subsect:IPC_IF}. Μηδενίζοντας τον χώρο των εσωτερικών δυνάμεων στο αντικείμενο αναμένουμε πιο συνεπή παρακολούθηση θέσης αλλά και μικρότερες αποκλίσεις στις τιμές ακαμψίας που ορίζονται στο χώρο του ελεγκτή.
+
+
+\subsection{Βηματική Απόκριση -- Μεταφορική και Στροφική κίνηση}
+
+Όπως και στο προηγούμενο κεφάλαιο εξετάζουμε δύο σενάρια χειρισμού για μία σφαίρα. Το ένα αφορά στροφική μετατόπιση ως προς τον κάθετο άξονα $z$, $rotz(0.6 rad)$ και το δεύτερο γραμμική μετατόπιση κατά τον άξονα $x$, $tranx(0.40 m)$. \\
+
+Αυτή τη φορά έχει ενδιαφέρον να παρατηρήσουμε τα βελτιωμένα χαρακτηριστικά ως προς τη μείωση του τελικού σφάλματος θέσης όπως παρατηρούμε εμφανώς στα σχήματα ~\ref{fig:fO_under_turn},~\ref{fig:fO_under_translation2},~\ref{fig:mO_under_translation2} αλλά και της σύζευξης μεταξύ διαφορετικών κατευθύνσεων κίνησης. Συγκεκριμένα, παρατηρούμε σημαντική μείωση του μόνιμου σφάλματος δύναμης εμπέδησης $f_o$ ως προς τον άξονα $z$, από την τιμή 3.8Ν (με εφαρμογή του βασικού ελεγκτή IPC) στην τιμή 2Ν , με εφαρμογή του προτεινόμενου ελεγκτή IPC-IF.
+%
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/mO_rotational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Ροπή Εμπέδησης $m_O$ κατά τη στροφή ως προς τον $z$ άξονα (στροφή 0.6 rad), με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+%
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/fO_rotational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Δύναμη Εμπέδησης $f_O$ κατά τη στροφή ως προς τον $z$ άξονα (στροφή 0.6 rad), με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:fO_under_turn}
+\end{figure}
+%
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/fsn_rotational_step_response_IPC_Normal.pdf}
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Μέτρο Εσωτερικών Δυνάμεων $f_{sn}$ κατά τη στροφή ως προς τον $z$ άξονα (στροφή 0.6 rad), με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/Finger_Torques_Rotation.tex}}
+   		\caption{Ασκούμενες ροπές στις αρθώσεις των δακτύλων 2,3,4,1--thumb, κατά τη στροφική κίνηση ως προς τον $z$ άξονα (στροφή 0.6 rad), με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/xO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Θέση $x_O$ αντικειμένου κατά τη μετατόπιση  κατά τον $x_o$ άξονα (μεταφορά 40cm) με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/fO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Δύναμη εμπέδησης $f_O$ αντικειμένου κατά τον $x_o$ άξονα (μεταφορά 40cm) με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:fO_under_translation2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/mO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Ροπή εμπέδησης $m_O$ κατά τον $x_o$ άξονα (μεταφορά 40cm) με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:mO_under_translation2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/fsn_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Μέτρο Εσωτερικών Δυνάμεων $f_{sn}$ κατά την μετατόπιση ως προς τον $x_o$ άξονα (μεταφορά 40cm) με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+%
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/Finger_Torques_Translation.tex}}
+   		\caption{Ασκούμενες ροπές στις αρθώσεις των δακτύλων 2,3,4,1--thumb, κατά την μετατόπιση ως προς τον $x_o$ άξονα (μεταφορά 40cm) με εφαρμογή του ελεγκτή IPC--IF.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\newpage
+\subsection{Μέτρηση Ακαμψίας}
+
+Σε αυτό το σενάριο μετρήσεων κατά τον ίδιο τρόπο με τη προηγούμενη ενότητα ασκούμε διαδοχικά αυξανόμενες Δυνάμεις/Ροπές στο πλαίσιο $H_o$ στο αντικείμενο έτσι ώστε να δούμε τη προκύπτουσα ακαμψία του αντικειμένου $K_{\overline{x}}$ \phantom{1} $=blockdiag\{K_{translational}, K_{rotational}\}$.
+
+Ξεκινάμε με εφαρμογή αυξανόμενης δύναμης διαδοχικά στους άξονες $x$, $y$, $z$ και παρατηρούμε τις μετατοπίσεις--στροφές που προκύπτουν. Αυξάνουμε τη δύναμη κατά $20Ν$ κάθε $0.7sec$. Στη συνέχεια ασκούμε ροπή η οποία αυξάνεται διαδοχικά κατά $3Nm$ κάθε $0.7sec$ και στους τρεις άξονες.
+
+Οι μετρήσεις της ακαμψίας (μεταφορικής--στροφικής) αυτή τη φορά προκύπτουν,
+
+\[
+K_{tr,measured}=
+\begin{bmatrix}
+699&0&0\\
+0&704&0\\
+0&0&698\\
+\end{bmatrix},\qquad
+K_{rot,measured}=
+\begin{bmatrix}
+191&0&0\\
+0&196&0\\
+0&0&192\\
+\end{bmatrix}
+\]
+
+Πράγματι λοιπόν όπως αναμέναμε οι τιμές αυτές είναι σημαντικά πιο κοντά στις επιθυμητές ($k_{translational}=700$, $k_{rotational}=200$) και ταυτόχρονα οι συζεύξεις μεταξύ διαφορετικών κατευθύνσεων είναι σημαντικά μικρότερες όπως μπορούμε να παρατηρήσουμε στα σχήματα ~\ref{fig:x_o_under_forces2}, ~\ref{fig:quaternion_under_forces2},~\ref{fig:x_o_under_torques2},~ \ref{fig:quaternion_under_torques2}.
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces//Translation_UnderForce_Error.tex}}
+   		\caption{Θέση $x_o$ εικονικού πλαισίου κατά την άσκηση δυνάμεων κατά τον $x$, $y$, $z$ άξονα αντίστοιχα, με εφαρμογή του ελεγκτή IPC--IF.}
+   		\label{fig:x_o_under_forces2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/Rotation_UnderForce_Error.tex}}
+   		\caption{Quaternion $e_b$ εικονικού πλαισίου κατά την άσκηση δυνάμεων κατά τον $x$, $y$, $z$ άξονα αντίστοιχα, με εφαρμογή του ελεγκτή IPC--IF.}
+   		\label{fig:quaternion_under_forces2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/StiffnessK.tex}}
+   		\caption{Θέση $x_o$ αντικειμένου μετά την άσκηση των δυνάμεων κατά τους άξονες $x$, $y$, $z$ του πλαισίου $H_o$ αντίστοιχα, με εφαρμογή του ελεγκτή IPC--IF.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+%\begin{table}[htbp]
+%\begin{center}
+%\[
+%K_{tr,measured}=
+%\begin{bmatrix}
+%699&0&0\\
+%0&704&0\\
+%0&0&698\\
+%\end{bmatrix}
+%\]
+%\\
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Torques/Translation_UnderTorque_Error.tex}}
+   		\caption{Θέση $x_o$ εικονικού πλαισίου κατά την άσκηση ροπών κατά τον $x$, $y$, $z$ άξονα αντίστοιχα, με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:x_o_under_torques2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Torques/Rotation_UnderTorque_Error.tex}}
+   		\caption{Quaternion $e_b$ εικονικού πλαισίου κατά την άσκηση ροπών κατά τον $x$, $y$, $z$ άξονα αντίστοιχα, με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:quaternion_under_torques2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Torques/StiffnessK.tex}}
+   		\caption{Quaternion αντικειμένου μετά την άσκηση των ροπών κατά τους άξονες $x$, $y$, $z$ του πλαισίου $H_o$ αντίστοιχα, με εφαρμογή του ελεγκτή IPC--IF}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+%
+%%\begin{table}[htbp]
+%%\begin{center}
+%\[
+%K_{rot,measured}=
+%\begin{bmatrix}
+%191&0&0\\
+%0&196&0\\
+%0&0&192\\
+%\end{bmatrix}
+%\]
+
+\newpage
+\section{Σύγκριση ελεγκτών IPC, IPC -- IF}
+
+Προκειμένου να πραγματοποιήσουμε μία τελική σύγκριση επί των δύο πραγματοποιηθέντων τεχνικών, υπολογίζουμε τα μέσα τετραγωνικά σφάλματα ως προς τη φαινόμενη μεταφορική και στροφική ακαμψία, τα οποία και παρουσιάζονται στους πίνακες \ref{tab:Mean_Square_Errors_Translational} και \ref{tab:Mean_Square_Errors_Rotational}. 
+
+Παρατηρούμε σε κάθε περίπτωση ότι ο ελεγκτής IPC -- IF έχει σημαντικά μικρότερο σφάλμα, το οποίο πρακτικά μεταφράζεται σε πιο συνεπή μήτρα ακαμψίας, όπως ήδη έχουμε υπολογίσει. 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c | c |c   ||}
+\hline \hline
+ & Translational Stiffness $x$ &Translational Stiffness $y$&Translational Stiffness $z$\\ \hline
+IPC&1.29&1.36 & 3.58\\
+\hline
+IPC -- IF&0.62&1.23 & 0.68\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Μέσα τετραγωνικά σφάλματα ($\sum_{i=1}^Ne^2/N$) ως προς την φαινόμενη μεταφορική ακαμψία της ρομποτικής λαβής}
+\label{tab:Mean_Square_Errors_Translational}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c | c |c   ||}
+\hline \hline
+ & Rotational Stiffness $x$ &Rotational Stiffness $y$&Rotational Stiffness $z$ \\ \hline
+IPC&1.67&0.49&0.87\\
+\hline
+IPC -- IF&1.19&0.26&0.73\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Μέσα τετραγωνικά σφάλματα ($\sum_{i=1}^Ne^2/N$) ως προς την φαινόμενη στροφική ακαμψία της ρομποτικής λαβής}
+\label{tab:Mean_Square_Errors_Rotational}
+\end{table}
+
+Ως προς τα τελικά σφάλματα θέσης πρέπει να σημειώσουμε ότι η απόδοση δεν διαφέρει μεταξύ των δύο ελεγκτών στο βαθμό που αρχικά αναμενόταν. Όπως ήδη σημειώσαμε, παρατηρούμε μία σημαντική μείωση του μόνιμου σφάλματος δύναμης εμπέδησης $f_o$ ως προς τον άξονα $z$, από την τιμή 3.8Ν (με εφαρμογή του βασικού ελεγκτή IPC) στην τιμή 2Ν , με εφαρμογή του προτεινόμενου ελεγκτή IPC-IF. Δεδομένου ότι, σε κάθε άλλη περίπτωση το μόνιμο σφάλμα θέσης παραμένει πρακτικά το ίδιο,     μπορούμε να πούμε ότι και σε αυτή τη περίπτωση ο ελεγκτής IPC -- IF, υπερτερεί.
+
+\section{Βαρυτική Αντιστάθμιση}
+
+Σε αυτό το σημείο εισάγουμε στο μοντέλο μας τη βαρυτική επίδραση για το αντικείμενο. Αναμένουμε προφανώς τη παρουσία μόνιμων σφαλμάτων θέσης -- προσανατολισμού της τελικής κατάστασης όπως παρατηρούμε με τη κλίση του κυλινδρικού αντικειμένου στο σχήμα~\ref{fig:gravity_off}. 
+
+Για την αντιστάθμιση αυτών εφαρμόζουμε το σχήμα που προτείναμε στη παράγραφο \ref{subsec:Gravitational} το οποίο ουσιαστικά εισάγει επιπλέον ελαστικούς όρους ακαμψίας μόνιμα προσανατολισμένους στο βαρυτικό διάνυσμα με σκοπό την εξουδετέρωσή του στο επίπεδο του αντικειμένου. 
+
+Στο πειραματικό σενάριο αρχικά δεν έχουμε επίδραση του βαρυτικού όρου μέχρι τη χρονική στιγμή $0.3sec$ όπου και ενεργοποιείται η βαρυτική επίδραση στο αντικείμενο. Παρατηρούμε τις αποκλίσεις και τα σφάλματα που παρουσιάζονται μέχρι την ενεργοποίηση του όρου της βαρυτικής αντιστάθμισης η οποία συμβαίνει τη χρονική στιγμή $1.3sec$. \\
+
+\begin{figure}[htbp]
+\centering
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+%		\resizebox{0.95\textwidth}{!}{\input{images_kefalaio3/three-link-annotated2.tex}}
+		\includegraphics[width=0.9\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/Gravity_term_Off_red_line} 
+		\caption{Κλίση -- Μόνιμο σφάλμα θέσης} \label{fig:gravity_off}
+		\end{subfigure}
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/Gravity_term_On_red_line} 
+		\caption{Διόρθωση -- Ανάκτηση προσανατολισμού} \label{fig:}
+	\end{subfigure}
+\caption{Κλίση -- μόνιμο σφάλμα θέσης υπό τη παρουσία βαρυτικού πεδίου. Εισαγωγή του όρου βαρυτικής αντιστάθμησης με ανάκτηση θέσης -- προσανατολισμού} \label{fig:gravitational_offset}	
+\end{figure}	
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_position_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Θέση $xO$ αντικειμένουκατά την εφαρμογή του βαρυτικού όρου στο $0.3sec$ και του αντισταθμιστικού όρου στο $1.3sec$}
+   		\label{fig:Cylinder_Under_Gravity}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,  height=0.24\textheight]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_impedance_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Μεταφορική Δύναμη Εμπέδησης $f_O$ κατά την εφαρμογή του βαρυτικού όρου στο $0.3sec$ και του αντισταθμιστικού όρου στο $1.3sec$}
+   		\label{fig:}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_impedance_torque_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Στροφική Εμπέδηση $m_O$ κατά την εφαρμογή του βαρυτικού όρου στο $0.3sec$ και του αντισταθμιστικού όρου στο $1.3sec$}
+   		\label{fig:}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_quaternion_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Quaternion διάνυσμα $e_b$ κατά την εφαρμογή του βαρυτικού όρου στο $0.3sec$ και του αντισταθμιστικού όρου στο $1.3sec$}
+   		\label{fig:}
+\end{figure}
+
+\end{document}

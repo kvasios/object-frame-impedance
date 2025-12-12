@@ -37,7 +37,8 @@ The main value of this repo is therefore: **a complete, working simulation frame
 
 ## What's in here
 
-- 📄 **[Thesis PDF](doc/dipl.-thesis/K.Vasios-ECE-Dipl.-Thesis.pdf)** - The full diploma thesis (in Greek)
+- 📄 **[Thesis PDF (Greek)](doc/dipl.-thesis/K.Vasios-ECE-Dipl.-Thesis.pdf)** - The full diploma thesis (original, in Greek)
+- 📄 **[Thesis PDF (English, auto-translated)](doc/dipl.-thesis/K.Vasios-ECE-Dipl.-Thesis-EN.pdf)** - **Automatic/machine translation** of the thesis (not analytically checked, but it looks good tbh)
 - 📝 **[LaTeX source](doc/dipl.-thesis/latex/)** - If you want to compile it yourself
 - 🔧 **[MATLAB/Simulink code](matlab/)** - The simulation implementation
 - 🧮 **[Mathematica notebooks](mathematica/)** - Symbolic dynamics derivation using Robotica (inertia matrix, gravity terms, Jacobians)

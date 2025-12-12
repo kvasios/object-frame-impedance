@@ -1,0 +1,712 @@
+\documentclass[KVasios-ECE-Dipl.-Thesis-EN.tex]{subfiles}
+\begin{document}
+\chapter{Implementation \& Simulation Results}
+
+\noindent
+In this chapter we present the implementation methodology and the results of the dynamic simulation that we carried out for the control of a robotic hand with kinematic and dynamic characteristics analogous to those of the DLR Hand 2 developed by the German Aerospace Center. First, we implement the Intrinsically Passive Control (IPC) scheme using a virtual frame, and we obtain measurements for both translational and rotational displacement scenarios, as well as for the application of external forces. Next, we introduce the proposed internal-force control scheme based on object surface characteristics (IPC--IF), repeating the same set of measurements and comparing the results against the previous case. Finally, we implement the gravitational compensation controller.
+%Finally, we present a dynamic estimation system of the inertial properties of the manipulated object and incorporate them in the design
+
+\section{Construction of the simulation environment}
+Examining the historical development of automatic control systems, we observe that initially---and especially before their mathematical foundation began to develop after the middle of the 19th century---they were primarily empirical constructions, involving direct implementation and tuning of the controller on the final system. Although the mathematical foundations of automatic control progressed rapidly with the maturation of classical theory up to the 1950s, controller adaptation and final tuning still had, in most cases, to be carried out directly on the final system, making the process potentially dangerous, costly, and in some cases even impossible, considering that applications may occur in fields such as aerospace or nuclear technology.
+
+To address these issues, it was evident that introducing an arrangement capable of simulating subsystems or the entire system was necessary for the testing and tuning of controllers. A characteristic and extreme example is the lunar module simulation system of the Apollo program in the 1960s, which included all vehicle systems, with the dynamic computations performed by a vacuum-tube analog computer that fully occupied a four-story building. Subsequently, digital systems---with abundant computational power, ease of programming, and the ability to reuse software---became the core for building simulation environments.
+
+Today, simulation is common practice for the construction of any integrated system, incorporating specially tailored hardware components (Hardware in the Loop -- HiL) and/or software components (Software in the Loop -- SiL) in the loop, improving final quality, reducing development time and cost, and maintaining the process in a safe and controlled environment.
+
+For the simulation of multi-body dynamics systems, there are many available software options, both professional and non-professional. Professional applications typically offer highly specialized solutions tailored to each problem and are commercially available at some cost. While most of these systems can simulate constrained kinematic mechanical structures as well as a variety of parallel physical phenomena, the list of available applications becomes significantly smaller when collision detection and handling between simulated bodies (Collision Detection \& Handling) is a prerequisite. This is the main feature of physics engines, which carry out all computations for rigid-body motion and at the same time can detect and handle contact and collision phenomena between bodies. Collision-event handling is of obvious usefulness for robotics systems, especially for walking robots or manipulation systems.
+
+In general, physics simulators can be found in applications such as:
+\begin{itemize}
+\item
+3D animation applications such as games, movies, and any graphics application.
+\item
+Scientific--industrial applications for modeling and R\&D of technological applications such as robotics, aerospace, and automotive engineering, as well as the development of educational vehicle-operator simulators of all types.
+\end{itemize}
+
+\subsection{DLR Hand 2}
+In this subsection we present some of the basic characteristics of the DLR Hand 2 robotic hand, developed by the German Aerospace Center (DLR German Space Center), which we use as a reference for constructing the simulation environment of the robotic hand, serving as the testbed for the control schemes implemented in this work.
+\\
+
+The DLR Hand 2 is a multi-jointed anthropomorphic robotic hand with four fingers, where each finger has four degrees of freedom, with the last two being coupled. The kinematic structure of each finger is illustrated in Figure \ref{fig:finger_kinematics}. In addition, the DLR Hand 2 has two additional degrees of freedom for moving the thumb as well as the 4th finger, which were deemed necessary to enable both power grasps and dexterous fingertip manipulation. The overall size of the robotic hand is approximately 1.5 times that of a human hand.
+
+To realize these motions, a joint actuation system is employed, consisting of DC motors, timing belts for the coupled joints, and harmonic drives for the remaining joints. Ultimately, each finger can exert tangential fingertip forces of up to 30~N.
+
+The sensory suite of the DLR Hand 2 consists of the following sensors on each finger:
+\begin{itemize}
+\item
+3 joint position sensors, specifically designed based on an inductive synthetic potentiometer.
+\item
+3 joint torque sensors based on measuring elastic deformation.
+\item
+3 position--velocity sensors (analog Hall sensors) with interpolation.
+\item
+1 six-axis force sensor at the fingertip based on measuring elastic deformation.
+\item
+3 motor temperature sensors.
+\item
+3 temperature sensors for temperature compensation.
+\end{itemize}
+
+The electronics of the hand are fully integrated into the main body, which was made possible through the use of flexible printed circuit boards (flexible PCBs). In each link of each finger there is at least one board: an 8-channel, 12-bit analog-to-digital converter for reading sensor signals. It is also important to note that the power electronics of each motor are placed near the motor. Thus, the DLR Hand 2 achieves complete autonomy, being capable of being mounted on any robotic arm without requiring special infrastructure.
+
+Control is performed by an external computer. For communication between the subsystems and the external computing system, an advanced fully integrated serial control system is used, aiming to minimize internal wiring. The structure of this system is hierarchical, consisting initially of a telecommunication controller at the base of each finger that processes the signals of the corresponding finger (40 channels, 12-bit resolution), and a telecommunication controller at the base of the hand responsible for communication between each finger controller and the external computing system.
+
+The total weight of each of the 4 identical fingers is $375\,gr$. The mass distribution density, assuming simplistically that it is constant over the total link length $l_1+l_2+l_3=155mm$, is $d=2.49gr/mm$. In Table \ref{tab:DLRHand2Parameters} we list the basic geometric--inertial characteristics of the DLR Hand 2.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c |c  ||}
+\hline \hline
+Link $i$ & Length $[mm]$ & Mass $[gr]$\\ \hline
+1&75 & 187  \\
+\hline
+2 &40  &  94 \\
+\hline
+3&40  &  94\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Table of basic geometric--inertial characteristics of the DLR Hand 2}
+\label{tab:DLRHand2Parameters}
+\end{table}
+
+\subsection{Open Dynamics Engine (ODE)}
+A popular open-source solution for rigid-body physics simulation based on a simple and efficient API (Application Programming Interface) in C or C++ is the Open Dynamics Engine (ODE), which is widely used in both areas mentioned above: 3D animation as well as simulators for scientific and industrial applications. In robotics in particular, it is used extensively for application development, either as part of a customized solution or as part of a complete ready-made simulation program for robotics systems, such as Webots, V-Rep, and ROS.
+
+Some features that make ODE suitable for multi-body dynamics simulation are:
+\begin{itemize}
+\item
+Stable and robust numerical integration for computing body motion.
+\item
+The ability to apply torque control signals directly to the desired joints.
+\item
+Easy tuning and definition of every system parameter.
+\end{itemize}
+
+%We should emphasize that careful handling is required
+As with any physics simulator, the manufacturer makes a fundamental design trade-off between accuracy and stability---speed---robustness. ODE is a simulator clearly oriented towards stability and computational speed, and therefore special care is required when drawing conclusions from simulation results. For the same reason, ODE uses a highly simplified model for handling friction phenomena, which deviates even from the classical static friction cone model~\cite{ODEInternals}.
+
+To mitigate these characteristics, we follow the rules below:
+\begin{itemize}
+\item
+Small world time step to improve accuracy and numerical robustness.
+\item
+We ensure that mass ratios, especially between bodies connected by joints, are as close as possible to unity, and in no case greater than 10.
+\end{itemize}
+
+The simulation parameters we selected are shown in Table \ref{tab:ODEParameters}. Since we use a small time step, in practice the error reduction parameter (ERP) can remain relatively low. We also assume perfectly rigid contacts by selecting a zero value for ODE's constraint force mixing (CFM) parameter.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c  ||}
+\hline \hline
+World Time Step & $656.25\phantom{1} \mu sec$ \\ \hline
+ERP&0.2  \\
+\hline
+CFM &$\sim 0$  \\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{ODE parameter values}
+\label{tab:ODEParameters}
+\end{table}
+
+\subsection{Open Dynamics Engine S-Function Block -- Robotic hand simulation}
+As the primary tool for developing the dexterous robotic manipulation controller, we chose Mathworks Simulink. Some reasons contributing to this choice are:
+\begin{itemize}
+\item
+Ready-made block libraries with standard as well as advanced automatic control tools.
+%\item
+%Various parameterizations. 
+\item
+The graphical block-diagram environment enables easy modifications, easy debugging, and an overall view of all system parameters.
+\item
+Excellent flexibility for developing custom and specialized solutions, with the ability to implement blocks in C, C++, or Matlab code via the S-Function interface.
+\item
+Automated C/C++ code generation for improved performance and easy transfer of the implementation to the final real-time target machine.
+\end{itemize}
+
+We note that the reason we do not use the SimMechanics libraries and ready-made Simulink blocks for simulating our system is the absence of collision detection and handling. Although such collision handling is absent in its basic form, it is possible to implement it in a customized way using Simulink components~\cite{FicucielloPhd2010}.
+
+Ultimately, the solution we propose and implement is the construction of a custom block as an S-Function MEX file that uses the ODE API to simulate the robotic system. A similar effort~\cite{odefrank} contributed significantly in this direction.
+
+As already mentioned, we base our model on the kinematic--dynamic characteristics of the DLR Hand 2. We simulate each robotic link using ODE's capsule-shaped geometric primitive. The radius of each capsule is chosen small so as to approximate point contacts with friction as faithfully as possible. In its internal operation, ODE does not treat quantities with their strict physical meaning, but rather in a relative manner. Based on this, we define the absolute values of the relevant quantities according to the manufacturer's guidelines for maximum simulation reliability, as shown in Table \ref{tab:HandModelParameters}.
+
+All fingers are placed such that their bases lie on the same plane, with their relative positions defined for fingers $1$, $2$, $3$, and $4$ as: $(-0.7,0,0)$, $(0.6,-0.4,0)$, $(0.7,0,0)$, and $(0.6,0.4,0)$.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c |c  | c ||}
+\hline \hline
+Link $i$ & Length & Mass & Capsule link radius \\ \hline
+1&1 & 2.49&0.04  \\
+\hline
+2 &0.53  &  1.25 &0.04 \\
+\hline
+3&0.53  &  1.25&0.02\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Table of basic geometric--inertial characteristics of the simulated robotic hand}
+\label{tab:HandModelParameters}
+\end{table}
+
+%\section{Implementation of the IPC Controller}
+%
+%The simulation parameters for the system appear in the tables .... 
+%
+%ODE
+%
+%Hand
+%
+%Object
+\subsection{Overall implementation structure}
+Our system is structured in Simulink in hierarchical levels. The highest hierarchical level, which provides the overall view of the system, is shown in Figure~\ref{fig:Simulink_High_Level}, describing the interconnection between the main building blocks:
+\begin{itemize}
+\item
+Mex C S-Function Block: Open Dynamics Engine simulation of the robotic hand and environment.
+\item
+Controller.
+\item
+Object-level path planning.
+\item
+Surface feature extraction system -- extraction of the object surface normal vector $n_i$.
+\item
+System for applying external forces and torques on the manipulated object.
+\end{itemize}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\fbox{\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Simulink_Model/Simulink_Model_High_Level}} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Top-level Simulink implementation view including the system model, the controller, and the auxiliary tools.}
+   		\label{fig:Simulink_High_Level}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\fbox{\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Simulink_Model/Simulink_Model_Controler}}
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Overall view of the Simulink controller structure.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\fbox{\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Simulink_Model/Simulink_Model_Stiffnesses}}
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{View of the Simulink internal stiffness terms (rotational and translational).}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+The graphical visualization is performed in real time as the Simulink simulation runs. The initial grasp configuration with a spherical object under manipulation is shown in Figure~\ref{fig:General_Hand_View}.
+\newpage
+\section{IPC controller simulation results}
+
+In this section we present the results obtained from applying the IPC robotic grasp controller, described in detail in Section \ref{sec:IPC} of the previous chapter. First, we apply passivity-based control as described in Chapter 3, including internal-force control via connection stiffness with the virtual frame. We obtain the required measurements by first exciting the system with step inputs and then by measuring stiffness through applying external forces and torques on the object.
+\\
+
+The stiffness gains for translational--rotational motion, the damping ratio, and the equilibrium points for connection stiffness are defined as:
+
+\[
+K_{o,r}=
+\begin{bmatrix}
+700&0&0\\
+0&700&0\\
+0&0&700\\
+\end{bmatrix},\qquad
+K_{o,t}=
+\begin{bmatrix}
+200&0&0\\
+0&200&0\\
+0&0&200\\\end{bmatrix}\]
+\vspace{2ex}
+\[\qquad \xi=0.9,\qquad l_{i,des}=0.15m,\phantom{1}i=1,2,3,4\]
+
+The gains for the null-space controller of the robotic hand are selected to be of low bandwidth, affecting the task space as little as possible, with the following values:
+\[K_N=50, \qquad D_N=0.13K_N^{1/2}\]
+
+\subsection{Step response -- translational and rotational motion}
+First, we examine two manipulation scenarios for a sphere with diameter $0.54$ and weight $0.8$ (the physical values do not have strict meaning for ODE, as already mentioned). One scenario concerns rotational displacement about the vertical $z$ axis, $rotz(0.6\,rad)$, and the other concerns linear displacement along the $x$ axis, $tranx(0.40\,m)$. Essentially, both manipulations are step inputs to the system, in the classical control-theory sense, highlighting fundamental characteristics of the final closed-loop system such as transient response, overshoot, steady-state position error, and oscillations.\\
+
+The values of the gains $K_{Conn}$ for connecting the fingertips to the virtual frame are:
+
+\[
+K_{Conn}=
+\begin{bmatrix}
+800&0&0&0\\
+0&800&0&0\\
+0&0&800&0\\
+0&0&0&800\\
+\end{bmatrix}
+\]
+\vspace{10pt}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio4/Hand_Rendering.tex}}
+   		\caption{General view of the initial grasp configuration with a spherical object under manipulation.}
+   		\label{fig:General_Hand_View}
+\end{figure}
+%\vspace{-10pt}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio4/Step_Response/Rotation.tex}}
+   		\caption{Top view -- final pose after rotational displacement about the $z$ axis (rotation 0.6 rad).}
+   		\label{fig:Translation_Graphics}
+\end{figure}
+%\vspace{-10pt}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.6\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Top view -- displacement along the $x_o$ axis (translation 40 cm).}
+   		\label{fig:Rotation_Graphics}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/mO_rotationall_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Impedance torque $m_O$ during rotation about the $z$ axis (rotation 0.6 rad).}
+   		\label{fig:mO_Torque_Rotation1}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/fO_rotationall_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Impedance force $f_O$ during rotation about the $z$ axis (rotation 0.6 rad).}
+   		\label{fig:fO_Torque_Rotation1}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth, height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Fingertip-to-virtual-frame connection force $f_{Conn}$ during rotation about the $z$ axis (rotation 0.6 rad).}
+   		\label{fig:fConn_Torque_Rotation1}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_Simple_IPC/Finger_Torques.tex}}
+   		\caption{Applied joint torques of fingers 2,3,4,1--thumb, during rotational motion about the $z$ axis (rotation 0.6 rad).}
+   		\label{fig:Finger_Torques1}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/xO_translational_step_response_IPC_Normal} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Object position $xO$ during displacement along the $x_o$ axis (translation 40 cm).}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/mO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Impedance torque $m_O$ during displacement along the $x_o$ axis (translation 40 cm).}
+   		\label{fig:mO_translation}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,  height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/fO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Impedance force $f_O$ during displacement along the $x_o$ axis (translation 40 cm).}
+   		\label{fig:fO_translation}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth, height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/fConn_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Fingertip-to-virtual-frame connection force $f_{Conn}$ during displacement along the $x_o$ axis (translation 40 cm).}
+   		\label{fig:fconn_under_translation}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{1\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Simple/Translation_Simple_IPC/Finger_Torques_translation.tex}}
+   		\caption{Applied joint torques of fingers 2,3,4,1--thumb, during translational motion $x$, $0.40m$, as produced by the control law.}
+   		\label{fig:Finger_Torques2}
+\end{figure}
+\newpage
+Based on the measurements, we observe that our system is able to execute the desired motions within the workspace successfully, with small or even zero coupling between different degrees of freedom. Our main criticism focuses on the presence of steady-state position errors in the final state, as can be seen in Figures~\ref{fig:fO_Torque_Rotation1},~\ref{fig:mO_translation}, and~\ref{fig:fO_translation}.
+
+Specifically, we observe steady-state error:
+\begin{itemize}
+\item[-]
+with respect to the impedance force $f_o$ (3.8~N on the $z$ axis, 0.7~N on the $y$ axis, zero error on the $x$ axis; see Figures \ref{fig:fO_Torque_Rotation1}, \ref{fig:fO_translation})
+\item[-]
+with respect to the impedance torque $m_o$ (0.1~N$\cdot$m on the $x$ axis as well as on the $y$ axis, zero error on the $x$ axis; see Figure \ref{fig:mO_translation}).
+\end{itemize}
+Our initial suspicion is that the internal-force control mechanism, through the connection stiffness with the virtual frame, introduces a non-zero resultant force on the object, which shifts the static equilibrium point of the system away from the desired one.
+
+Regarding the internal force space, it is interesting to observe in Figures~\ref{fig:fConn_Torque_Rotation1},~\ref{fig:fconn_under_translation},~\ref{fig:Finger_Torques1},~\ref{fig:Finger_Torques1} the significantly stronger effort exerted by the thumb ($finger1$) at each instant.
+
+\subsection{Stiffness measurement}
+In this measurement scenario, we sequentially apply increasing forces/torques to the object at the frame $H_o$ in order to extract the resulting system stiffness $K_{\overline{x}}$.
+
+We begin by applying an increasing force sequentially along the $x$, $y$, and $z$ axes and observing the resulting translations--rotations. We increase the force by 20~N every 0.7~s. The 0.7~s interval is considered sufficient for the system to reach its final equilibrium position. Then, following the same logic, we apply a torque that increases sequentially by 3~Nm every 0.7~s along each axis.
+
+The translational and rotational stiffness values are obtained via least-squares fitting from the measured values:
+\[
+K_{tr,measured}=
+\begin{bmatrix}
+697.9&0&0\\
+0&703.2&0\\
+0&0&710.2\\
+\end{bmatrix},\qquad
+K_{rot,measured}=
+\begin{bmatrix}
+189&0&0\\
+0&195&0\\
+0&0&192\\
+\end{bmatrix}
+\]
+\\
+
+We observe that these values are quite close to the values defined in the controller ($k_{translation}=700$, $k_{rotation}=200$), with small deviations but consistent linear behavior, as shown in Figure~\ref{fig:Translational_Stiffness}. At the same time, we observe small coupling in some directions, as can be seen in Figures~\ref{fig:x_o_under_forces},~\ref{fig:quaternions_under_forces},~\ref{fig:quaternion_under_torque}.
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Forces_Sphere/Translation_UnderForce_Error.tex}}
+   		\caption{Virtual frame position $x_o$ under applied forces along the $x$, $y$, $z$ axes, respectively.}
+   		\label{fig:x_o_under_forces}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Forces_Sphere/Rotation_UnderForce_Error.tex}}
+   		\caption{Virtual frame quaternion vector $e_b$ under applied forces along the $x$, $y$, $z$ axes, respectively.}
+   		\label{fig:quaternions_under_forces}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Forces_Sphere/StiffnessK.tex}}
+   		\caption{Object position $x_o$ after applying forces along the $x$, $y$, $z$ axes of frame $H_o$, respectively.}
+   		\label{fig:Translational_Stiffness}
+\end{figure}
+\phantom{10}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Torques_Sphere/Translation_UnderTorque_Error.tex}}
+   		\caption{Virtual frame position $x_o$ under applied torques along the $x$, $y$, $z$ axes, respectively.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Torques_Sphere/Rotation_UnderTorque_Error.tex}}
+   		\caption{Virtual frame quaternion vector $e_b$ under applied torques along the $x$, $y$, $z$ axes, respectively.}
+   		\label{fig:quaternion_under_torque}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC/Stiffness_Measurements_Torques_Sphere/StiffnessK.tex}}
+   		\caption{Object quaternion after applying torques along the $x$, $y$, $z$ axes of frame $H_o$, respectively.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\newpage
+\section{Simulation results of the IPC--IF robotic grasp controller with internal force compensation}
+
+In this section we repeat the same set of measurements/tests (step response--stiffness measurement) based on the proposed extension of IPC for internal force compensation (IPC--IF), analyzed in detail in Subsection \ref{subsect:IPC_IF}. By nulling the internal force space on the object, we expect more consistent position tracking and smaller deviations in the stiffness values defined in the controller space.
+
+\subsection{Step response -- translational and rotational motion}
+As in the previous section, we examine two manipulation scenarios for a sphere: rotational displacement about the vertical $z$ axis, $rotz(0.6 rad)$, and linear displacement along the $x$ axis, $tranx(0.40 m)$.
+\\
+
+This time it is interesting to observe the improved characteristics with respect to reducing the final steady-state position error, as seen clearly in Figures~\ref{fig:fO_under_turn},~\ref{fig:fO_under_translation2},~\ref{fig:mO_under_translation2}, as well as the reduced coupling between different motion directions. Specifically, we observe a significant reduction of the steady-state impedance force error $f_o$ along the $z$ axis, from 3.8~N (with the basic IPC controller) to 2~N with the proposed IPC--IF controller.
+%
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/mO_rotational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Impedance torque $m_O$ during rotation about the $z$ axis (rotation 0.6 rad), with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+%
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/fO_rotational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Impedance force $f_O$ during rotation about the $z$ axis (rotation 0.6 rad), with the IPC--IF controller.}
+   		\label{fig:fO_under_turn}
+\end{figure}
+%
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/fsn_rotational_step_response_IPC_Normal.pdf}
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Magnitude of internal forces $f_{sn}$ during rotation about the $z$ axis (rotation 0.6 rad), with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Rotation_z_IPC_Normal_Forces/Finger_Torques_Rotation.tex}}
+   		\caption{Applied joint torques of fingers 2,3,4,1--thumb, during rotational motion about the $z$ axis (rotation 0.6 rad), with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/xO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Object position $x_O$ during displacement along the $x_o$ axis (translation 40 cm), with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/fO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Object impedance force $f_O$ along the $x_o$ axis (translation 40 cm), with the IPC--IF controller.}
+   		\label{fig:fO_under_translation2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/mO_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Object impedance torque $m_O$ along the $x_o$ axis (translation 40 cm), with the IPC--IF controller.}
+   		\label{fig:mO_under_translation2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/fsn_translational_step_response_IPC_Normal.pdf} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Magnitude of internal forces $f_{sn}$ during displacement along the $x_o$ axis (translation 40 cm), with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+%
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Step_Response/IPC_Planar_Internal_Forces/Translation_x_IPC_Normal_InternalForces/Finger_Torques_Translation.tex}}
+   		\caption{Applied joint torques of fingers 2,3,4,1--thumb, during displacement along the $x_o$ axis (translation 40 cm), with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+\newpage
+\subsection{Stiffness measurement}
+In this measurement scenario, in the same way as in the previous section, we sequentially apply increasing forces/torques at frame $H_o$ on the object in order to observe the resulting object stiffness $K_{\overline{x}}$ \phantom{1} $=blockdiag\{K_{translational}, K_{rotational}\}$.
+
+We begin by applying an increasing force sequentially along the $x$, $y$, and $z$ axes and observing the resulting translations--rotations. We increase the force by $20N$ every $0.7sec$. Then, we apply a torque that increases sequentially by $3Nm$ every $0.7sec$ along all three axes.
+
+The measured stiffness values (translational--rotational) in this case are:
+
+\[
+K_{tr,measured}=
+\begin{bmatrix}
+699&0&0\\
+0&704&0\\
+0&0&698\\
+\end{bmatrix},\qquad
+K_{rot,measured}=
+\begin{bmatrix}
+191&0&0\\
+0&196&0\\
+0&0&192\\
+\end{bmatrix}
+\]
+
+Indeed, as expected, these values are significantly closer to the desired ones ($k_{translational}=700$, $k_{rotational}=200$) and, at the same time, coupling between different directions is significantly smaller, as can be seen in Figures~\ref{fig:x_o_under_forces2},~\ref{fig:quaternion_under_forces2},~\ref{fig:x_o_under_torques2},~\ref{fig:quaternion_under_torques2}.
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces//Translation_UnderForce_Error.tex}}
+   		\caption{Virtual frame position $x_o$ under applied forces along the $x$, $y$, $z$ axes, respectively, with the IPC--IF controller.}
+   		\label{fig:x_o_under_forces2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/Rotation_UnderForce_Error.tex}}
+   		\caption{Virtual frame quaternion vector $e_b$ under applied forces along the $x$, $y$, $z$ axes, respectively, with the IPC--IF controller.}
+   		\label{fig:quaternion_under_forces2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Forces/StiffnessK.tex}}
+   		\caption{Object position $x_o$ after applying forces along the $x$, $y$, $z$ axes of frame $H_o$, respectively, with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+
+%\begin{table}[htbp]
+%\begin{center}
+%\[
+%K_{tr,measured}=
+%\begin{bmatrix}
+%699&0&0\\
+%0&704&0\\
+%0&0&698\\
+%\end{bmatrix}
+%\]
+%\\
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Torques/Translation_UnderTorque_Error.tex}}
+   		\caption{Virtual frame position $x_o$ under applied torques along the $x$, $y$, $z$ axes, respectively, with the IPC--IF controller.}
+   		\label{fig:x_o_under_torques2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.7\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Torques/Rotation_UnderTorque_Error.tex}}
+   		\caption{Virtual frame quaternion vector $e_b$ under applied torques along the $x$, $y$, $z$ axes, respectively, with the IPC--IF controller.}
+   		\label{fig:quaternion_under_torques2}
+\end{figure}
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+%		\includegraphics[width=0.7\textwidth]{images_kefalaio4/Step_Response/IPC_Simple/Rotation_z_SImple_IPC/fConn_rotationall_step_response_IPC_Normal.pdf} 
+   		\resizebox{0.9\textwidth}{!}{\input{images_kefalaio4/Stiffness/Stiffness_IPC_Planar/Torques/StiffnessK.tex}}
+   		\caption{Object quaternion after applying torques along the $x$, $y$, $z$ axes of frame $H_o$, respectively, with the IPC--IF controller.}
+   		\label{fig:Initial_Posture_Sphere}
+\end{figure}
+%
+%%\begin{table}[htbp]
+%%\begin{center}
+%\[
+%K_{rot,measured}=
+%\begin{bmatrix}
+%191&0&0\\
+%0&196&0\\
+%0&0&192\\
+%\end{bmatrix}
+%\]
+
+\newpage
+\section{Comparison of controllers IPC and IPC--IF}
+In order to perform a final comparison between the two implemented techniques, we compute the mean square errors with respect to the apparent translational and rotational stiffness, which are presented in Tables \ref{tab:Mean_Square_Errors_Translational} and \ref{tab:Mean_Square_Errors_Rotational}.
+
+We observe in each case that the IPC--IF controller has significantly lower error, which in practice translates to a more consistent stiffness matrix, as we have already computed.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c | c |c   ||}
+\hline \hline
+ & Translational Stiffness $x$ &Translational Stiffness $y$&Translational Stiffness $z$\\ \hline
+IPC&1.29&1.36 & 3.58\\
+\hline
+IPC -- IF&0.62&1.23 & 0.68\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Mean square errors ($\sum_{i=1}^Ne^2/N$) with respect to the apparent translational stiffness of the robotic grasp.}
+\label{tab:Mean_Square_Errors_Translational}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ || c | c | c |c   ||}
+\hline \hline
+ & Rotational Stiffness $x$ &Rotational Stiffness $y$&Rotational Stiffness $z$ \\ \hline
+IPC&1.67&0.49&0.87\\
+\hline
+IPC -- IF&1.19&0.26&0.73\\
+\hline \hline
+% &  & & & & \hline
+%&  & & & & \\
+% \hline 
+\end{tabular}
+\end{center}
+\caption{Mean square errors ($\sum_{i=1}^Ne^2/N$) with respect to the apparent rotational stiffness of the robotic grasp.}
+\label{tab:Mean_Square_Errors_Rotational}
+\end{table}
+
+Regarding final position errors, we should note that performance does not differ between the two controllers to the extent initially expected. As already noted, we observe a significant reduction in the steady-state impedance force error $f_o$ along the $z$ axis, from 3.8~N (with the basic IPC controller) to 2~N with the proposed IPC--IF controller. Since in all other cases the steady-state position error remains practically the same, we can state that in this case as well, the IPC--IF controller is superior.
+
+\section{Gravitational compensation}
+At this point we introduce gravitational effects for the object in our model. We obviously expect steady-state position--orientation errors in the final state, as observed by the tilt of the cylindrical object in Figure~\ref{fig:gravity_off}.
+
+To compensate for these, we apply the scheme proposed in Subsection \ref{subsec:Gravitational}, which essentially introduces additional stiffness spring terms permanently aligned with the gravity vector, aiming to cancel it in the object frame.
+
+In the experimental scenario, initially there is no effect from gravity until time $0.3sec$, when the gravitational effect on the object is activated. We observe the deviations and errors that arise until the activation of the gravitational compensation term, which occurs at time $1.3sec$.
+\\
+
+\begin{figure}[htbp]
+\centering
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+%		\resizebox{0.95\textwidth}{!}{\input{images_kefalaio3/three-link-annotated2.tex}}
+		\includegraphics[width=0.9\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/Gravity_term_Off_red_line} 
+		\caption{Tilt -- steady-state position error} \label{fig:gravity_off}
+		\end{subfigure}
+	\begin{subfigure}[b]{0.48\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/Gravity_term_On_red_line} 
+		\caption{Correction -- recovery of orientation} \label{fig:}
+	\end{subfigure}
+\caption{Tilt -- steady-state position error in the presence of gravity. Introduction of the gravitational compensation term with recovery of position--orientation.} \label{fig:gravitational_offset}	
+\end{figure}	
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,height=0.24\textheight]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_position_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Object position $xO$ during application of the gravity term at $0.3sec$ and the compensating term at $1.3sec$.}
+   		\label{fig:Cylinder_Under_Gravity}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth,  height=0.24\textheight]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_impedance_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Translational impedance force $f_O$ during application of the gravity term at $0.3sec$ and the compensating term at $1.3sec$.}
+   		\label{fig:}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_impedance_torque_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Rotational impedance $m_O$ during application of the gravity term at $0.3sec$ and the compensating term at $1.3sec$.}
+   		\label{fig:}
+\end{figure}
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		\includegraphics[width=0.7\textwidth]{images_kefalaio4/results_14012013GravityOffset/Gravitational_offset_workspace/object_quaternion_under_gravity_gravitational_term} 
+%   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio4/Step_Response/Translation.tex}}
+   		\caption{Quaternion vector $e_b$ during application of the gravity term at $0.3sec$ and the compensating term at $1.3sec$.}
+   		\label{fig:}
+\end{figure}
+
+\end{document}
+
+
