@@ -1,0 +1,148 @@
+%\documentclass[12pt, twoside, a4paper]{report}
+\documentclass[12pt, a4paper]{report}
+\pagestyle{empty}
+
+\usepackage[twoside,tmargin=2cm,bmargin=2cm,outer=2cm,inner =2.8cm,includefoot]{geometry}
+
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\usepackage{subfiles}
+
+\usepackage{multirow}
+% Algorithms (optional; make build robust on minimal TeX installations)
+\IfFileExists{algorithm.sty}{\usepackage{algorithm}}{}
+\IfFileExists{algorithmic.sty}{\usepackage{algorithmic}}{%
+  \IfFileExists{algpseudocode.sty}{\usepackage{algpseudocode}}{}%
+}
+
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+
+% Language (English only — use babel to avoid Greek encoding issues)
+\usepackage[english]{babel}
+
+% Fonts (fallbacks so the build works even without the GFS fonts installed)
+\IfFontExistsTF{GFS Didot}{%
+  \setmainfont[Mapping=tex-text]{GFS Didot}%
+}{%
+  \setmainfont{Latin Modern Roman}%
+}
+
+% PSTricks (optional; not needed for the EN placeholder build)
+\IfFileExists{pstricks.sty}{\usepackage{pstricks}}{}
+\IfFileExists{pst-solides3d.sty}{\usepackage{pst-solides3d}}{}
+
+\usepackage{tikz}
+\usetikzlibrary{snakes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+\usetikzlibrary{backgrounds}
+
+\usepackage{amsfonts}
+\usepackage{indentfirst}
+\usepackage{xcolor,graphicx}
+\usepackage{epstopdf}  % auto-convert EPS to PDF for XeLaTeX
+\usepackage{verbatim}
+\usepackage{fix-cm}
+
+% hyperref (force pdfdoc encoding to avoid puenc-greek.def requirement on minimal TeX installs)
+\usepackage[pdfencoding=pdfdoc]{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\newcommand{\dayen}{31}
+\newcommand{\monthen}{January}
+\newcommand{\yearen}{2013}
+
+\linespread{1.15}
+
+\begin{document}
+
+% --- Title page (EN) ---
+\title{
+\vspace{-6ex}
+\begin{center}
+\includegraphics[scale=1]{pyrforos_large.eps}
+\end{center}
+\Large{N}\large{ATIONAL}
+\Large{T}\large{ECHNICAL}
+\Large{U}\large{NIVERSITY}
+\Large{O}\large{F}
+\Large{A}\large{THENS} \\
+\normalsize{S}\small{CHOOL}
+\normalsize{O}\small{F}
+\normalsize{E}\small{LECTRICAL}
+\normalsize{\&}\small{}
+\normalsize{C}\small{OMPUTER}
+\normalsize{E}\small{NGINEERING} \\
+\vspace{2ex}
+SECTOR OF SIGNALS, CONTROL \& ROBOTICS \\
+\\
+\vspace{12ex}
+\large \textbf{Object-Frame Impedance Control for Dexterous Robotic Grasping} \\
+\vspace{8ex}
+\large
+DIPLOMA THESIS \\
+\vspace{2ex}
+\normalsize
+by \\
+\vspace{2ex}
+\parbox[c]{0.6\textwidth} { \center\textbf{
+Konstantinos P. Vasios }}
+\vfill
+\flushleft
+\begin{tabbing}
+    \textbf{Supervisor}: \= Konstantinos S. Tzafestas \\
+                        \> Assistant Professor, NTUA
+\end{tabbing}
+}
+\date{\normalsize Athens, \monthen~\yearen}
+\maketitle
+
+\newpage
+\phantom{1}
+\vfill
+\phantom{1}
+\newpage
+
+% Front-matter
+\pagenumbering{empty}
+\subfile{diplomatiki_Abstract_EN.tex}
+\subfile{diplomatiki_euxaristies_EN.tex}
+
+\newpage
+\setcounter{page}{1}
+\pagenumbering{roman}
+
+\tableofcontents
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+\pagestyle{plain}
+\newpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+% Main chapters (EN placeholders; translate incrementally)
+\subfile{kefalaio1_Eisagwgh_EN.tex}
+\subfile{kefalaio2_Epideksia_Robotikh_Lavh_EN.tex}
+\subfile{kefalaio3_Theoritiko_Ypovathro_EN.tex}
+\subfile{kefalaio4_IPC_Hand_Simulation_Implementation_EN.tex}
+\subfile{kefalaio5_Symperasmata_Epektaseis_EN.tex}
+
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{unsrt}
+\bibliography{KVasios-ECE-Dipl.-Thesis}
+
+\end{document}
+
+

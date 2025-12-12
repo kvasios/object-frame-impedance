@@ -1,0 +1,209 @@
+# =============================================================================
+# MATLAB / Simulink
+# =============================================================================
+# Autosave files
+*.asv
+
+# Simulink project/cache files
+slprj/
+*.slxc
+*.mexw32
+*.mexw64
+*.mexa64
+*.mexmaci64
+*.mexmaca64
+
+# Code generation
+codegen/
+sccprj/
+
+# Simulink autosave
+*.mdl.autosave
+*.slx.autosave
+
+# MATLAB temporary files
+*.m~
+octave-workspace
+
+# MAT-files (uncomment if you want to ignore data files)
+# *.mat
+
+# =============================================================================
+# Mathematica
+# =============================================================================
+*.nb.autosave
+*.nb~
+*.mx
+.Mathematica/
+
+# =============================================================================
+# LaTeX
+# =============================================================================
+# Core LaTeX auxiliary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# Bibliography
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+# Build tool artifacts
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+
+# Auxiliary and intermediate files
+*.dvi
+*.xdv
+*-converted-to.*
+
+# Index files
+*.idx
+*.ilg
+*.ind
+
+# Nomenclature
+*.nlo
+*.nls
+
+# Glossary
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+
+# Makeindex log
+*.mlf
+*.mlt
+*.mtc*
+
+# Hyperref
+*.brf
+
+# Beamer
+*.nav
+*.snm
+*.vrb
+
+# Listings
+*.lol
+
+# Tables
+*.loa
+
+# TikZ externalization
+*.dpth
+*.md5
+*.auxlock
+
+# =============================================================================
+# C/C++ (for MEX files)
+# =============================================================================
+# Object files
+*.o
+*.obj
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+
+# Executables (keep MEX files excluded above)
+*.exe
+*.out
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# =============================================================================
+# OS Generated Files
+# =============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# Editors / IDEs
+# =============================================================================
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Vim
+*.swp
+*.swo
+*.swn
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+tags
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# Temporary / Backup Files
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+

@@ -1,15 +1,15 @@
 #!/bin/bash
-# Thesis Compilation Script (Greek build)
-# Requires: XeLaTeX (for Greek fonts) + BibTeX
+# Thesis Compilation Script (English build)
+# Requires: XeLaTeX + BibTeX
 #
 # Usage:
-#   ./compile.sh            # compile only
-#   ./compile.sh --release  # compile, clean artifacts, copy PDF to ../
+#   ./compile-en.sh            # compile only
+#   ./compile-en.sh --release  # compile, clean artifacts, copy PDF to ../
 
 cd "$(dirname "$0")"
 
-MAIN="KVasios-ECE-Dipl.-Thesis"
-OUT_PDF="K.Vasios-ECE-Dipl.-Thesis.pdf"
+MAIN="KVasios-ECE-Dipl.-Thesis-EN"
+OUT_PDF="K.Vasios-ECE-Dipl.-Thesis-EN.pdf"
 RELEASE=false
 
 # Parse arguments
@@ -28,29 +28,33 @@ echo ""
 # Check for xelatex
 if ! command -v xelatex &> /dev/null; then
     echo "ERROR: xelatex not found!"
-    echo "Install with: sudo apt install texlive-xetex texlive-fonts-extra texlive-lang-greek"
+    echo "Install with: sudo apt install texlive-xetex texlive-fonts-extra"
     exit 1
 fi
 
-# First pass
+# First pass (xelatex may return non-zero on warnings, so we check for output instead)
 echo "[1/4] First XeLaTeX pass..."
-xelatex -interaction=nonstopmode "${MAIN}.tex" || true
+xelatex -interaction=nonstopmode -shell-escape "${MAIN}.tex" || true
 if [ ! -f "${MAIN}.aux" ]; then
     echo "First pass failed catastrophically. Check ${MAIN}.log"
     exit 1
 fi
 
-# BibTeX
-echo "[2/4] BibTeX pass..."
-bibtex "${MAIN}" || true
+# BibTeX (only if bibliography is requested in the .aux)
+if grep -q "\\\\bibdata" "${MAIN}.aux" 2>/dev/null; then
+    echo "[2/4] BibTeX pass..."
+    bibtex "${MAIN}" || true
+else
+    echo "[2/4] BibTeX pass... skipped (no bibliography)"
+fi
 
 # Second pass (resolve references)
 echo "[3/4] Second XeLaTeX pass..."
-xelatex -interaction=nonstopmode "${MAIN}.tex" || true
+xelatex -interaction=nonstopmode -shell-escape "${MAIN}.tex" || true
 
 # Third pass (finalize)
 echo "[4/4] Final XeLaTeX pass..."
-xelatex -interaction=nonstopmode "${MAIN}.tex" || true
+xelatex -interaction=nonstopmode -shell-escape "${MAIN}.tex" || true
 
 # Check we have a PDF
 if [ ! -f "${MAIN}.pdf" ]; then
@@ -88,7 +92,9 @@ if [ "$RELEASE" = true ]; then
     echo ""
     echo "Final output: doc/dipl.-thesis/${OUT_PDF}"
 else
-    echo "Output: ${MAIN}.pdf"
+    # Just rename locally
+    cp -f "${MAIN}.pdf" "${OUT_PDF}"
+    echo "Output: ${OUT_PDF}"
     echo ""
     echo "Tip: Use --release to clean artifacts and copy PDF to ../"
 fi

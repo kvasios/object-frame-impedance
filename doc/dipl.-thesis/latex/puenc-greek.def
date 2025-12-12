@@ -1,0 +1,5 @@
+% Dummy puenc-greek.def for EN-only builds on minimal TeX installations
+% This file satisfies hyperref's unconditional \input{puenc-greek.def} in puenc.def
+% No Greek PDF bookmarks are needed for the English version
+\ProvidesFile{puenc-greek.def}[2024/01/01 Dummy Greek PU encoding (not needed for EN)]
+
