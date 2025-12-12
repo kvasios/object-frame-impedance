@@ -1,6 +1,0 @@
-%implements s25_b0_cyjo_Update "C"
-
-%function Update(block, system) Output
-%assign tlcUpdateFcnOfS25B0 = OpaqueTLCBlockFcn("Update", 25, 0)
-%<tlcUpdateFcnOfS25B0>\
-%endfunction

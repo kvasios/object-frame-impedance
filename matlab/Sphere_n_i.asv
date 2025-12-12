@@ -1,8 +1,0 @@
-function n_i=Sphere_n_i(input_vector)
-
-sphere_position=input_vector(1:3);
-x_i=input_vector(4:end);
-
-
-for i=1:4
-    n_'i'=

@@ -1,1 +1,0 @@
-function inertia_tensor=get_inertia_tensor_capsule(mass,length,radius)

@@ -1,6 +1,0 @@
-%implements s19_b0_fwp5_InitializeConditions "C"
-
-%function InitializeConditions(block, system) Output
-%assign tlcInitializeConditionsFcnOfS19B0 = OpaqueTLCBlockFcn("InitializeConditions", 19, 0)
-%<tlcInitializeConditionsFcnOfS19B0>\
-%endfunction

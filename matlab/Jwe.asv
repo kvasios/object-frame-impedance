@@ -1,5 +1,0 @@
-function J=Jwe(theta)
-
-eb = Quaternion(R);
-eb = 
-eb_v = Quaternion(R).v;
