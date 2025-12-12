@@ -18,7 +18,7 @@ A MATLAB/Simulink implementation of **object-level impedance control** for a sim
 **My actual contribution:**
 - Full mathematical analysis of the control framework (went a bit overboard honestly - the thesis is heavy on math)
 - Complete Forward Kinematics analysis with DH parameter determination for the 4-finger hand
-- Full dynamics equations of the fingers derived from scratch
+- Full dynamics equations of the fingers derived symbolically using the [Robotica](http://www.obreschkow.de/Robotica/) package for Mathematica (Euler-Lagrange formulation)
 - Gravity compensation term computed symbolically in Mathematica (yes, the whole thing)
 - Mathematical justification for why the proposed stiffness parameters make sense
 - Enhanced damping control law (integrated from another paper)
@@ -39,6 +39,7 @@ The core control idea is not mine - that's Wimböck et al.'s work. But the thesi
 - 📄 **[Thesis PDF](doc/dipl.-thesis/K.Vasios-ECE-Dipl.-Thesis.pdf)** - The full diploma thesis (in Greek)
 - 📝 **[LaTeX source](doc/dipl.-thesis/latex/)** - If you want to compile it yourself
 - 🔧 **[MATLAB/Simulink code](matlab/)** - The simulation implementation
+- 🧮 **[Mathematica notebooks](mathematica/)** - Symbolic dynamics derivation using Robotica (inertia matrix, gravity terms, Jacobians)
 - 🎬 **[Videos](media/)** - Simulation recordings
 
 ## TL;DR
