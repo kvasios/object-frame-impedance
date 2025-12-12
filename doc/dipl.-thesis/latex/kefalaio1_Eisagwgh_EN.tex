@@ -1,15 +1,211 @@
-\documentclass[KVasios-ECE-Dipl.-Thesis-EN.tex]{subfiles}
+\documentclass[KVasios-ECE-Dipl.-Thesis-EN.tex]{subfiles} 
 \begin{document}
 \chapter{Introduction}
+In this introductory chapter, we first attempt to formulate a definition of the science of robotics and robotic systems. We then provide some background elements, proceeding with a basic analysis of the current state and developmental goals of robotics. A natural connection in the study of almost any robotic system---especially those aimed at autonomous, adaptive-intelligent action---are biological systems, and particularly humans themselves. Immediately after, we focus our attention on the branch of robotics that deals with dexterous manipulation, which is also the subject of this diploma thesis, mentioning some basic characteristics of the efforts made so far to construct such devices. Finally, we present the structure of the thesis on a chapter-by-chapter basis, along with their corresponding summaries.
+%\addcontentsline{toc}{chapter}{Introduction}
+%\apendix 
+\section{Robotics Science}
+%\addcontentsline{toc}{section}{Robotics Science}
+%\textbf{Robotics}\\
 
-\noindent
-\textbf{TODO: translate Chapter 1.}
-This chapter corresponds to \texttt{kefalaio1\_Eisagwgh.tex}.
+An elegant, general, and abstract definition of robotics science is the following.
+\begin{quotation}
+``Robotics is defined as the science that studies the intelligent connection between perception and action \cite{Siciliano:2008fk}'' 
+\end{quotation}
+ 
+%\textbf{Robot}\\
 
-\section{Robotics (overview)}
-\noindent
-\textbf{TODO: translate this section.}
+The word robot originates from the Czech word \emph{robota}, which is used to describe boring or laborious, possibly compulsory, work.\\
+
+Various definitions have been proposed for robotic systems. We present some of the most characteristic ones.
+\begin{quotation}
+``A robot is defined as a mechanical or virtual agent, usually a complex electromechanical device, which is driven by programmable elements''\\
+\vspace{-1ex}
+\hfill \textit{Wikipedia}
+\end{quotation} 
+\vspace{1ex}
+
+\begin{quotation}
+``A machine capable of carrying out a complex series of actions automatically, programmable by computational elements'' 
+
+``A machine resembling a human being, capable of replicating certain specific human movements and abilities, performing these automatically''
+
+``Refers to a person who behaves mechanically in a non-emotional manner''\\
+\vspace{-1ex}
+\hfill \textit{Google Dictionary}
+\end{quotation} 
+\vspace{1ex}
+
+\begin{quotation}
+``A machine, sometimes resembling a human being, capable of performing a range of often complex human tasks based on commands or prior programming''
+
+``A machine or device that acts automatically or through remote control''\\
+\vspace{-1ex}
+\hfill \textit{American Heritage Dictionary}
+\end{quotation} 
+\vspace{1ex}
+
+\begin{quotation}
+``An automated machine programmed for the execution of specific mechanical tasks automatically or under the guidance of a person''\\
+\vspace{-1ex}
+\hfill \textit{Collins English Dictionary}
+\end{quotation} 
+\vspace{1ex}
+
+In the case of a virtual agent, the most commonly used term is that of a \emph{bot}.\\
+
+We attempt an abstract synthesis of the above definitions with the aim of a systemic approach.
+\begin{quotation}
+The science of robotics deals with the study of systems which, by combining sensory elements, computational capability---intelligence, and actuators---kinematic configurations, are able to acquire information from the environment, process it, and ultimately act upon it in a manner that serves the purpose for which they were designed.    
+\end{quotation} 
+
+The field of robotics science encompasses an extremely broad spectrum of individual scientific fields, with the most characteristic being electronics, computer science, cognitive science (mainly the artificial intelligence component), mechatronics, nanotechnology, biomechanics, and others. The successful integration of these for the synthesis of a successful robotic application constitutes a particular challenge.
+
+The breadth of the application field, the multiple scientific disciplines, and perhaps the youth of robotics science are likely some of the reasons that justify the absence of a strict, universally accepted definition.
+
+To date, the most extensive and successful robotics applications are limited to industrial production lines, performing repetitive tasks in strictly structured and predictable environments. It is even considered that the relevant technologies of industrial robots have reached a mature state \cite{HirzingerBalsOtterStelter2005}. In most of these applications, position control techniques are used exclusively, thus giving a clear indication of industry's tendency to prefer traditional, classical control techniques. 
+
+However, the challenge for robotics has been and remains successful penetration into the real world with systems capable of intelligent autonomous action where the environment is unstructured and the occurrence of unpredictable events prevails. Such an evolution would also have very significant benefits in the industrial sector where robotic systems operate, as it is estimated that the cost of configuring the workspace of a robotic system is four times greater than that of installing the robot itself. 
+
+Such an evolution presupposes enhanced perception capabilities, cognitive capabilities, as well as kinematic and dynamic actuation capabilities in the surrounding space. Many efforts have been made to develop such systems by governmental and private entities worldwide, mainly from advanced countries; however, in no case do they constitute part of daily life for societies to the degree that would be expected. A very characteristic example is that of the nuclear accident at Fukushima, Japan, where although a particularly advanced country in the field of robotics was expected to have robotic systems for disaster response, in the end it was workers who were exposed to this dangerous environment to control the crisis. This lag raises serious questions about which paths and directions robotics should follow in the coming years. 
+
+Of considerable interest on these topics is the new DARPA Robotics Challenge (Defense Advanced Research Projects Agency of the United States), which poses as a challenge the construction of humanoid robotic systems capable of action in rescue scenarios in dangerous, degraded human-made environments. If we consider the success of DARPA's previous corresponding challenge for the construction of self-driving vehicles (in the state of Nevada, the first license was already issued for Google's self-driving vehicle), then developments for autonomous robotic systems are expected to be rapid. 
+
+In recent years, certain trends are being formed that reinforce the tendency toward the development of advanced robotics systems capable of autonomous action in the real world. 
+Smartphones, with the tremendous development they have shown in recent years, have dramatically reduced the cost of the individual microsystems they incorporate, providing cheap and reliable solutions in integrated circuits for the provision of abundant computational power as well as large volumes of data from a wide range of sensors such as gyroscopes, accelerometers, proximity sensors, touch sensors, visible electromagnetic spectrum sensors, Earth's magnetic field detection sensors, etc., thus providing capabilities on a new scale for the development of robotic systems\cite{drones}. 
+
+At the same time, cognitive science has begun to show significant tangible progress in recent years, with particular development in the area of artificial intelligence through the development of impressive applications (see IBM Blue Gene, Watson, Google Car--Stanford SUV, MS Kinect, etc.). Despite this impressive development in the field of artificial intelligence, we must note that these systems are still far from being characterized as truly intelligent based on corresponding biological models. Today it is commonly accepted in the scientific community that the artificial intelligence component essentially constitutes the bottleneck in the development of integrated autonomous robotic systems \cite{Yoshikawa2010}. 
+
+Significant progress can also be found in the field of materials with the construction of efficient joints, actuators, as well as capable soft-flexible elements (soft robotics). 
+%In this particular field, it is even considered that materials have reached a mature point offering capabilities capable of comparing even with biological models\cite{Yoshikawa2010}. 
+
+Combining these elements, many were those who expected an explosion of innovative activity in this field during the current decade, similar to that of information technology in the 1990s, investing in related start-up companies with the goal of widely expanding the market for robotic systems, as a result of which over 80 related companies are currently operating in Silicon Valley with forecasts for even greater growth in the near future \cite{svrobo,ieee_silicon_valey_robotics}.
+
+In Figure \ref{fig:Robots_Collage}, some of the most impressive examples of recent robotic systems are presented indicatively, which also outline the trends that are very likely to drive future developments.
+
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio1/Robots/Robots_Collage.tex}}
+   		\caption{Intelligent Robotic Systems: Starting from left to right and row by row, AlphaDog (DARPA), Atlas (DARPA), Twendy-One (WASEDA University Sugano Laboratory TWENDY team), Seagle (FESTO), Asimo (Honda), Opportunity (NASA), PR2 (Willow Garage), Robonaut (NASA), Industrial Arm (KUKA), UAV Drone, DaVinci, Google Autonomous Car}
+   		\label{fig:Robots_Collage}
+\end{figure}
+\phantom{1}
+%\textbf{Interaction}
+%\\
+%
+%From the definition of a robotic system, it follows that the task being performed is executed through some form of interaction with the environment and its elements. This interaction may or may not be bidirectional, it can have many manifestations, forms, and physical pathways. For example, a robotic system whose objective construction purpose is exploration-surveillance simply receives information from the environment through electromagnetic interaction (vision systems) or direct exchange of forces (force-tactile sensors, haptic system) without intending to modify it. On the contrary, a robotic system for construction-assembly or household tasks incorporates appropriate elements for the purpose of modifying the broader environment and its elements (manipulation).
+%
+%Focusing on robotic systems that perform tasks through appropriate kinematic mechanical configurations, in the part concerning interaction through forces, it becomes obvious for both of these cases that some adapted, specially designed final action element is required. In industrial applications, for example, one encounters the same type of kinematic structure and depending on the task being performed, the appropriate tool is adapted at its end. This solution has obvious advantages such as simplicity, absolute effectiveness in performing the task as the tool is exactly what is needed, economy of scale in the construction of robotic elements, etc. On the other hand, a basic disadvantage is the fact that for the installation of these systems, general adaptation of the environment in a strictly structured manner is also required, making the general configuration rigid to changes (the cost of configuring the surrounding space is 4 times higher than the cost of installing the robot itself).
+\newpage
+\textbf{Contribution of Robotic Systems}
+\\
+
+The general sectors of activity for robotic systems are mainly:
+\begin{itemize}
+\item
+Industrial applications, mainly in production processes in heavy industry.
+\item
+Aerospace
+\item
+Medicine, with particular emphasis on robotic surgery.
+\item
+Prosthetics, with the construction of artificial limbs as well as patient rehabilitation procedures.
+\item
+Elderly care.
+\item
+Action in dangerous-degraded environments.
+\item
+Automation of daily tasks in workplaces and residences.
+\item
+Unmanned warfare.
+\item
+Entertainment and amusement applications.
+\end{itemize}
+\phantom{4}
+
+\textbf{Biological Model}
+\\
+
+Biological systems constitute the most successful examples of such systems, from the humblest microorganisms to advanced mammals. The fractal structure-morphology and the resulting dynamics of these systems, given a process of biological evolution spanning hundreds of millions of years that leads to optimization of energy management through metabolic processes, correspondingly gives us a picture of the complexity of the unstructured natural environment as well as the challenges of robotics science in constructing intelligent autonomous or semi-autonomous systems. A basic model and source of inspiration in this whole endeavor is, naturally, the human being itself.
+
+Making a simplifying systemic approach of input-output relationship in the ``human system,'' the following interesting elements emerge that reveal, to only a small degree, its complexity.
+
+Approximately, for human sensory nerve endings, we have a total of 300,000,000 sensory inputs---nerve endings, of which:
+	120,000,000 Rods and 6,000,000 Cones in the retina of each eye.
+	40,000,000 nerve endings for smell.
+	3,500,000 nerve endings for touch.
+	15,000-20,000 Auditory nerve receptors in each ear,
+	and 10,000 taste receptors. 
+
+
+The output of the system is essentially expressed through the musculoskeletal system, which acts upon the environment. 270 bones and 650 muscle fibers (up to 850 depending on how the count is made) undertake to carry out the particularly complex game of Newtonian dynamics within the framework of interaction with the environment. 
+
+We can say overall for the system that it receives 300,000,000 inputs and has only 800 outputs, with the dominant sensory set being that of vision \cite{sensory_aparatus}.
+
+Similarly, the problem of designing an appropriate intelligent robotic controller based on existing technology is summarized by the expression ``pixels to torques.''
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio1/DaVincis-Human-System.tex}}
+   		\caption{Order of magnitude for the number of inputs-outputs in the human system}
+   		\label{fig:DaVincis-Human-System}
+\end{figure}
+
+
+\section{Dexterous Robotic Manipulation}
+The construction of robotic hands has been one of the most important areas of research since the beginning of robotics science. This is logical, as the manipulation of environmental elements through direct exchange of forces constitutes one of the fundamentally sought-after robotic functions, being also one of the most basic, inseparable prerequisites for the action of robotic systems---primarily humanoids---in unstructured environments.
+
+In this effort, it is impossible to overlook the corresponding biological model, which is none other than the human hand itself. The effectiveness of the biological model becomes immediately apparent through the obvious observation that the absolute totality of human-generated activity is the result of the action of hand and mind. From an anthropological perspective, it is proven that mechanical dexterity itself is one of the basic causes that triggered the development of the human mind \cite{Bicchi:2000fk}.
+The dexterity of the human hand is still today quite ahead of any corresponding mechanical construction and will probably maintain this primacy for much longer. While in individual capabilities and technical characteristics, such as speed and durability, some robotic hands appear to be superior, it is the breadth of capabilities of the human hand to successfully address an impressively large range of applications that essentially makes it a design standard. The answer, however, to whether the designer should pursue either anthropomorphism or some optimal design with respect to specific parameters depends on the respective application and its requirements \cite{Bicchi:2000fk}. 
+
+A particularly characteristic example of this is the grasping technology of the robotic system on the back of NASA's Space Shuttle, where although a classical scheme of opposing kinematic chains had initially been proposed, following anthropomorphic models, a solution was ultimately preferred that grasps objects in space through an opening-closing diaphragm \cite{latching_end_effector_NASA}. Another interesting case of an alternative manipulation proposal uses a spherical elastic rubbery bag filled with organic material. This bag, once it comes into contact with an object, compliantly takes the shape of the object, and then through suction, the bag is compressed, resulting in it ultimately embracing the object to an absolute degree, ensuring a very good mechanical connection \cite{Brown02112010}.
+
+
+A basic element of anthropomorphism in design that is being applied more and more in dexterous robotic hands is the use of soft materials at the fingertips, with the goal of enhancing gentle compliant behavior (compliant behavior) of high bandwidth, which makes the device more capable of robust grasping and manipulation \cite{LottiTiezziVassuraBiagiottiMelchiorri2004} compared to absolutely rigid elements. A hindrance in this field is the lack of strict mathematical formalism for describing the dynamic behavior of flexible robotic systems \cite{NguyenArimoto2002}, which is also the main reason why any control techniques in this field constitute extensions of classical ones for rigid robotic hands \cite{KhalilPayeur2011}.  
+
+%Analysis of human hand, some elements of anatomy.
+%
+%
+%
+%
+%Robotic grasping, efforts so far.
+
+
+%Below are some of the basic efforts of the scientific community in the construction of robotic hands, while observing how the dominant trends in the approaches so far are being formed.
+
+\begin{figure}[htbp]%  figure placement: here, top, bottom, or page
+   		\centering
+		%   \includegraphics[scale=0.6]{images_kefalaio3/denavit.pdf} 
+   		\resizebox{0.8\textwidth}{!}{\input{images_kefalaio1/Hands/Hands_Collage.tex}}
+   		\caption{Dexterous Anthropomorphic Robotic Hands: Starting from left to right and row by row: DLR Hand (German Aerospace Center), DLR Hand 2 (German Aerospace Center), Twendy-one Hand (WASEDA University Sugano Laboratory TWENDY team), Robonaut Hand Schematic (NASA), Shadow Robot Hand, FESTO ExoHand}
+   		\label{fig:DaVincis-Human-System}
+\end{figure}
+
+
+A basic element that plays a decisive role in design is whether the robotic hand is intended to be adapted to an already existing robotic kinematic arm configuration, in place of the end effector, or whether it constitutes part of a fully customized mechanical design of hand-forearm. In the first case, the entire mechanical configuration (actuators, motion transmission elements) is placed either inside the hand or in a special enclosure placed externally above the palm, a space that does not constitute the workspace of the system. In the case of a fully customized design, clearly greater freedom is given regarding the mechanical configuration. In high-performance systems, the anthropomorphic model is preferred with placement of actuators in the link between the wrist and elbow and transmission of motion through tendons. This configuration places the largest part of the mechanical elements---and thus the largest part of the mass of the configuration---close to the forearm and main body, with positive effects on the overall dynamic characteristics of the whole system as well as of the hand itself, ultimately having lighter links-joints.\\
+
+
+%
+%Insert pictures of the robothands!!! 
+%\\
+%
+%\textbf{Soft Robotics}
+%\\
+
+\newpage
+\section{Document Organization}
+\begin{itemize}
+\item In \textit{Chapter 2}, a literature review of control techniques for dexterous robotic grasping is presented. Initially, the overall manipulation problem is decomposed into its constituent sub-problems. Basic definitions are then given, introducing a first stage of formalism as developed for the topic of robotic grasping in the relevant literature. Immediately after, the methods of describing the robotic grasping system through mathematical modeling and its corresponding techniques follow, as well as the description of the sensory synthesis applied in such configurations. Once the description of modeling and sensory elements has been given, some dominant control technique schemes for robotic grasping systems are presented.
+\item In \textit{Chapter 3}, we analyze the theoretical background upon which the implementation within the framework of this work is based. A hierarchically structured approach is attempted, which starts from the analytical description of the kinematic-dynamic model of the robotic finger and, by extension, the hand, according to the kinematic-dynamic models of the DLR Hand 2 robotic hand. Some fundamental properties of the dynamic model based on passive systems theory are analyzed, upon which the control law is based. The static analysis of the grasp and the definition of the grasp matrix are structured, as well as the corresponding least squares problem solution. The definition of the virtual frame of the robotic hand is introduced, and based on this, the corresponding potential functions are structured, which define the stiffness at the object level in all 6 Cartesian degrees of motion as well as in the internal force space. The dynamic technique for handling the redundant degrees of freedom of the robot is then presented, as well as the design of the damping term. 
+ The basic problems---disadvantages of control in the internal force space through the definition of stiffness with respect to the virtual frame are identified, and a technique based on the geometric characteristics of the object is proposed. 
+ Finally, a suitable extension of the linear and rotational stiffness terms is proposed and analyzed, with the aim of gravity compensation.
+\item In \textit{Chapter 4}, the methodology applied for the implementation, in a structured simulation platform, of the control techniques studied within the framework of this work is described in detail, and the results of the conducted tests are presented. Some basic elements are given for the individual structural components of the implementation, which are: the model-prototype robotic hand DLR Hand 2, the software---ODE dynamics simulation API which is integrated into a Simulink environment through a MEX C++ S-Function Block. The simulation results follow, which include the step response of the system for rotational and translational motion as well as the measurement of stiffness through the application of forces-torques on the manipulated object. These measurements are initially performed for the simple Intrinsic Passive Control (IPC) algorithm and then repeated for the internal force control scheme based on object geometry (IPC---IF), in order to draw appropriate conclusions about their comparative performance. The results demonstrate the effectiveness of the proposed technique.
+\item \textit{Chapter 5} constitutes the epilogue of the work, where a summary is made, general conclusions are drawn, and an exploration of possible future extensions is conducted.
+\end{itemize}
+
+
 
 \end{document}
-
-
